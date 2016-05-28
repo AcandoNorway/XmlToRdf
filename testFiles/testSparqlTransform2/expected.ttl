@@ -1,0 +1,4 @@
+@prefix :      <http://example.com/> .
+@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+
+[ xmlToRdf:hasChild  [ :num  "1" ] ] .

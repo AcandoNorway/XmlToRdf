@@ -1,0 +1,12 @@
+prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#>
+prefix : <http://example.com/>
+
+construct{
+
+?a xmlToRdf:hasChild ?c
+
+}where {
+
+?a xmlToRdf:hasChild ?c
+
+}

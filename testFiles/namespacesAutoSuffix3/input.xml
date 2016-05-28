@@ -1,0 +1,7 @@
+<A xmlns="http://example.com/hello#" xmlns:h="http://example1.com/" xmlns:t="http://example2.com/abc" id="1">
+    <t:B id="2">
+        <num>1</num>
+        <name t:test="r">hello</name>
+        <h:test2>yay</h:test2>
+    </t:B>
+</A>

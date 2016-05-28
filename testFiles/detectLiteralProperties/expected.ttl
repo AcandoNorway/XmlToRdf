@@ -1,0 +1,8 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+
+[ a                  <http://test/A> ;
+  xmlToRdf:hasChild  [ a                   <http://test/B> ;
+                       <http://test/name>  "hello" ;
+                       <http://test/num>   "1"
+                     ]
+] .

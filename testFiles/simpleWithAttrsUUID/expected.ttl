@@ -1,0 +1,11 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+
+<http://test/5739e98e-3e98-4726-94e2-219a690328ec>
+        a                  <http://test/A> ;
+        xmlToRdf:hasChild  <http://test/870c7a99-31cc-45db-b407-14dcab07885a> .
+
+<http://test/870c7a99-31cc-45db-b407-14dcab07885a>
+        a                   <http://test/B> ;
+        <http://test/a>     "test" ;
+        <http://test/name>  "hello" ;
+        <http://test/num>   "1" .

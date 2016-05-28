@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>no.acando</groupId>
+    <artifactId>xmltordf</artifactId>
+    <version>1.0</version>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-arq</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-sail-memory</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-repository-sail</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.openrdf.sesame</groupId>
+            <artifactId>sesame-runtime</artifactId>
+            <version>4.0.0</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-core</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.jena</groupId>
+            <artifactId>jena-tdb</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.spullara.mustache.java</groupId>
+            <artifactId>compiler</artifactId>
+            <version>0.9.1</version>
+        </dependency>
+
+
+    </dependencies>
+
+    <build>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+
+
+        </plugins>
+
+    </build>
+
+</project>

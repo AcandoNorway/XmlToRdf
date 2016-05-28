@@ -1,0 +1,20 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+
+[ a                  <http://test/A> ;
+  xmlToRdf:hasChild  [ a                   <http://test/B> ;
+                       xmlToRdf:index      "2"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                       <http://test/name>  "hello3" ;
+                       <http://test/num>   "3"
+                     ] ;
+  xmlToRdf:hasChild  [ a                   <http://test/B> ;
+                       xmlToRdf:index      "1"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                       <http://test/name>  "hello2" ;
+                       <http://test/num>   "2"
+                     ] ;
+  xmlToRdf:hasChild  [ a                   <http://test/B> ;
+                       xmlToRdf:index      "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                       <http://test/name>  "hello1" ;
+                       <http://test/num>   "1"
+                     ] ;
+  xmlToRdf:index     "0"^^<http://www.w3.org/2001/XMLSchema#long>
+] .

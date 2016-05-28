@@ -1,0 +1,12 @@
+@prefix :      <http://example.com/> .
+@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+@prefix t:     <http://example2.com/> .
+
+<http://test/1>  a         :A ;
+        :id                "1" ;
+        xmlToRdf:hasChild  <http://test/2> .
+
+<http://test/2>  a  t:B ;
+        :name   "hello" ;
+        :num    "1" ;
+        t:id    "2" .

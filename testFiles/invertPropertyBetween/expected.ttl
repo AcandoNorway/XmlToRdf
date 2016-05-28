@@ -1,0 +1,17 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+_:1  a                  <http://a/A> .
+
+
+
+ _:2 a                <http://a/B> ;
+                       <http://a/name>  [ <http://a/yay>     ":(" ;
+                                          xmlToRdf:hasValue  "hello"
+                                        ] ;
+                       <http://a/num>   "1"
+.
+
+
+_:2 <http://a/belongsToA> _:1 .

@@ -1,0 +1,15 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+[ a                           <http://a/enhet> ;
+  <http://a/overordnetEnhet>  "814716872" ;
+  <http://a/naeringskode1>           [
+                                <http://a/beskrivelse>  "Vedlikehold og reparasjon av motorvogner, unntatt motorsykler" ;
+                                <http://a/kode>         "45.200"
+                              ] ;
+  <http://a/beliggenhetsadresse>           [
+                                <http://a/adresse>  "Kanalvegen 10" ;
+                                <http://a/kommune>  "SOLA"
+                              ]
+] .

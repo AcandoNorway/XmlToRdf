@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<enhet xmlns:atom="http://www.w3.org/2005/Atom">
+    <beliggenhetsadresse>
+        <adresse>Kanalvegen 10</adresse>
+        <kommune>SOLA</kommune>
+    </beliggenhetsadresse>
+    <naeringskode1>
+        <beskrivelse>Vedlikehold og reparasjon av motorvogner, unntatt motorsykler</beskrivelse>
+        <kode>45.200</kode>
+    </naeringskode1>
+    <overordnetEnhet>814716872</overordnetEnhet>
+</enhet>

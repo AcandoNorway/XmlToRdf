@@ -1,0 +1,6 @@
+<A test="lala2">
+    <B test="lala1">
+        <num>1</num>
+        <name hurra="hello">boo</name>
+    </B>
+</A>

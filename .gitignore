@@ -1,0 +1,6 @@
+target
+xmlToRdf2.iml
+actual.ttl
+testFiles/testSparqlTransform2/intermediary/
+actualObject.n3
+actualFast.n3

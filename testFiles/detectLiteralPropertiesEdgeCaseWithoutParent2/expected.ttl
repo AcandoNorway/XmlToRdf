@@ -1,0 +1,6 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+
+[ a                  <http://test/A> ;
+  xmlToRdf:hasValue  "yay" ;
+  <http://test/A>    "data"
+] .

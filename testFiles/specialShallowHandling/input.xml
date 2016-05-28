@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:skos="http://www.w3.org/2004/02/skos/core#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" >
+    <!-- This vocabulary was downloaded from http://lexi.acando.no:8080/lexaurus -->
+
+    <skos:Concept rdf:nodeID="Løvtrær">
+        <skos:narrower rdf:nodeID="Vanlig-bj%C3%B8rk"/>
+    </skos:Concept>
+
+    <skos:Concept rdf:nodeID="Vanlig-bjørk">
+        <skos:broader rdf:nodeID="L%C3%B8vtr%C3%A6r"/>
+    </skos:Concept>
+</rdf:RDF>

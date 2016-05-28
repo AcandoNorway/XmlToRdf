@@ -1,0 +1,15 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+
+[ a                    <http://test/result> ;
+  xmlToRdf:hasChild    [ a                  <http://test/entries> ;
+                         xmlToRdf:hasChild  [ a                           <http://test/entry> ;
+                                              <http://test/ansatte_dato>  "22.08.2015" ;
+                                              <http://test/nkode1>        "84.130" ;
+                                              <http://test/organisasjonsform>
+                                                      "ORGL"
+                                            ]
+                       ] ;
+  <http://test/page>   "1" ;
+  <http://test/pages>  "10349" ;
+  <http://test/posts>  "1034852"
+] .
