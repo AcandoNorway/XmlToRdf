@@ -120,12 +120,7 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         Element pop = elementStack.pop();
 
-        if (pop.hasValue != null) {
-            pop.hasValue = pop.hasValue.trim();
-            if(pop.hasValue.equals("")){
-                pop.hasValue = null;
-            }
-        }
+
 
         builder.doComplexTransformForClass(pop);
 
@@ -142,13 +137,13 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.parent != null && pop.properties.isEmpty()) {
             //convert to literal property
-            if (pop.hasValue != null) {
+            if (pop.getHasValue() != null) {
                 pop.autoDetectedAsLiteralProperty = true;
                 if (builder.datatypeOnElement.containsKey(pop.type)) {
-                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.hasValue, builder.datatypeOnElement.get(pop.type)));
+                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue(), builder.datatypeOnElement.get(pop.type)));
 
                 } else {
-                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.hasValue));
+                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue()));
 
                 }
             }
@@ -156,12 +151,12 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         } else if (pop.shallow) {
 
             out.println(createTriple(pop.parent.uri, pop.type, pop.uri));
-            if (pop.hasValue != null) {
+            if (pop.getHasValue() != null) {
                 if (builder.datatypeOnElement.containsKey(pop.uri)) {
-                    out.println(createTripleLiteral(pop.uri, hasValue, pop.hasValue, builder.datatypeOnElement.get(pop.uri)));
+                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue(), builder.datatypeOnElement.get(pop.uri)));
 
                 } else {
-                    out.println(createTripleLiteral(pop.uri, hasValue, pop.hasValue));
+                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue()));
 
                 }
             }
@@ -189,12 +184,12 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
                 }
             }
-            if (pop.hasValue != null) {
+            if (pop.getHasValue() != null) {
                 if (builder.datatypeOnElement.containsKey(pop.type)) {
-                    out.println(createTripleLiteral(pop.uri, hasValue, pop.hasValue, builder.datatypeOnElement.get(pop.type)));
+                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue(), builder.datatypeOnElement.get(pop.type)));
 
                 } else {
-                    out.println(createTripleLiteral(pop.uri, hasValue, pop.hasValue));
+                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue()));
 
                 }
 
@@ -378,19 +373,24 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         public String type;
         public String uri;
         public Element parent;
-        public String hasValue;
+        public StringBuilder hasValue;
         public List<Element> hasChild = new ArrayList<>(10);
         public List<Property> properties = new ArrayList<>(10);
         private long index = 0;
         private boolean shallow;
         private boolean autoDetectedAsLiteralProperty;
 
+
+
         void appendValue(String value) {
             if (hasValue == null) {
-                hasValue = "";
+                hasValue = new StringBuilder();
             }
-            hasValue += value;
+            hasValue.append(value);
+            hasValueString = null;
         }
+
+
 
         public String getType() {
             return type;
@@ -404,8 +404,19 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             return parent;
         }
 
+        String hasValueString;
+        boolean hasValueStringEmpty = false;
+
         public String getHasValue() {
-            return hasValue;
+
+            if(hasValue == null) return null;
+            if(hasValueString == null){
+                hasValueString = hasValue.toString().trim();
+                hasValueStringEmpty = hasValueString.equals("");
+            }
+
+            if(hasValueStringEmpty) return null;
+            return hasValueString;
         }
 
         public List<Element> getHasChild() {
