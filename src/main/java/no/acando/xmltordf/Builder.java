@@ -30,9 +30,6 @@ public class Builder {
         justAttributes, justElements, bothElementsAndAttributes
     }
 
-    static public Jena getJenaBuilder() {
-        return new Jena();
-    }
 
 
     static public Fast getFastBuilder() {
@@ -43,29 +40,7 @@ public class Builder {
         return new ObjectBased();
     }
 
-    static public class Jena extends DefaultWithAddIndex<Jena> {
-         boolean autoConvertShallowChildrenToProperties;
-         boolean autoAddNamespaceDeclarations = true;
 
-        public Jena autoAddNamespaceDeclarations(boolean b) {
-            autoAddNamespaceDeclarations = b;
-
-            return this;
-        }
-
-//            public Jena autoConvertShallowChildrenToProperties(boolean b) {
-//
-//                  autoConvertShallowChildrenToProperties = b;
-//                  return this;
-//            }
-
-
-        public XmlToRdfJena build() {
-            return new XmlToRdfJena(this);
-        }
-
-
-    }
 
     static class Default<This extends Default<This>> {
 
