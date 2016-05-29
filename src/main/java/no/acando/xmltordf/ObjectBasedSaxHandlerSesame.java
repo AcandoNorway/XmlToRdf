@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 
 public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
@@ -39,8 +40,14 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
     boolean notDone = true;
     boolean graphDone = false;
     Thread repoThread;
+    CountDownLatch latch =  new CountDownLatch(1);
 
 
+    final Statement EndOfFileStatement = SimpleValueFactory.getInstance().createStatement(
+        SimpleValueFactory.getInstance().createIRI(EndOfFile),
+        SimpleValueFactory.getInstance().createIRI(EndOfFile),
+        SimpleValueFactory.getInstance().createIRI(EndOfFile)
+    );
 
     SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
@@ -65,7 +72,7 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
                     while (notDone || !queue.isEmpty()) {
                         try {
                             Statement take = queue.take();
-                            if(take.getSubject() != null) {
+                            if(take != EndOfFileStatement) {
                                 connection.addStatement(take.getSubject(), take.getPredicate(), take.getObject());
                             }
 
@@ -81,7 +88,7 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
                 repository = new SailRepository(memoryStore);
 
-                graphDone = true;
+               latch.countDown();
 
 
 
@@ -233,36 +240,13 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
         notDone = false;
 
-        queue.add(new Statement() {
-            @Override
-            public Resource getSubject() {
-                return null;
-            }
 
-            @Override
-            public IRI getPredicate() {
-                return null;
-            }
+        queue.add(EndOfFileStatement);
 
-            @Override
-            public Value getObject() {
-                return null;
-            }
-
-            @Override
-            public Resource getContext() {
-                return null;
-            }
-        });
-
-        while (!graphDone) {
-            try {
-                Thread.sleep(10);
-
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
     }
 

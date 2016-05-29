@@ -35,6 +35,7 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
     final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
     final String index = "http://acandonorway.github.com/ontology.ttl#" + "index";
+    final String EndOfFile = "http://acandonorway.github.com/ontology.ttl#"+"EndOfFile";
 
 
     Stack<Element> elementStack = new Stack<>();

@@ -27,6 +27,7 @@ import org.xml.sax.SAXException;
 
 import java.util.ArrayList;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CountDownLatch;
 
 
 public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
@@ -39,6 +40,11 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
       boolean notDone = true;
       boolean graphDone = false;
       Thread jenaThread;
+
+     CountDownLatch latch =  new CountDownLatch(1);
+
+      final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile));
+
 
       public ObjectBasedSaxHandlerJena(Builder.ObjectBased builder) {
             super(new NullOutputStream(), builder);
@@ -57,8 +63,12 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
                         int i = 0;
                         while (notDone || !queue.isEmpty()) {
                               try {
-                                    buff.add(queue.take());
-                                    i++;
+                                    Triple take = queue.take();
+                                    if(take != EndOfFileTriple){
+                                          buff.add(take);
+                                          i++;
+                                    }
+
                               } catch (InterruptedException e) {
                                     //e.printStackTrace();
                               }
@@ -76,7 +86,7 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
                               GraphUtil.add(g, buff);
                         }
 
-                        graphDone = true;
+                        latch.countDown();
 
                   }
             };
@@ -216,17 +226,14 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
 
             notDone = false;
 
-            jenaThread.interrupt();
 
-            while (!graphDone) {
-                  try {
-                       Thread.sleep(100);
-                        jenaThread.interrupt();
+            queue.add(EndOfFileTriple);
 
-                  } catch (InterruptedException e) {
-                        e.printStackTrace();
-                  }
 
+            try {
+                  latch.await();
+            } catch (InterruptedException e) {
+                  e.printStackTrace();
             }
       }
 
