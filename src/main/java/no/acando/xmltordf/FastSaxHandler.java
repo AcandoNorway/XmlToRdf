@@ -224,49 +224,43 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         }
 
 
-        String createTriple(String o, String p, String r) {
+        String createTriple(String subject, String predicate, String object) {
 
-                boolean oIsBlank = o.startsWith("_:");
-                boolean rIsBlank = r.startsWith("_:");
+                boolean oIsBlank = subject.startsWith("_:");
+                boolean rIsBlank = object.startsWith("_:");
 
                 if(oIsBlank){
                         if(rIsBlank){
-                                return o + " <"+ p +"> " + r + '.';
+                                return subject + " <"+ predicate +"> " + object + '.';
 
                         }else {
-                                return o + " <"+ p +"> <"+ r +">.";
+                                return subject + " <"+ predicate +"> <"+ object +">.";
 
                         }
                 }else{
                         if(rIsBlank){
-                                return '<'+o+"> <"+ p +"> " + r + '.';
+                                return '<'+subject+"> <"+ predicate +"> " + object + '.';
 
                         }else {
-                                return '<'+o+"> " +'<'+ p +"> <"+ r +">.";
+                                return '<'+subject+"> " +'<'+ predicate +"> <"+ object +">.";
 
                         }
                 }
-
 
         }
 
-        private String createTripleLiteral(String o, String p, String l) {
-                l = l.replaceAll("\\\\", "\\\\\\\\");
-                l = NodeFactory.createLiteral(l, "", false).toString();
+        private String createTripleLiteral(String subject, String predicate, String literal) {
+                literal = literal.replaceAll("\\\\", "\\\\\\\\");
+                literal = NodeFactory.createLiteral(literal, "", false).toString();
 
-                boolean oIsBlank = o.startsWith("_:");
+                boolean oIsBlank = subject.startsWith("_:");
                 if(oIsBlank){
-                        return o + " <"+ p +"> " +  l  + '.';
+                        return subject + " <"+ predicate +"> " +  literal  + '.';
 
                 }else{
-                        return '<'+o+"> <" + p +"> " +  l  + '.';
+                        return '<'+subject+"> <" + predicate +"> " +  literal  + '.';
 
                 }
-
-
-
-
-
 
         }
 
