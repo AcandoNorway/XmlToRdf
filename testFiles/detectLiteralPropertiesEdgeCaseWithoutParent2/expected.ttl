@@ -1,6 +1,12 @@
 @prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 
-[ a                  <http://test/A> ;
-  xmlToRdf:hasValue  "yay" ;
-  <http://test/A>    "data"
+[ a                         <http://test/A> ;
+  xmlToRdf:hasChild         _:b0 ;
+  xmlToRdf:hasMixedContent  ( "yay\n    " _:b0 ) ;
+  xmlToRdf:hasValue         "yay"
 ] .
+
+_:b0    a                  <http://test/A> ;
+        xmlToRdf:hasValue  "data" .

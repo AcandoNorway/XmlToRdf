@@ -16,6 +16,7 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
+import org.apache.commons.io.output.StringBuilderWriter;
 import org.apache.jena.graph.NodeFactory;
 import org.openrdf.model.IRI;
 import org.xml.sax.Attributes;
@@ -36,6 +37,7 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
     final String index = "http://acandonorway.github.com/ontology.ttl#" + "index";
     final String EndOfFile = "http://acandonorway.github.com/ontology.ttl#"+"EndOfFile";
+    private final String hasMixedContent = "http://acandonorway.github.com/ontology.ttl#" + "hasMixedContent";
 
 
     Stack<Element> elementStack = new Stack<>();
@@ -100,6 +102,38 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
     }
 
+    public String createList(String subject, String predicate, List<Object> mixedContent) {
+        predicate = '<' + predicate + '>';
+        if (!subject.startsWith("_:")) {
+            subject = '<' + subject + '>';
+        }
+
+        StringBuilder stringBuilder = new StringBuilder(subject+' '+predicate+" (");
+
+        mixedContent.forEach(content -> {
+            if(content instanceof String){
+                String objectLiteral = (String) content;
+                objectLiteral = objectLiteral.replaceAll("\\\\", "\\\\\\\\");
+                objectLiteral = NodeFactory.createLiteral(objectLiteral, "", false).toString();
+                stringBuilder.append("\"\""+objectLiteral+"\"\" ");
+
+            }else if(content instanceof Element){
+                Element objectElement = (Element) content;
+                if(objectElement.getUri().startsWith("_:")){
+                    stringBuilder.append(objectElement.getUri()+' ');
+                }else{
+                    stringBuilder.append('<'+objectElement.getUri()+"> ");
+
+                }
+            }else{
+                throw new IllegalStateException("Unknown type of: "+content.getClass().toString());
+            }
+
+        });
+
+        return stringBuilder.append(").").toString();
+
+    }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
@@ -135,7 +169,7 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             }
         }
 
-        if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.parent != null && pop.properties.isEmpty()) {
+        if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.parent != null && pop.properties.isEmpty() && pop.parent.mixedContent.size() == 0) {
             //convert to literal property
             if (pop.getHasValue() != null) {
                 pop.autoDetectedAsLiteralProperty = true;
@@ -181,7 +215,6 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
                 } else {
                     out.println(createTriple(pop.parent.uri, prop, pop.uri));
-
                 }
             }
             if (pop.getHasValue() != null) {
@@ -191,6 +224,10 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
                 } else {
                     out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue()));
 
+                }
+
+                if(pop.mixedContent.size() > 0){
+                    out.println(createList(pop.uri, hasMixedContent, pop.mixedContent));
                 }
 
 
@@ -211,6 +248,8 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         cleanUp(pop);
 
     }
+
+
 
     public String createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
         if (objectLiteral == null) {
@@ -242,6 +281,14 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
+
+        boolean mixedContent = false;
+        if(elementStack.size() > 0){
+            Element peek = elementStack.peek();
+            if(peek.getHasValue() != null){
+                mixedContent = true;
+            }
+        }
 
         Element element = new Element();
 
@@ -285,6 +332,9 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             parent = elementStack.peek();
             element.index = parent.hasChild.size();
             parent.hasChild.add(element);
+            if(mixedContent){
+                parent.addMixedContent(element);
+            }
         }
 
         for (int i = 0; i < attributes.getLength(); i++) {
@@ -381,12 +431,16 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         private boolean autoDetectedAsLiteralProperty;
 
 
+        public List<Object> mixedContent = new ArrayList<>();
+        public StringBuilder tempMixedContentString = new StringBuilder("");
 
         void appendValue(String value) {
             if (hasValue == null) {
-                hasValue = new StringBuilder();
+                hasValue = new StringBuilder(value);
+            }else{
+                hasValue.append(value);
             }
-            hasValue.append(value);
+            tempMixedContentString.append(value);
             hasValueString = null;
         }
 
@@ -437,6 +491,14 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         public boolean isAutoDetectedAsLiteralProperty() {
             return autoDetectedAsLiteralProperty;
+        }
+
+
+
+        public void addMixedContent(Element element) {
+            mixedContent.add(tempMixedContentString.toString());
+            tempMixedContentString = new StringBuilder("");
+            mixedContent.add(element);
         }
     }
 

@@ -16,9 +16,12 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
+import org.apache.jena.rdf.model.AnonId;
 import org.openrdf.IsolationLevels;
 import org.openrdf.model.*;
+import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.SimpleValueFactory;
+import org.openrdf.model.util.RDFCollections;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.event.NotifyingRepositoryConnection;
@@ -28,8 +31,10 @@ import org.openrdf.sail.memory.MemoryStore;
 import org.xml.sax.SAXException;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.stream.Collectors;
 
 
 public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
@@ -231,7 +236,53 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
     }
 
-    @Override
+    public String createList(String subject, String predicate, List<Object> mixedContent) {
+
+
+        IRI predicateNode = valueFactory.createIRI(predicate);
+        Resource subjectNode = null;
+
+
+        if (!subject.startsWith("_:")) {
+            subjectNode = valueFactory.createIRI(subject);
+
+        } else {
+            subjectNode = valueFactory.createBNode(subject);
+
+        }
+
+        Resource head = valueFactory.createBNode();
+
+        List<Value> collect = mixedContent.stream().map(content -> {
+            if (content instanceof String) {
+                String objectLiteral = (String) content;
+
+                return valueFactory.createLiteral(objectLiteral);
+
+            } else if (content instanceof Element) {
+                Element objectElement = (Element) content;
+                if (!objectElement.getUri().startsWith("_:")) {
+                    return valueFactory.createIRI(objectElement.getUri());
+
+                } else {
+                    return valueFactory.createBNode(objectElement.getUri());
+                }
+
+            } else {
+                throw new IllegalStateException("Unknown type of: " + content.getClass().toString());
+            }
+        }).collect(Collectors.toList());
+
+        Model mixedContentModel = RDFCollections.asRDF(collect, head, new LinkedHashModel());
+
+
+        queue.add(valueFactory.createStatement(subjectNode, predicateNode, head));
+        mixedContentModel.forEach(s -> queue.add(s));
+
+        return null;
+    }
+
+        @Override
     public void endDocument() throws SAXException {
 
         notDone = false;
