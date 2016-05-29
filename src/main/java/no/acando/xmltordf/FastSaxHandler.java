@@ -57,21 +57,6 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
 
 
-        String createTriple(String o, String p, String r) {
-                p = '<' + p + '>';
-
-                if (!o.startsWith("_:")) {
-                        o = '<' + o + '>';
-                }
-
-                if (!r.startsWith("_:")) {
-                        r = '<' + r + '>';
-                }
-                return o + ' ' + p + ' ' + r + " .";
-        }
-//        String createTripleLiteral(String o, String p, String r){
-//
-//        }
 
         @Override
         public void endDocument() throws SAXException {
@@ -238,17 +223,50 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
                 }
         }
 
-        private String createTripleLiteral(String o, String p, String l) {
-                p = '<' + p + '>';
 
-                if (!o.startsWith("_:")) {
-                        o = '<' + o + '>';
+        String createTriple(String o, String p, String r) {
+
+                boolean oIsBlank = o.startsWith("_:");
+                boolean rIsBlank = r.startsWith("_:");
+
+                if(oIsBlank){
+                        if(rIsBlank){
+                                return o + " <"+ p +"> " + r + '.';
+
+                        }else {
+                                return o + " <"+ p +"> <"+ r +">.";
+
+                        }
+                }else{
+                        if(rIsBlank){
+                                return '<'+o+"> <"+ p +"> " + r + '.';
+
+                        }else {
+                                return '<'+o+"> " +'<'+ p +"> <"+ r +">.";
+
+                        }
                 }
 
+
+        }
+
+        private String createTripleLiteral(String o, String p, String l) {
                 l = l.replaceAll("\\\\", "\\\\\\\\");
                 l = NodeFactory.createLiteral(l, "", false).toString();
 
-                return o + ' ' + p + ' ' +  l  + " .";
+                boolean oIsBlank = o.startsWith("_:");
+                if(oIsBlank){
+                        return o + " <"+ p +"> " +  l  + '.';
+
+                }else{
+                        return '<'+o+"> <" + p +"> " +  l  + '.';
+
+                }
+
+
+
+
+
 
         }
 
