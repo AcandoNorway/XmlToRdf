@@ -40,7 +40,6 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
     boolean notDone = true;
     boolean graphDone = false;
     Thread repoThread;
-    CountDownLatch latch =  new CountDownLatch(1);
 
 
     final Statement EndOfFileStatement = SimpleValueFactory.getInstance().createStatement(
@@ -87,8 +86,6 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
                 connection.close();
 
                 repository = new SailRepository(memoryStore);
-
-               latch.countDown();
 
 
 
@@ -244,7 +241,7 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
         queue.add(EndOfFileStatement);
 
         try {
-            latch.await();
+            repoThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

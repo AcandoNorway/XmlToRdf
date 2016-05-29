@@ -41,7 +41,6 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
       boolean graphDone = false;
       Thread jenaThread;
 
-     CountDownLatch latch =  new CountDownLatch(1);
 
       final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile));
 
@@ -86,7 +85,6 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
                               GraphUtil.add(g, buff);
                         }
 
-                        latch.countDown();
 
                   }
             };
@@ -231,7 +229,7 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
 
 
             try {
-                  latch.await();
+                  jenaThread.join();
             } catch (InterruptedException e) {
                   e.printStackTrace();
             }
