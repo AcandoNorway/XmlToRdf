@@ -16,11 +16,14 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
+import org.openrdf.IsolationLevels;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
+import org.openrdf.repository.event.NotifyingRepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
+import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.memory.MemoryStore;
 import org.xml.sax.SAXException;
 
@@ -44,9 +47,10 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
     public ObjectBasedSaxHandlerSesame(Builder.ObjectBased builder) {
         super(null, builder);
 
-        repository = new SailRepository(new MemoryStore());
-        repository.initialize();
 
+
+        MemoryStore memoryStore = new MemoryStore();
+        memoryStore.initialize();
 
         this.builder = builder;
         Thread thread = Thread.currentThread();
@@ -54,41 +58,31 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
             @Override
             public void run() {
 
-                try (RepositoryConnection connection = repository.getConnection()) {
-                    connection.begin();
-                    int size = 1000;
-                    ArrayList<Statement> buff = new ArrayList<>(size);
+                NotifyingSailConnection connection = memoryStore.getConnection();
+                connection.begin(IsolationLevels.NONE);
 
-                    int i = 0;
+
                     while (notDone || !queue.isEmpty()) {
                         try {
                             Statement take = queue.take();
                             if(take.getSubject() != null) {
-                                buff.add(take);
+                                connection.addStatement(take.getSubject(), take.getPredicate(), take.getObject());
                             }
-                            i++;
+
                         } catch (InterruptedException e) {
                             //e.printStackTrace();
                         }
-
-                        if (i >= size - 10) {
-                            connection.add(buff);
-                            buff = new ArrayList<>(size);
-                            i = 0;
-                        }
-
-
                     }
 
-                    if (i > 0) {
-                        connection.add(buff);
-
-                    }
-
-                    graphDone = true;
 
                     connection.commit();
-                }
+
+                connection.close();
+
+                repository = new SailRepository(memoryStore);
+
+                graphDone = true;
+
 
 
             }
