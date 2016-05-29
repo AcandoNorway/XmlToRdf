@@ -16,10 +16,7 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.openrdf.model.IRI;
-import org.openrdf.model.Literal;
-import org.openrdf.model.Resource;
-import org.openrdf.model.Statement;
+import org.openrdf.model.*;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -58,13 +55,17 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
             public void run() {
 
                 try (RepositoryConnection connection = repository.getConnection()) {
+                    connection.begin();
                     int size = 1000;
                     ArrayList<Statement> buff = new ArrayList<>(size);
 
                     int i = 0;
                     while (notDone || !queue.isEmpty()) {
                         try {
-                            buff.add(queue.take());
+                            Statement take = queue.take();
+                            if(take.getSubject() != null) {
+                                buff.add(take);
+                            }
                             i++;
                         } catch (InterruptedException e) {
                             //e.printStackTrace();
@@ -72,7 +73,7 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
                         if (i >= size - 10) {
                             connection.add(buff);
-                            buff = new ArrayList<>();
+                            buff = new ArrayList<>(size);
                             i = 0;
                         }
 
@@ -85,6 +86,8 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
                     }
 
                     graphDone = true;
+
+                    connection.commit();
                 }
 
 
@@ -236,12 +239,31 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
         notDone = false;
 
-        repoThread.interrupt();
+        queue.add(new Statement() {
+            @Override
+            public Resource getSubject() {
+                return null;
+            }
+
+            @Override
+            public IRI getPredicate() {
+                return null;
+            }
+
+            @Override
+            public Value getObject() {
+                return null;
+            }
+
+            @Override
+            public Resource getContext() {
+                return null;
+            }
+        });
 
         while (!graphDone) {
             try {
                 Thread.sleep(10);
-                repoThread.interrupt();
 
             } catch (InterruptedException e) {
                 e.printStackTrace();
