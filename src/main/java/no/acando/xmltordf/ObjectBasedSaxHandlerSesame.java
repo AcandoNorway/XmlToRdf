@@ -36,19 +36,18 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
 
     Repository repository;
-    ArrayBlockingQueue<Statement> queue = new ArrayBlockingQueue<>(10000, false);
-    boolean notDone = true;
-    boolean graphDone = false;
-    Thread repoThread;
+    private ArrayBlockingQueue<Statement> queue = new ArrayBlockingQueue<>(10000, false);
+    private boolean notDone = true;
+    private Thread repoThread;
 
 
-    final Statement EndOfFileStatement = SimpleValueFactory.getInstance().createStatement(
+    private final Statement EndOfFileStatement = SimpleValueFactory.getInstance().createStatement(
         SimpleValueFactory.getInstance().createIRI(EndOfFile),
         SimpleValueFactory.getInstance().createIRI(EndOfFile),
         SimpleValueFactory.getInstance().createIRI(EndOfFile)
     );
 
-    SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
+    private SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
     public ObjectBasedSaxHandlerSesame(Builder.ObjectBased builder) {
         super(null, builder);
@@ -99,30 +98,30 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
     public String createTriple(String subject, String predicate, String objectResource) {
 
 
-        IRI pNode = valueFactory.createIRI(predicate);
-        Resource oNode = null;
-        Resource rNode = null;
+        IRI predicateNode = valueFactory.createIRI(predicate);
+        Resource subjectNode = null;
+        Resource objectNode = null;
 
 
         if (!subject.startsWith("_:")) {
-            oNode = valueFactory.createIRI(subject);
+            subjectNode = valueFactory.createIRI(subject);
 
         } else {
-            oNode = valueFactory.createBNode(subject);
+            subjectNode = valueFactory.createBNode(subject);
 
         }
 
         if (!objectResource.startsWith("_:")) {
-            rNode = valueFactory.createIRI(objectResource);
+            objectNode = valueFactory.createIRI(objectResource);
 
         } else {
-            rNode = valueFactory.createBNode(objectResource);
+            objectNode = valueFactory.createBNode(objectResource);
 
         }
 
 
         try {
-            queue.put(valueFactory.createStatement(oNode, pNode, rNode));
+            queue.put(valueFactory.createStatement(subjectNode, predicateNode, objectNode));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -136,15 +135,15 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
             return null;
         }
 
-        IRI pNode = valueFactory.createIRI(predicate);
-        Resource oNode;
+        IRI predicateNode = valueFactory.createIRI(predicate);
+        Resource subjectNode;
 
 
         if (!subject.startsWith("_:")) {
-            oNode = valueFactory.createIRI(subject);
+            subjectNode = valueFactory.createIRI(subject);
 
         } else {
-            oNode = valueFactory.createBNode(subject);
+            subjectNode = valueFactory.createBNode(subject);
 
         }
 
@@ -152,7 +151,7 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
         Literal literal = valueFactory.createLiteral(objectLiteral, datatype);
 
         try {
-            queue.put(valueFactory.createStatement(oNode, pNode, literal));
+            queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -165,15 +164,15 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
             return null;
         }
 
-        IRI pNode = valueFactory.createIRI(predicate);
-        Resource oNode = null;
+        IRI predicateNode = valueFactory.createIRI(predicate);
+        Resource subjectNode = null;
 
 
         if (!subject.startsWith("_:")) {
-            oNode = valueFactory.createIRI(subject);
+            subjectNode = valueFactory.createIRI(subject);
 
         } else {
-            oNode = valueFactory.createBNode(subject);
+            subjectNode = valueFactory.createBNode(subject);
 
         }
 
@@ -193,7 +192,7 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
         }
 
         try {
-            queue.put(valueFactory.createStatement(oNode, pNode, literal));
+            queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -205,15 +204,15 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
     public String createTripleLiteral(String subject, String predicate, long objectLong) {
 
-        IRI pNode = valueFactory.createIRI(predicate);
-        Resource oNode = null;
+        IRI predicateNode = valueFactory.createIRI(predicate);
+        Resource subjectNode = null;
 
 
         if (!subject.startsWith("_:")) {
-            oNode = valueFactory.createIRI(subject);
+            subjectNode = valueFactory.createIRI(subject);
 
         } else {
-            oNode = valueFactory.createBNode(subject);
+            subjectNode = valueFactory.createBNode(subject);
 
         }
 
@@ -222,7 +221,7 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
 
         try {
-            queue.put(valueFactory.createStatement(oNode, pNode, literal));
+            queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));
         } catch (InterruptedException e) {
             e.printStackTrace();
         }

@@ -36,13 +36,12 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
       private Graph g;
 
       Dataset dataset;
-      ArrayBlockingQueue<Triple> queue = new ArrayBlockingQueue<>(10000, false);
-      boolean notDone = true;
-      boolean graphDone = false;
-      Thread jenaThread;
+      private ArrayBlockingQueue<Triple> queue = new ArrayBlockingQueue<>(10000, false);
+      private boolean notDone = true;
+      private Thread jenaThread;
 
 
-      final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile));
+      private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile));
 
 
       public ObjectBasedSaxHandlerJena(Builder.ObjectBased builder) {
@@ -96,28 +95,28 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
       public String createTriple(String subject, String predicate, String objectResource) {
 
 
-            Node pNode = NodeFactory.createURI(predicate);
-            Node oNode = null;
-            Node rNode = null;
+            Node predicateNode = NodeFactory.createURI(predicate);
+            Node subjectNode = null;
+            Node objectNode = null;
 
 
             if (!subject.startsWith("_:")) {
-                  oNode = NodeFactory.createURI(subject);
+                  subjectNode = NodeFactory.createURI(subject);
 
             } else {
-                  oNode = NodeFactory.createBlankNode(subject);
+                  subjectNode = NodeFactory.createBlankNode(subject);
 
             }
 
             if (!objectResource.startsWith("_:")) {
-                  rNode = NodeFactory.createURI(objectResource);
+                  objectNode = NodeFactory.createURI(objectResource);
 
             } else {
-                  rNode = NodeFactory.createBlankNode(objectResource);
+                  objectNode = NodeFactory.createBlankNode(objectResource);
 
             }
 
-            Triple triple = new Triple(oNode, pNode, rNode);
+            Triple triple = new Triple(subjectNode, predicateNode, objectNode);
             try {
                   queue.put(triple);
             } catch (InterruptedException e) {
@@ -131,22 +130,19 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
       public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
             if(objectLiteral == null) return null;
 
-            Node pNode = NodeFactory.createURI(predicate);
-            Node oNode = null;
+            Node predicateNode = NodeFactory.createURI(predicate);
+            Node subjectNode = null;
 
 
             if (!subject.startsWith("_:")) {
-                  oNode = NodeFactory.createURI(subject);
+                  subjectNode = NodeFactory.createURI(subject);
 
             } else {
-                  oNode = NodeFactory.createBlankNode(subject);
-
+                  subjectNode = NodeFactory.createBlankNode(subject);
             }
 
-
-
             Node literal = NodeFactory.createLiteral(objectLiteral, "", false);
-            Triple triple = new Triple(oNode, pNode, literal);
+            Triple triple = new Triple(subjectNode, predicateNode, literal);
             try {
                   queue.put(triple);
             } catch (InterruptedException e) {
@@ -161,20 +157,19 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
       public String createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
             if(objectLiteral == null) return null;
 
-            Node pNode = NodeFactory.createURI(predicate);
-            Node oNode = null;
-
+            Node predicateNode = NodeFactory.createURI(predicate);
+            Node subjectNode = null;
 
             if (!subject.startsWith("_:")) {
-                  oNode = NodeFactory.createURI(subject);
+                  subjectNode = NodeFactory.createURI(subject);
 
             } else {
-                  oNode = NodeFactory.createBlankNode(subject);
+                  subjectNode = NodeFactory.createBlankNode(subject);
             }
 
             Node literal = NodeFactoryExtra.createLiteralNode(objectLiteral, null, datatype.toString());
 
-            Triple triple = new Triple(oNode, pNode, literal);
+            Triple triple = new Triple(subjectNode, predicateNode, literal);
             try {
                   queue.put(triple);
             } catch (InterruptedException e) {
@@ -191,22 +186,22 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
 
 
 
-            Node pNode = NodeFactory.createURI(predicate);
-            Node oNode = null;
+            Node predicateNode = NodeFactory.createURI(predicate);
+            Node subjectNode = null;
 
 
             if (!subject.startsWith("_:")) {
-                  oNode = NodeFactory.createURI(subject);
+                  subjectNode = NodeFactory.createURI(subject);
 
             } else {
-                  oNode = NodeFactory.createBlankNode(subject);
+                  subjectNode = NodeFactory.createBlankNode(subject);
 
             }
 
 
-            Node literal = ResourceFactory.createTypedLiteral(new Long(objectLong)).asNode();
+            Node literal = ResourceFactory.createTypedLiteral(objectLong).asNode();
 
-            Triple triple = new Triple(oNode, pNode, literal);
+            Triple triple = new Triple(subjectNode, predicateNode, literal);
             try {
                   queue.put(triple);
             } catch (InterruptedException e) {
