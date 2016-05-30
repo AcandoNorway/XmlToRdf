@@ -250,15 +250,16 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         }
 
         private String createTripleLiteral(String subject, String predicate, String literal) {
-                literal = literal.replaceAll("\\\\", "\\\\\\\\");
-                literal = NodeFactory.createLiteral(literal, "", false).toString();
+                literal = literal
+                    .replace("\\", "\\\\")
+                    .replace("\"", "\\\"");
 
                 boolean oIsBlank = subject.startsWith("_:");
                 if(oIsBlank){
-                        return subject + " <"+ predicate +"> " +  literal  + '.';
+                        return subject + " <"+ predicate +"> \"" +  literal  + "\".";
 
                 }else{
-                        return '<'+subject+"> <" + predicate +"> " +  literal  + '.';
+                        return '<'+subject+"> <" + predicate +"> \"" +  literal  + "\" .";
 
                 }
 
