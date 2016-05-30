@@ -226,11 +226,11 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         String createTriple(String subject, String predicate, String object) {
 
-                boolean oIsBlank = subject.startsWith("_:");
-                boolean rIsBlank = object.startsWith("_:");
+                boolean subjectIsBlank = subject.startsWith("_:");
+                boolean objectIsBlank = object.startsWith("_:");
 
-                if(oIsBlank){
-                        if(rIsBlank){
+                if(subjectIsBlank){
+                        if(objectIsBlank){
                                 return subject + " <"+ predicate +"> " + object + '.';
 
                         }else {
@@ -238,7 +238,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
                         }
                 }else{
-                        if(rIsBlank){
+                        if(objectIsBlank){
                                 return '<'+subject+"> <"+ predicate +"> " + object + '.';
 
                         }else {
