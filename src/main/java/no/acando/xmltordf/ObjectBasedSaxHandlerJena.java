@@ -97,7 +97,7 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
     }
 
 
-    public String createTriple(String subject, String predicate, String objectResource) {
+    public String createTriple(String subject, String predicate, String object) {
 
 
         Node predicateNode = NodeFactory.createURI(predicate);
@@ -113,11 +113,11 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
 
         }
 
-        if (!objectResource.startsWith("_:")) {
-            objectNode = NodeFactory.createURI(objectResource);
+        if (!object.startsWith("_:")) {
+            objectNode = NodeFactory.createURI(object);
 
         } else {
-            objectNode = NodeFactory.createBlankNode(objectResource);
+            objectNode = NodeFactory.createBlankNode(object);
 
         }
 
@@ -148,8 +148,7 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
             subjectNode = NodeFactory.createBlankNode(subject);
         }
 
-        //Node literal = NodeFactory.createLiteral(objectLiteral, null, false);
-        Node literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDstring);
+        Node literal = NodeFactory.createLiteral(objectLiteral, null, false);
 
         Triple triple = new Triple(subjectNode, predicateNode, literal);
         try {
@@ -207,9 +206,7 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
             subjectNode = NodeFactory.createBlankNode(subject);
 
         }
-
-
-        Node literal = ResourceFactory.createTypedLiteral(objectLong).asNode();
+        Node literal = NodeFactory.createLiteral(objectLong+"", XSDDatatype.XSDlong);
 
         Triple triple = new Triple(subjectNode, predicateNode, literal);
         try {
