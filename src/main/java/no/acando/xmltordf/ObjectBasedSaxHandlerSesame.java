@@ -100,7 +100,7 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
     }
 
 
-    public String createTriple(String subject, String predicate, String objectResource) {
+    public String createTriple(String subject, String predicate, String object) {
 
 
         IRI predicateNode = valueFactory.createIRI(predicate);
@@ -116,11 +116,11 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
         }
 
-        if (!objectResource.startsWith("_:")) {
-            objectNode = valueFactory.createIRI(objectResource);
+        if (!object.startsWith("_:")) {
+            objectNode = valueFactory.createIRI(object);
 
         } else {
-            objectNode = valueFactory.createBNode(objectResource);
+            objectNode = valueFactory.createBNode(object);
 
         }
 
