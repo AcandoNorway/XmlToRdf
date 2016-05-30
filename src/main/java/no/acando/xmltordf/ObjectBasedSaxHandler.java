@@ -16,13 +16,11 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.apache.commons.io.output.StringBuilderWriter;
 import org.apache.jena.graph.NodeFactory;
 import org.openrdf.model.IRI;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -36,7 +34,7 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
     final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
     final String index = "http://acandonorway.github.com/ontology.ttl#" + "index";
-    final String EndOfFile = "http://acandonorway.github.com/ontology.ttl#"+"EndOfFile";
+    final String EndOfFile = "http://acandonorway.github.com/ontology.ttl#" + "EndOfFile";
     private final String hasMixedContent = "http://acandonorway.github.com/ontology.ttl#" + "hasMixedContent";
 
 
@@ -59,17 +57,29 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         this.builder = builder;
     }
 
-    public String createTriple(String subject, String predicate, String objectResource) {
-        predicate = '<' + predicate + '>';
 
-        if (!subject.startsWith("_:")) {
-            subject = '<' + subject + '>';
-        }
+    public String createTriple(String subject, String predicate, String object) {
+            boolean subjectIsBlank = subject.startsWith("_:");
+            boolean objectIsBlank = object.startsWith("_:");
 
-        if (!objectResource.startsWith("_:")) {
-            objectResource = '<' + objectResource + '>';
-        }
-        return subject + ' ' + predicate + ' ' + objectResource + " .";
+            if(subjectIsBlank){
+                if(objectIsBlank){
+                    return subject + " <"+ predicate +"> " + object + '.';
+
+                }else {
+                    return subject + " <"+ predicate +"> <"+ object +">.";
+
+                }
+            }else{
+                if(objectIsBlank){
+                    return '<'+subject+"> <"+ predicate +"> " + object + '.';
+
+                }else {
+                    return '<'+subject+"> " +'<'+ predicate +"> <"+ object +">.";
+
+                }
+            }
+
     }
 
     public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
@@ -77,28 +87,31 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             return "";
         }
 
-        predicate = '<' + predicate + '>';
+
+        objectLiteral = objectLiteral
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"");
+
 
         if (!subject.startsWith("_:")) {
-            subject = '<' + subject + '>';
+            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
+
+        } else {
+            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
+
         }
 
-
-        objectLiteral = objectLiteral.replaceAll("\\\\", "\\\\\\\\");
-        objectLiteral = NodeFactory.createLiteral(objectLiteral, "", false).toString();
-
-        return subject + ' ' + predicate + "\"\"" + objectLiteral + "\"\" .";
 
     }
 
     public String createTripleLiteral(String subject, String predicate, long objectLong) {
-        predicate = '<' + predicate + '>';
 
         if (!subject.startsWith("_:")) {
-            subject = '<' + subject + '>';
+            return '<'+ subject + "> <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+        }else{
+            return subject + " <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
         }
 
-        return subject + ' ' + predicate + ' ' + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
 
     }
 
@@ -108,25 +121,26 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             subject = '<' + subject + '>';
         }
 
-        StringBuilder stringBuilder = new StringBuilder(subject+' '+predicate+" (");
+        StringBuilder stringBuilder = new StringBuilder(subject + ' ' + predicate + " (");
 
         mixedContent.forEach(content -> {
-            if(content instanceof String){
+            if (content instanceof String) {
                 String objectLiteral = (String) content;
-                objectLiteral = objectLiteral.replaceAll("\\\\", "\\\\\\\\");
-                objectLiteral = NodeFactory.createLiteral(objectLiteral, "", false).toString();
-                stringBuilder.append("\"\""+objectLiteral+"\"\" ");
+                objectLiteral = objectLiteral
+                    .replace("\\", "\\\\")
+                    .replace("\"", "\\\"");
+                 stringBuilder.append("\"\"\"" + objectLiteral + "\"\"\" ");
 
-            }else if(content instanceof Element){
+            } else if (content instanceof Element) {
                 Element objectElement = (Element) content;
-                if(objectElement.getUri().startsWith("_:")){
-                    stringBuilder.append(objectElement.getUri()+' ');
-                }else{
-                    stringBuilder.append('<'+objectElement.getUri()+"> ");
+                if (objectElement.getUri().startsWith("_:")) {
+                    stringBuilder.append(objectElement.getUri() + ' ');
+                } else {
+                    stringBuilder.append('<' + objectElement.getUri() + "> ");
 
                 }
-            }else{
-                throw new IllegalStateException("Unknown type of: "+content.getClass().toString());
+            } else {
+                throw new IllegalStateException("Unknown type of: " + content.getClass().toString());
             }
 
         });
@@ -153,7 +167,6 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
         Element pop = elementStack.pop();
-
 
 
         builder.doComplexTransformForClass(pop);
@@ -226,7 +239,7 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
                 }
 
-                if(pop.mixedContent.size() > 0){
+                if (pop.mixedContent.size() > 0) {
                     out.println(createList(pop.uri, hasMixedContent, pop.mixedContent));
                 }
 
@@ -250,7 +263,6 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     }
 
 
-
     public String createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
         if (objectLiteral == null) {
             return "";
@@ -267,9 +279,8 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         objectLiteral = NodeFactory.createLiteral(objectLiteral, "", false).toString();
 
-        return subject + ' ' + predicate + ' ' + objectLiteral + "^^<"+datatype.toString()+"> .";
+        return subject + ' ' + predicate + ' ' + objectLiteral + "^^<" + datatype.toString() + "> .";
     }
-
 
 
     private void cleanUp(Element pop) {
@@ -283,9 +294,9 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
 
         boolean mixedContent = false;
-        if(elementStack.size() > 0){
+        if (elementStack.size() > 0) {
             Element peek = elementStack.peek();
-            if(peek.getHasValue() != null){
+            if (peek.getHasValue() != null) {
                 mixedContent = true;
             }
         }
@@ -332,7 +343,7 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             parent = elementStack.peek();
             element.index = parent.hasChild.size();
             parent.hasChild.add(element);
-            if(mixedContent){
+            if (mixedContent) {
                 parent.addMixedContent(element);
             }
         }
@@ -437,13 +448,12 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         void appendValue(String value) {
             if (hasValue == null) {
                 hasValue = new StringBuilder(value);
-            }else{
+            } else {
                 hasValue.append(value);
             }
             tempMixedContentString.append(value);
             hasValueString = null;
         }
-
 
 
         public String getType() {
@@ -463,13 +473,17 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         public String getHasValue() {
 
-            if(hasValue == null) return null;
-            if(hasValueString == null){
+            if (hasValue == null) {
+                return null;
+            }
+            if (hasValueString == null) {
                 hasValueString = hasValue.toString().trim();
                 hasValueStringEmpty = hasValueString.equals("");
             }
 
-            if(hasValueStringEmpty) return null;
+            if (hasValueStringEmpty) {
+                return null;
+            }
             return hasValueString;
         }
 
@@ -492,7 +506,6 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         public boolean isAutoDetectedAsLiteralProperty() {
             return autoDetectedAsLiteralProperty;
         }
-
 
 
         public void addMixedContent(Element element) {
