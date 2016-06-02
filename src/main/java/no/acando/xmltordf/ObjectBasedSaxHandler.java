@@ -152,12 +152,12 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
 
-        String value = new String(ch, start, length);
+        //String value = new String(ch, start, length);
 
 
-        if (value.length() > 0) {
+        if (length > 0) {
 
-            elementStack.peek().appendValue(value);
+            elementStack.peek().appendValue(ch, start, length);
 
         }
 
@@ -445,13 +445,14 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         public List<Object> mixedContent = new ArrayList<>();
         public StringBuilder tempMixedContentString = new StringBuilder("");
 
-        void appendValue(String value) {
+
+        public void appendValue(char[] ch, int start, int length) {
             if (hasValue == null) {
-                hasValue = new StringBuilder(value);
+                hasValue = new StringBuilder(new String(ch, start, length));
             } else {
-                hasValue.append(value);
+                hasValue.append(ch, start, length);
             }
-            tempMixedContentString.append(value);
+            tempMixedContentString.append(ch, start, length);
             hasValueString = null;
         }
 
@@ -513,6 +514,8 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             tempMixedContentString = new StringBuilder("");
             mixedContent.add(element);
         }
+
+
     }
 
     public class Property {
