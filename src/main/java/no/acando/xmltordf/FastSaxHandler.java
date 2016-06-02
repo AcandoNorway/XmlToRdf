@@ -128,7 +128,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
                 uriAttr = builder.overrideNamespace;
             }
 
-            if (uriAttr == null || uriAttr.trim().equals("")) {
+            if (uriAttr == null || uriAttr.trim().isEmpty()) {
                 uriAttr = uri;
             }
 
@@ -148,7 +148,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         String typePop = typeStack.pop();
         String value = stringBuilderStack.pop().toString().trim();
 
-        if (!value.equals("")) {
+        if (!value.isEmpty()) {
             if (builder.autoDetectLiteralProperties) {
 
 

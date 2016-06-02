@@ -35,7 +35,7 @@ public class XmlToRdfFast {
     }
 
 
-    public void fastConvertToStream(InputStream in, OutputStream out) throws ParserConfigurationException, SAXException, IOException {
+    public void convertToStream(InputStream in, OutputStream out) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
 

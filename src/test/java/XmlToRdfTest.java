@@ -17,10 +17,8 @@ limitations under the License.
 import no.acando.xmltordf.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.riot.Lang;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.util.FileManager;
-import org.apache.jena.vocabulary.RDF;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
@@ -60,7 +58,7 @@ public class XmlToRdfTest {
     public void simple() throws Exception {
 
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
 
 
@@ -70,7 +68,7 @@ public class XmlToRdfTest {
     @Test
     public void mixedContent() throws Exception {
        // testJena(Builder.getJenaBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
         //testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
 
     }
@@ -79,7 +77,7 @@ public class XmlToRdfTest {
     public void simpleWithAttrs() throws Exception {
 
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").build());
 
 
@@ -96,7 +94,7 @@ public class XmlToRdfTest {
             }
         };
 
-            testObject(Builder.getObjectBasedBuilder()
+            testObject(Builder.getAdvancedBuilder()
                 .overrideNamespace("http://test/")
                 .uuidBasedIdInsteadOfBlankNodes(true)
                 .build());
@@ -109,14 +107,14 @@ public class XmlToRdfTest {
     //  @Ignore
     @Test
     public void inLineData() throws Exception {
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").build());
         //testFast(Builder.getFastBuilder().overrideNamespace("http://test/").build());
 
     }
 
     @Test
     public void specialCharacters() throws Exception {
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").build());
 
 
@@ -126,7 +124,7 @@ public class XmlToRdfTest {
     @Test
     public void namespaces() throws Exception {
         testObject(Builder
-            .getObjectBasedBuilder()
+            .getAdvancedBuilder()
             .autoAttributeNamespace(false)
             .setBaseNamespace("http://test/", Builder.AppliesTo.bothElementsAndAttributes)
             .build());
@@ -137,7 +135,7 @@ public class XmlToRdfTest {
     @Test
     public void namespacesAutoSuffix() throws Exception {
         testObject(Builder
-            .getObjectBasedBuilder()
+            .getAdvancedBuilder()
             .build());
 
 
@@ -147,7 +145,7 @@ public class XmlToRdfTest {
     @Test
     public void namespacesAutoSuffix2() throws Exception {
         testObject(Builder
-            .getObjectBasedBuilder()
+            .getAdvancedBuilder()
             .autoAddSuffixToNamespace(false)
             .build());
 
@@ -158,7 +156,7 @@ public class XmlToRdfTest {
     @Test
     public void namespacesAutoSuffix3() throws Exception {
         testObject(Builder
-            .getObjectBasedBuilder()
+            .getAdvancedBuilder()
             .build());
 
 
@@ -168,7 +166,7 @@ public class XmlToRdfTest {
     @Test
     public void namespacesAutoSuffixSlash() throws Exception {
         testObject(Builder
-            .getObjectBasedBuilder()
+            .getAdvancedBuilder()
             .autoAddSuffixToNamespace("/")
             .build());
 
@@ -178,7 +176,7 @@ public class XmlToRdfTest {
     @Test
     public void checkIndexes() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").addIndex(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").addIndex(true).build());
 //           testFast(Builder.getFastBuilder().overrideNamespace("http://test/").addIndex(true).build());
 
 
@@ -188,7 +186,7 @@ public class XmlToRdfTest {
     @Test
     public void attributeForId() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/")
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/")
             .addUseAttributeForId("A", "id", (var) -> "http://test/" + var)
             .addUseAttributeForId("B", "id", (var) -> "http://test/" + var)
             .build());
@@ -202,7 +200,7 @@ public class XmlToRdfTest {
     public void attributeForIdWithNs() throws Exception {
 
 
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .addUseAttributeForId("http://example.com/A", "id", (var) -> "http://test/" + var)
             .addUseAttributeForId("http://example2.com/B", "id", (var) -> "http://test/" + var)
             .build());
@@ -212,7 +210,7 @@ public class XmlToRdfTest {
     @Test
     public void attributeForId2() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .addUseAttributeForId(null, "id", (var) -> "http://test/" + var)
             .build());
 
@@ -226,7 +224,7 @@ public class XmlToRdfTest {
         map.put("B", "http://hurra/B2");
 
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).addMapForClasses(map).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).addMapForClasses(map).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).addMapForClasses(map).build());
 
 
@@ -235,7 +233,7 @@ public class XmlToRdfTest {
     @Test
     public void detectLiteralProperties() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
 
@@ -244,7 +242,7 @@ public class XmlToRdfTest {
     @Test
     public void detectLiteralPropertiesWithAttributes() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
 
@@ -253,7 +251,7 @@ public class XmlToRdfTest {
     @Test
     public void detectLiteralPropertiesWithAttributesEdgeCaseWithRdfType() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
 
@@ -261,7 +259,7 @@ public class XmlToRdfTest {
 
     @Test
     public void detectLiteralPropertiesEdgeCaseWithoutParent() throws Exception {
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
 
@@ -271,7 +269,7 @@ public class XmlToRdfTest {
     public void detectLiteralPropertiesEdgeCaseWithoutParent2() throws Exception {
 
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 //        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
 
@@ -281,14 +279,14 @@ public class XmlToRdfTest {
     public void detectLiteralPropertiesWithAttributesEdgeCaseWithoutParent() throws Exception {
 
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
     }
 
     @Test
     public void tesAautoDetectLiteralPropertiesSetToFalse() throws Exception {
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
 
 
@@ -300,14 +298,14 @@ public class XmlToRdfTest {
 
 
           testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
 
     }
 
     @Test
     public void withSpecialAmp() throws Exception {
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
        // testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
     }
@@ -316,7 +314,7 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/")
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/")
             .addTransformForAttributeValue(null, null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/")
@@ -328,7 +326,7 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform2() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/")
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/")
             .addTransformForAttributeValue("name", "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/")
@@ -340,7 +338,7 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform3() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/")
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/")
             .addTransformForAttributeValue(null, "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/")
@@ -353,7 +351,7 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform4() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/")
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/")
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/")
@@ -366,7 +364,7 @@ public class XmlToRdfTest {
     public void attrValueTransform5() throws Exception {
 
 
-        testObject(Builder.getObjectBasedBuilder().overrideNamespace("http://test/")
+        testObject(Builder.getAdvancedBuilder().overrideNamespace("http://test/")
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .addTransformForAttributeValue(null, "test", (val) -> val.replaceAll("lala", "dada"))
 
@@ -383,7 +381,7 @@ public class XmlToRdfTest {
     public void specialShallowHandling() throws Exception {
 
 
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .autoDetectLiteralProperties(false)
             .autoConvertShallowChildrenToProperties(true)
             .addTransformForAttributeValue(null, "http://www.w3.org/1999/02/22-rdf-syntax-ns#nodeID",
@@ -401,7 +399,7 @@ public class XmlToRdfTest {
 //                        .addUseAttributeForId(null, RDF + "nodeID", (var) -> "http://test/" + var)
 //                        .autoConvertShallowChildrenToProperties(true).build());
 
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .addUseAttributeForId(null, RDF + "nodeID", (var) -> "http://test/" + var)
             .autoConvertShallowChildrenToProperties(true).build());
     }
@@ -409,7 +407,7 @@ public class XmlToRdfTest {
 
     @Test
     public void testSparqlTransforms2() throws Exception {
-        PostProcessingJena postProcessing = Builder.getObjectBasedBuilder().overrideNamespace("http://example.com/").build().convertForPostProcessingJena(new FileInputStream("testFiles/testSparqlTransform2/input.xml"));
+        PostProcessingJena postProcessing = Builder.getAdvancedBuilder().overrideNamespace("http://example.com/").build().convertForPostProcessingJena(new FileInputStream("testFiles/testSparqlTransform2/input.xml"));
 
         Model extractedModel = postProcessing
             .outputIntermediaryModels(new File("testFiles/testSparqlTransform2/intermediary"))
@@ -433,7 +431,7 @@ public class XmlToRdfTest {
     @Test
     public void convertShallowElementsToPropertiesWithAutoDetectLiteralProperties() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .autoConvertShallowChildrenToProperties(true)
             .autoConvertShallowChildrenWithAutoDetectLiteralProperties(true)
             .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
@@ -445,7 +443,7 @@ public class XmlToRdfTest {
     @Test
     public void insertPropertyBetween() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .autoConvertShallowChildrenToProperties(true)
             .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
             .insertPropertyBetween("http://a/hasB", "http://a/A", "http://a/B")
@@ -456,7 +454,7 @@ public class XmlToRdfTest {
     @Test(expected = RuntimeException.class)
     public void insertPropertyBetween2() throws Exception {
 
-        Builder.getObjectBasedBuilder()
+        Builder.getAdvancedBuilder()
             .insertPropertyBetween("http://a/hasB", "http://a/A", "http://a/B")
             .insertPropertyBetween("http://a/hasC", "http://a/A", "http://a/B");
     }
@@ -465,7 +463,7 @@ public class XmlToRdfTest {
     @Test
     public void invertPropertyBetween() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .autoConvertShallowChildrenToProperties(true)
             .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
             .insertPropertyBetween("http://a/belongsToA", "http://a/A", "http://a/B")
@@ -478,7 +476,7 @@ public class XmlToRdfTest {
     @Test
     public void specifyDatatype() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .autoConvertShallowChildrenToProperties(true)
             .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER)
@@ -491,7 +489,7 @@ public class XmlToRdfTest {
     @Test
     public void specifyDatatype2() throws Exception {
 
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .autoConvertShallowChildrenWithAutoDetectLiteralProperties(false)
             .autoConvertShallowChildrenToProperties(false)
             .autoDetectLiteralProperties(false)
@@ -505,7 +503,7 @@ public class XmlToRdfTest {
 
     @Test
     public void longLiteral() throws ParserConfigurationException, SAXException, IOException {
-        testObject(Builder.getObjectBasedBuilder()
+        testObject(Builder.getAdvancedBuilder()
             .overrideNamespace("http://example.org")
             .build());
 
@@ -519,7 +517,7 @@ public class XmlToRdfTest {
 
 
 
-    private void testObject(XmlToRdfObject build) throws IOException, ParserConfigurationException, SAXException {
+    private void testObject(XmlToRdfAdvanced build) throws IOException, ParserConfigurationException, SAXException {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
         String methodName = stackTrace[2].getMethodName();
         String path = "testFiles/" + methodName;
@@ -539,9 +537,9 @@ public class XmlToRdfTest {
             expected.createNewFile();
         }
 
-        build.objectBasedConvertToStream(new FileInputStream(xml), new FileOutputStream(path + "/actualObject.n3"));
-        Model actualModelJena = build.objectBasedConvertToDataset(new FileInputStream(xml)).getDefaultModel();
-        Repository repository = build.objectBasedConvertToRepository(new FileInputStream(xml));
+        build.convertToStream(new FileInputStream(xml), new FileOutputStream(path + "/actualObject.n3"));
+        Model actualModelJena = build.convertToDataset(new FileInputStream(xml)).getDefaultModel();
+        Repository repository = build.convertToRepository(new FileInputStream(xml));
 
 
         String rdf = repositoryToString(repository, RDFFormat.JSONLD);
@@ -601,7 +599,7 @@ public class XmlToRdfTest {
         }
 
         FileOutputStream out = new FileOutputStream(path + "/actualFast.ttl");
-        build.fastConvertToStream(new FileInputStream(xml), out);
+        build.convertToStream(new FileInputStream(xml), out);
         out.close();
         Model actualModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), path + "/actualFast.ttl");
 

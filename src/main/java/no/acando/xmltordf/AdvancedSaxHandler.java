@@ -29,7 +29,7 @@ import java.util.*;
 import static no.acando.xmltordf.Common.seperator;
 
 
-public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
+public class AdvancedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     private final PrintStream out;
     final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
     final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
@@ -40,10 +40,10 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
     Stack<Element> elementStack = new Stack<>();
 
-    Builder.ObjectBased builder;
+    Builder.Advanced builder;
 
 
-    public ObjectBasedSaxHandler(OutputStream out, Builder.ObjectBased builder) {
+    public AdvancedSaxHandler(OutputStream out, Builder.Advanced builder) {
         if (out != null) {
             this.out = new PrintStream(out);
         } else {
@@ -59,26 +59,26 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
 
     public String createTriple(String subject, String predicate, String object) {
-            boolean subjectIsBlank = subject.startsWith("_:");
-            boolean objectIsBlank = object.startsWith("_:");
+        boolean subjectIsBlank = subject.startsWith("_:");
+        boolean objectIsBlank = object.startsWith("_:");
 
-            if(subjectIsBlank){
-                if(objectIsBlank){
-                    return subject + " <"+ predicate +"> " + object + '.';
+        if (subjectIsBlank) {
+            if (objectIsBlank) {
+                return subject + " <" + predicate + "> " + object + '.';
 
-                }else {
-                    return subject + " <"+ predicate +"> <"+ object +">.";
+            } else {
+                return subject + " <" + predicate + "> <" + object + ">.";
 
-                }
-            }else{
-                if(objectIsBlank){
-                    return '<'+subject+"> <"+ predicate +"> " + object + '.';
-
-                }else {
-                    return '<'+subject+"> " +'<'+ predicate +"> <"+ object +">.";
-
-                }
             }
+        } else {
+            if (objectIsBlank) {
+                return '<' + subject + "> <" + predicate + "> " + object + '.';
+
+            } else {
+                return '<' + subject + "> " + '<' + predicate + "> <" + object + ">.";
+
+            }
+        }
 
     }
 
@@ -107,8 +107,8 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     public String createTripleLiteral(String subject, String predicate, long objectLong) {
 
         if (!subject.startsWith("_:")) {
-            return '<'+ subject + "> <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
-        }else{
+            return '<' + subject + "> <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+        } else {
             return subject + " <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
         }
 
@@ -129,7 +129,7 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
                 objectLiteral = objectLiteral
                     .replace("\\", "\\\\")
                     .replace("\"", "\\\"");
-                 stringBuilder.append("\"\"\"" + objectLiteral + "\"\"\" ");
+                stringBuilder.append("\"\"\"" + objectLiteral + "\"\"\" ");
 
             } else if (content instanceof Element) {
                 Element objectElement = (Element) content;
@@ -304,13 +304,13 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         Element element = new Element();
 
         if (builder.autoAddSuffixToNamespace != null) {
-            if (uri != null && !uri.trim().equals("") && !(uri.endsWith("/") || uri.endsWith("#"))) {
+            if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
                 uri += builder.autoAddSuffixToNamespace;
             }
         }
 
 
-        if ((uri == null || uri.trim().isEmpty()) && builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justElements || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
+        if ((uri == null || uri.isEmpty()) && builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justElements || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
             uri = builder.baseNamespace;
         }
 
@@ -395,13 +395,13 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             }
 
             if (builder.autoAddSuffixToNamespace != null) {
-                if (uriAttr != null && !uriAttr.trim().equals("") && !(uriAttr.endsWith("/") || uriAttr.endsWith("#"))) {
+                if (uriAttr != null && !uriAttr.isEmpty() && !(uriAttr.endsWith("/") || uriAttr.endsWith("#"))) {
                     uriAttr += builder.autoAddSuffixToNamespace;
                 }
             }
 
 
-            if (uriAttr == null || uriAttr.trim().equals("")) {
+            if (uriAttr == null || uriAttr.isEmpty()) {
                 if (builder.autoAttributeNamespace && uri != null && !uri.isEmpty()) {
                     uriAttr = uri;
                 } else if (builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justAttributes || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
@@ -479,7 +479,7 @@ public class ObjectBasedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             }
             if (hasValueString == null) {
                 hasValueString = hasValue.toString().trim();
-                hasValueStringEmpty = hasValueString.equals("");
+                hasValueStringEmpty = hasValueString.isEmpty();
             }
 
             if (hasValueStringEmpty) {

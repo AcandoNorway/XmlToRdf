@@ -21,7 +21,6 @@ import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.*;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdf.model.ResourceFactory;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
 import org.openrdf.model.IRI;
 import org.openrdf.model.vocabulary.RDF;
@@ -32,7 +31,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 
-public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
+public class AdvancedSaxHandlerJena extends AdvancedSaxHandler {
 
 
     private static final Node RDF_REST = NodeFactory.createURI(RDF.REST.toString());
@@ -49,7 +48,7 @@ public class ObjectBasedSaxHandlerJena extends ObjectBasedSaxHandler {
     private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile));
 
 
-    public ObjectBasedSaxHandlerJena(Builder.ObjectBased builder) {
+    public AdvancedSaxHandlerJena(Builder.Advanced builder) {
         super(new NullOutputStream(), builder);
         dataset = DatasetFactory.createMem();
         g = dataset.getDefaultModel().getGraph();

@@ -17,5 +17,5 @@ limitations under the License.
 package no.acando.xmltordf;
 
 public interface ComplexClassTransform {
-    public void transform(ObjectBasedSaxHandler.Element element);
+    public void transform(AdvancedSaxHandler.Element element);
 }

@@ -36,8 +36,8 @@ public class Builder {
         return new Fast();
     }
 
-    static public ObjectBased getObjectBasedBuilder() {
-        return new ObjectBased();
+    static public Advanced getAdvancedBuilder() {
+        return new Advanced();
     }
 
 
@@ -146,7 +146,7 @@ public class Builder {
         }
     }
 
-    static public class ObjectBased extends DefaultWithAddIndex<ObjectBased> {
+    static public class Advanced extends DefaultWithAddIndex<Advanced> {
          boolean autoConvertShallowChildrenToProperties;
          String baseNamespace;
          AppliesTo baseNamespaceAppliesTo;
@@ -161,24 +161,24 @@ public class Builder {
          Map<String, IRI> datatypeOnElement = new HashMapNoOverwrite<>();
 
 
-        public XmlToRdfObject build() {
-            return new XmlToRdfObject(this);
+        public XmlToRdfAdvanced build() {
+            return new XmlToRdfAdvanced(this);
 
         }
 
 
 
-        public ObjectBased autoConvertShallowChildrenToProperties(boolean b) {
+        public Advanced autoConvertShallowChildrenToProperties(boolean b) {
             autoConvertShallowChildrenToProperties = b;
             return this;
         }
 
-        public ObjectBased autoAttributeNamespace(boolean b) {
+        public Advanced autoAttributeNamespace(boolean b) {
             autoAttributeNamespace = b;
             return this;
         }
 
-        public ObjectBased setBaseNamespace(String namespace, AppliesTo which) {
+        public Advanced setBaseNamespace(String namespace, AppliesTo which) {
 
             baseNamespace = namespace;
             baseNamespaceAppliesTo = which;
@@ -187,19 +187,19 @@ public class Builder {
         }
 
 
-        public ObjectBased autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
+        public Advanced autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
             autoConvertShallowChildrenWithAutoDetectLiteralProperties = b;
             return this;
 
         }
 
-        public ObjectBased autoTypeLiterals(boolean autoTypeLiterals) {
+        public Advanced autoTypeLiterals(boolean autoTypeLiterals) {
             this.autoTypeLiterals = autoTypeLiterals;
             return this;
         }
 
 
-        public ObjectBased insertPropertyBetween(String newProperty, String parent, String child) {
+        public Advanced insertPropertyBetween(String newProperty, String parent, String child) {
             insertPropertyBetween.put(parent + seperator + child, newProperty);
             return this;
         }
@@ -209,7 +209,7 @@ public class Builder {
         }
 
 
-        public ObjectBased invertProperty(String property, String parent, String child) {
+        public Advanced invertProperty(String property, String parent, String child) {
 
             invertProperty.put(property, new ParentChild(parent, child));
 
@@ -228,12 +228,12 @@ public class Builder {
 
         }
 
-        public ObjectBased uuidBasedIdInsteadOfBlankNodes(boolean b) {
+        public Advanced uuidBasedIdInsteadOfBlankNodes(boolean b) {
             uuidBasedIdInsteadOfBlankNodes = b;
             return this;
         }
 
-        public ObjectBased setDatatype(String fullUriForElement, IRI datatype) {
+        public Advanced setDatatype(String fullUriForElement, IRI datatype) {
 
             datatypeOnElement.put(fullUriForElement, datatype);
 
@@ -264,14 +264,14 @@ public class Builder {
         private Map<String, ComplexClassTransform> complexTransformForClass = new HashMapNoOverwrite<>();
 
 
-        public ObjectBased addComplexTransformForClass(String className, ComplexClassTransform transform) {
+        public Advanced addComplexTransformForClass(String className, ComplexClassTransform transform) {
 
             complexTransformForClass.put(className, transform);
 
             return this;
         }
 
-         void doComplexTransformForClass(ObjectBasedSaxHandler.Element element){
+         void doComplexTransformForClass(AdvancedSaxHandler.Element element){
             ComplexClassTransform complexClassTransform = complexTransformForClass.get(element.type);
             if(complexClassTransform != null){
                 complexClassTransform.transform(element);

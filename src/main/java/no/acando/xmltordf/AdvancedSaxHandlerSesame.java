@@ -16,28 +16,23 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.apache.jena.rdf.model.AnonId;
 import org.openrdf.IsolationLevels;
 import org.openrdf.model.*;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.util.RDFCollections;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.event.NotifyingRepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.memory.MemoryStore;
 import org.xml.sax.SAXException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.CountDownLatch;
 import java.util.stream.Collectors;
 
 
-public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
+public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler {
 
 
     Repository repository;
@@ -54,7 +49,7 @@ public class ObjectBasedSaxHandlerSesame extends ObjectBasedSaxHandler {
 
     private SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
-    public ObjectBasedSaxHandlerSesame(Builder.ObjectBased builder) {
+    public AdvancedSaxHandlerSesame(Builder.Advanced builder) {
         super(null, builder);
 
 

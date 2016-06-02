@@ -29,22 +29,22 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class XmlToRdfObject {
+public class XmlToRdfAdvanced {
 
-    Builder.ObjectBased builder;
+    Builder.Advanced builder;
 
-    public XmlToRdfObject(Builder.ObjectBased builder) {
+    public XmlToRdfAdvanced(Builder.Advanced builder) {
         this.builder = builder;
     }
 
-    public void objectBasedConvertToStream(InputStream in, OutputStream out) throws ParserConfigurationException, SAXException, IOException {
+    public void convertToStream(InputStream in, OutputStream out) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
 
 
         SAXParser saxParser = factory.newSAXParser();
 
-        ObjectBasedSaxHandler handler = new ObjectBasedSaxHandler(out, builder);
+        AdvancedSaxHandler handler = new AdvancedSaxHandler(out, builder);
 
 
         saxParser.parse(in, handler);
@@ -53,7 +53,7 @@ public class XmlToRdfObject {
     }
 
 
-    public Dataset objectBasedConvertToDataset(InputStream in) throws ParserConfigurationException, SAXException, IOException {
+    public Dataset convertToDataset(InputStream in) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
 
@@ -61,7 +61,7 @@ public class XmlToRdfObject {
         SAXParser saxParser = factory.newSAXParser();
 
 //        ObjectBasedSaxHandler2 handler = new ObjectBasedSaxHandler2(builder);
-        ObjectBasedSaxHandlerJena handler = new ObjectBasedSaxHandlerJena(builder);
+        AdvancedSaxHandlerJena handler = new AdvancedSaxHandlerJena(builder);
 
 
         saxParser.parse(in, handler);
@@ -69,14 +69,14 @@ public class XmlToRdfObject {
     }
 
 
-    public Repository objectBasedConvertToRepository(InputStream in) throws ParserConfigurationException, SAXException, IOException {
+    public Repository convertToRepository(InputStream in) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
 
 
         SAXParser saxParser = factory.newSAXParser();
 
-        ObjectBasedSaxHandlerSesame handler = new ObjectBasedSaxHandlerSesame(builder);
+        AdvancedSaxHandlerSesame handler = new AdvancedSaxHandlerSesame(builder);
 
 
         saxParser.parse(in, handler);
@@ -87,13 +87,13 @@ public class XmlToRdfObject {
 
 
     public PostProcessingJena convertForPostProcessingJena(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
-        Model model = objectBasedConvertToDataset(inputStream).getDefaultModel();
+        Model model = convertToDataset(inputStream).getDefaultModel();
         inputStream.close();
         return new PostProcessingJena(model);
     }
 
     public PostProcessingSesame convertForPostProcessingSesame(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
-        Repository repository = objectBasedConvertToRepository(inputStream);
+        Repository repository = convertToRepository(inputStream);
         inputStream.close();
         return new PostProcessingSesame(repository);
     }
