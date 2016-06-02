@@ -32,7 +32,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.stream.Collectors;
 
 
-public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler {
+public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI> {
 
 
     Repository repository;
@@ -49,7 +49,7 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler {
 
     private SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
-    public AdvancedSaxHandlerSesame(Builder.Advanced builder) {
+    public AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
         super(null, builder);
 
 

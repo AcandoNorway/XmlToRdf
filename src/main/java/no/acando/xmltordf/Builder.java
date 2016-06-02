@@ -16,6 +16,7 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
+import org.apache.jena.datatypes.RDFDatatype;
 import org.openrdf.model.IRI;
 
 import java.util.HashMap;
@@ -31,23 +32,28 @@ public class Builder {
     }
 
 
-
     static public Fast getFastBuilder() {
         return new Fast();
     }
 
-    static public Advanced getAdvancedBuilder() {
-        return new Advanced();
+    static public AdvancedStream getAdvancedBuilderStream() {
+        return new AdvancedStream();
     }
 
+    static public AdvancedSesame getAdvancedBuilderSesame() {
+        return new AdvancedSesame();
+    }
 
+    static public AdvancedJena getAdvancedBuilderJena() {
+        return new AdvancedJena();
+    }
 
     static class Default<This extends Default<This>> {
 
-         String overrideNamespace;
-         Map<String, String> mapForClasses;
-         boolean autoDetectLiteralProperties = true;
-         boolean transformForAttributeValue = false;
+        String overrideNamespace;
+        Map<String, String> mapForClasses;
+        boolean autoDetectLiteralProperties = true;
+        boolean transformForAttributeValue = false;
         Map<String, StringTransform> transformForAttributeValueMap = new HashMapNoOverwrite<>();
 
 
@@ -97,7 +103,7 @@ public class Builder {
     }
 
     static private class DefaultWithAddIndex<This extends DefaultWithAddIndex<This>> extends Default<This> {
-         boolean addIndex = false;
+        boolean addIndex = false;
 
         Map<String, StringTransform> useAttributedForIdMap = new HashMapNoOverwrite<>();
         boolean useAttributedForId = false;
@@ -127,7 +133,6 @@ public class Builder {
         }
 
 
-
         public This autoAddSuffixToNamespace(boolean enabled) {
             if (!enabled) {
                 autoAddSuffixToNamespace = null;
@@ -146,78 +151,71 @@ public class Builder {
         }
     }
 
-    static public class Advanced extends DefaultWithAddIndex<Advanced> {
-         boolean autoConvertShallowChildrenToProperties;
-         String baseNamespace;
-         AppliesTo baseNamespaceAppliesTo;
+    static public class Advanced<Datatype, This extends Advanced<Datatype, This>> extends DefaultWithAddIndex<This> {
+        boolean autoConvertShallowChildrenToProperties;
+        String baseNamespace;
+        AppliesTo baseNamespaceAppliesTo;
 
-         boolean autoAttributeNamespace = true;
-         boolean autoConvertShallowChildrenWithAutoDetectLiteralProperties;
-         boolean autoTypeLiterals;
-         boolean uuidBasedIdInsteadOfBlankNodes = false;
+        boolean autoAttributeNamespace = true;
+        boolean autoConvertShallowChildrenWithAutoDetectLiteralProperties;
+        boolean autoTypeLiterals;
+        boolean uuidBasedIdInsteadOfBlankNodes = false;
 
         private Map<String, ParentChild> invertProperty = new HashMapNoOverwrite<>();
         private Map<String, String> insertPropertyBetween = new HashMapNoOverwrite<>();
-         Map<String, IRI> datatypeOnElement = new HashMapNoOverwrite<>();
+        Map<String, Datatype> datatypeOnElement = new HashMapNoOverwrite<>();
 
 
-        public XmlToRdfAdvanced build() {
-            return new XmlToRdfAdvanced(this);
-
-        }
-
-
-
-        public Advanced autoConvertShallowChildrenToProperties(boolean b) {
+        public This autoConvertShallowChildrenToProperties(boolean b) {
             autoConvertShallowChildrenToProperties = b;
-            return this;
+            return (This) this;
         }
 
-        public Advanced autoAttributeNamespace(boolean b) {
+        public This autoAttributeNamespace(boolean b) {
             autoAttributeNamespace = b;
-            return this;
+            return (This) this;
         }
 
-        public Advanced setBaseNamespace(String namespace, AppliesTo which) {
+        public This setBaseNamespace(String namespace, AppliesTo which) {
 
             baseNamespace = namespace;
             baseNamespaceAppliesTo = which;
 
-            return this;
+            return (This) this;
         }
 
 
-        public Advanced autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
+        public This autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
             autoConvertShallowChildrenWithAutoDetectLiteralProperties = b;
-            return this;
+            return (This) this;
 
         }
 
-        public Advanced autoTypeLiterals(boolean autoTypeLiterals) {
+        public This autoTypeLiterals(boolean autoTypeLiterals) {
             this.autoTypeLiterals = autoTypeLiterals;
-            return this;
+            return (This) this;
         }
 
 
-        public Advanced insertPropertyBetween(String newProperty, String parent, String child) {
+        public This insertPropertyBetween(String newProperty, String parent, String child) {
             insertPropertyBetween.put(parent + seperator + child, newProperty);
-            return this;
+            return (This) this;
         }
 
-         String getInsertPropertyBetween(String parent, String child) {
+        String getInsertPropertyBetween(String parent, String child) {
             return insertPropertyBetween.get(parent + seperator + child);
         }
 
 
-        public Advanced invertProperty(String property, String parent, String child) {
+        public This invertProperty(String property, String parent, String child) {
 
             invertProperty.put(property, new ParentChild(parent, child));
 
-            return this;
+            return (This) this;
 
         }
 
-         boolean checkInvertProperty(String property, String parent, String child) {
+        boolean checkInvertProperty(String property, String parent, String child) {
 
             ParentChild parentChild = invertProperty.get(property);
             if (parentChild != null) {
@@ -228,16 +226,16 @@ public class Builder {
 
         }
 
-        public Advanced uuidBasedIdInsteadOfBlankNodes(boolean b) {
+        public This uuidBasedIdInsteadOfBlankNodes(boolean b) {
             uuidBasedIdInsteadOfBlankNodes = b;
-            return this;
+            return (This) this;
         }
 
-        public Advanced setDatatype(String fullUriForElement, IRI datatype) {
+        public This setDatatype(String fullUriForElement, Datatype datatype) {
 
             datatypeOnElement.put(fullUriForElement, datatype);
 
-            return this;
+            return (This) this;
         }
 
         class ParentChild {
@@ -264,27 +262,52 @@ public class Builder {
         private Map<String, ComplexClassTransform> complexTransformForClass = new HashMapNoOverwrite<>();
 
 
-        public Advanced addComplexTransformForClass(String className, ComplexClassTransform transform) {
+        public This addComplexTransformForClass(String className, ComplexClassTransform transform) {
 
             complexTransformForClass.put(className, transform);
 
-            return this;
+            return (This) this;
         }
 
-         void doComplexTransformForClass(AdvancedSaxHandler.Element element){
+        void doComplexTransformForClass(Element element) {
             ComplexClassTransform complexClassTransform = complexTransformForClass.get(element.type);
-            if(complexClassTransform != null){
+            if (complexClassTransform != null) {
                 complexClassTransform.transform(element);
             }
         }
     }
 
-    static class HashMapNoOverwrite<k,v> extends HashMap<k,v>{
+
+    static public class AdvancedJena extends Advanced<RDFDatatype, AdvancedJena> {
+
+        public XmlToRdfAdvancedJena build() {
+            return new XmlToRdfAdvancedJena(this);
+        }
+
+    }
+
+    static public class AdvancedSesame extends Advanced<IRI, AdvancedSesame> {
+        public XmlToRdfAdvancedSesame build() {
+            return new XmlToRdfAdvancedSesame(this);
+        }
+
+    }
+
+
+    static public class AdvancedStream extends Advanced<String, AdvancedStream> {
+        public XmlToRdfAdvancedStream build() {
+            return new XmlToRdfAdvancedStream(this);
+        }
+
+    }
+
+
+    static class HashMapNoOverwrite<k, v> extends HashMap<k, v> {
 
         @Override
         public v put(k key, v value) {
-            if(containsKey(key)){
-                throw new RuntimeException("Attempted to overwrite key: '"+key.toString()+"' with value: '"+value.toString()+"'");
+            if (containsKey(key)) {
+                throw new RuntimeException("Attempted to overwrite key: '" + key.toString() + "' with value: '" + value.toString() + "'");
             }
             return super.put(key, value);
         }

@@ -29,7 +29,7 @@ import java.util.*;
 import static no.acando.xmltordf.Common.seperator;
 
 
-public class AdvancedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
+public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.DefaultHandler{
     private final PrintStream out;
     final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
     final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
@@ -40,10 +40,10 @@ public class AdvancedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
     Stack<Element> elementStack = new Stack<>();
 
-    Builder.Advanced builder;
+    Builder.Advanced<Datatype, ? extends Builder.Advanced> builder;
 
 
-    public AdvancedSaxHandler(OutputStream out, Builder.Advanced builder) {
+    public AdvancedSaxHandler(OutputStream out, Builder.Advanced<Datatype, ? extends Builder.Advanced> builder) {
         if (out != null) {
             this.out = new PrintStream(out);
         } else {
@@ -58,96 +58,18 @@ public class AdvancedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     }
 
 
-    public String createTriple(String subject, String predicate, String object) {
-        boolean subjectIsBlank = subject.startsWith("_:");
-        boolean objectIsBlank = object.startsWith("_:");
+    abstract String createTriple(String subject, String predicate, String object);
 
-        if (subjectIsBlank) {
-            if (objectIsBlank) {
-                return subject + " <" + predicate + "> " + object + '.';
+    abstract String createTripleLiteral(String subject, String predicate, String objectLiteral);
 
-            } else {
-                return subject + " <" + predicate + "> <" + object + ">.";
+    abstract String createTripleLiteral(String subject, String predicate, long objectLong);
 
-            }
-        } else {
-            if (objectIsBlank) {
-                return '<' + subject + "> <" + predicate + "> " + object + '.';
+    abstract String createList(String subject, String predicate, List<Object> mixedContent);
 
-            } else {
-                return '<' + subject + "> " + '<' + predicate + "> <" + object + ">.";
-
-            }
-        }
-
-    }
-
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
-        if (objectLiteral == null) {
-            return "";
-        }
+    abstract String createTripleLiteral(String subject, String predicate, String objectLiteral, Datatype datatype) ;
 
 
-        objectLiteral = objectLiteral
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"");
 
-
-        if (!subject.startsWith("_:")) {
-            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
-
-        } else {
-            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
-
-        }
-
-
-    }
-
-    public String createTripleLiteral(String subject, String predicate, long objectLong) {
-
-        if (!subject.startsWith("_:")) {
-            return '<' + subject + "> <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
-        } else {
-            return subject + " <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
-        }
-
-
-    }
-
-    public String createList(String subject, String predicate, List<Object> mixedContent) {
-        predicate = '<' + predicate + '>';
-        if (!subject.startsWith("_:")) {
-            subject = '<' + subject + '>';
-        }
-
-        StringBuilder stringBuilder = new StringBuilder(subject + ' ' + predicate + " (");
-
-        mixedContent.forEach(content -> {
-            if (content instanceof String) {
-                String objectLiteral = (String) content;
-                objectLiteral = objectLiteral
-                    .replace("\\", "\\\\")
-                    .replace("\"", "\\\"");
-                stringBuilder.append("\"\"\"" + objectLiteral + "\"\"\" ");
-
-            } else if (content instanceof Element) {
-                Element objectElement = (Element) content;
-                if (objectElement.getUri().startsWith("_:")) {
-                    stringBuilder.append(objectElement.getUri() + ' ');
-                } else {
-                    stringBuilder.append('<' + objectElement.getUri() + "> ");
-
-                }
-            } else {
-                throw new IllegalStateException("Unknown type of: " + content.getClass().toString());
-            }
-
-        });
-
-        return stringBuilder.append(").").toString();
-
-    }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
@@ -263,24 +185,6 @@ public class AdvancedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     }
 
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
-        if (objectLiteral == null) {
-            return "";
-        }
-
-        predicate = '<' + predicate + '>';
-
-        if (!subject.startsWith("_:")) {
-            subject = '<' + subject + '>';
-        }
-
-
-        objectLiteral = objectLiteral.replaceAll("\\\\", "\\\\\\\\");
-
-        objectLiteral = NodeFactory.createLiteral(objectLiteral, "", false).toString();
-
-        return subject + ' ' + predicate + ' ' + objectLiteral + "^^<" + datatype.toString() + "> .";
-    }
 
 
     private void cleanUp(Element pop) {
@@ -430,115 +334,5 @@ public class AdvancedSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         out.close();
     }
 
-    public class Element {
-        public String type;
-        public String uri;
-        public Element parent;
-        public StringBuilder hasValue;
-        public List<Element> hasChild = new ArrayList<>(10);
-        public List<Property> properties = new ArrayList<>(10);
-        private long index = 0;
-        private boolean shallow;
-        private boolean autoDetectedAsLiteralProperty;
 
-
-        public List<Object> mixedContent = new ArrayList<>();
-        public StringBuilder tempMixedContentString = new StringBuilder("");
-
-
-        public void appendValue(char[] ch, int start, int length) {
-            if (hasValue == null) {
-                hasValue = new StringBuilder(new String(ch, start, length));
-            } else {
-                hasValue.append(ch, start, length);
-            }
-            tempMixedContentString.append(ch, start, length);
-            hasValueString = null;
-        }
-
-
-        public String getType() {
-            return type;
-        }
-
-        public String getUri() {
-            return uri;
-        }
-
-        public Element getParent() {
-            return parent;
-        }
-
-        String hasValueString;
-        boolean hasValueStringEmpty = false;
-
-        public String getHasValue() {
-
-            if (hasValue == null) {
-                return null;
-            }
-            if (hasValueString == null) {
-                hasValueString = hasValue.toString().trim();
-                hasValueStringEmpty = hasValueString.isEmpty();
-            }
-
-            if (hasValueStringEmpty) {
-                return null;
-            }
-            return hasValueString;
-        }
-
-        public List<Element> getHasChild() {
-            return hasChild;
-        }
-
-        public List<Property> getProperties() {
-            return properties;
-        }
-
-        public long getIndex() {
-            return index;
-        }
-
-        public boolean isShallow() {
-            return shallow;
-        }
-
-        public boolean isAutoDetectedAsLiteralProperty() {
-            return autoDetectedAsLiteralProperty;
-        }
-
-
-        public void addMixedContent(Element element) {
-            mixedContent.add(tempMixedContentString.toString());
-            tempMixedContentString = new StringBuilder("");
-            mixedContent.add(element);
-        }
-
-
-    }
-
-    public class Property {
-        public final String value;
-        public String uriAttr;
-        public String qname;
-
-        public Property(String uriAttr, String qname, String value) {
-            this.uriAttr = uriAttr;
-            this.qname = qname;
-            this.value = value;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public String getUriAttr() {
-            return uriAttr;
-        }
-
-        public String getQname() {
-            return qname;
-        }
-    }
 }

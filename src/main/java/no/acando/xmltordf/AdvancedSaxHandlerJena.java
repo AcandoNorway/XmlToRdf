@@ -17,6 +17,7 @@ limitations under the License.
 package no.acando.xmltordf;
 
 import org.apache.jena.atlas.io.NullOutputStream;
+import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.*;
 import org.apache.jena.query.Dataset;
@@ -31,7 +32,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 
-public class AdvancedSaxHandlerJena extends AdvancedSaxHandler {
+public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<RDFDatatype> {
 
 
     private static final Node RDF_REST = NodeFactory.createURI(RDF.REST.toString());
@@ -48,12 +49,12 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler {
     private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile));
 
 
-    public AdvancedSaxHandlerJena(Builder.Advanced builder) {
+    public AdvancedSaxHandlerJena(Builder.Advanced<RDFDatatype, ? extends Builder.Advanced> builder) {
         super(new NullOutputStream(), builder);
         dataset = DatasetFactory.createMem();
         g = dataset.getDefaultModel().getGraph();
 
-        this.builder = builder;
+        this.builder =  builder;
         Thread thread = Thread.currentThread();
         jenaThread = new Thread() {
             @Override
@@ -161,7 +162,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler {
 
     }
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
+    public String createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
         if (objectLiteral == null) {
             return null;
         }
@@ -176,7 +177,8 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler {
             subjectNode = NodeFactory.createBlankNode(subject);
         }
 
-        Node literal = NodeFactoryExtra.createLiteralNode(objectLiteral, null, datatype.toString());
+
+        Node literal = NodeFactory.createLiteral(objectLiteral, datatype);
 
         Triple triple = new Triple(subjectNode, predicateNode, literal);
         try {

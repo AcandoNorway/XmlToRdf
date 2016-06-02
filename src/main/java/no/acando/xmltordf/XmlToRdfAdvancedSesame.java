@@ -16,6 +16,7 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
+import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
 import org.openrdf.repository.Repository;
@@ -29,44 +30,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class XmlToRdfAdvanced {
+public class XmlToRdfAdvancedSesame{
 
-    Builder.Advanced builder;
+    Builder.AdvancedSesame builder;
 
-    public XmlToRdfAdvanced(Builder.Advanced builder) {
+    public XmlToRdfAdvancedSesame(Builder.AdvancedSesame builder) {
         this.builder = builder;
     }
 
-    public void convertToStream(InputStream in, OutputStream out) throws ParserConfigurationException, SAXException, IOException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-
-
-        SAXParser saxParser = factory.newSAXParser();
-
-        AdvancedSaxHandler handler = new AdvancedSaxHandler(out, builder);
-
-
-        saxParser.parse(in, handler);
-
-
-    }
-
-
-    public Dataset convertToDataset(InputStream in) throws ParserConfigurationException, SAXException, IOException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-
-
-        SAXParser saxParser = factory.newSAXParser();
-
-//        ObjectBasedSaxHandler2 handler = new ObjectBasedSaxHandler2(builder);
-        AdvancedSaxHandlerJena handler = new AdvancedSaxHandlerJena(builder);
-
-
-        saxParser.parse(in, handler);
-        return handler.dataset;
-    }
 
 
     public Repository convertToRepository(InputStream in) throws ParserConfigurationException, SAXException, IOException {
@@ -86,11 +57,7 @@ public class XmlToRdfAdvanced {
 
 
 
-    public PostProcessingJena convertForPostProcessingJena(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
-        Model model = convertToDataset(inputStream).getDefaultModel();
-        inputStream.close();
-        return new PostProcessingJena(model);
-    }
+
 
     public PostProcessingSesame convertForPostProcessingSesame(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         Repository repository = convertToRepository(inputStream);
