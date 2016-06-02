@@ -30,7 +30,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 
-public class XmlToRdfAdvancedStream<Datatype> {
+public class XmlToRdfAdvancedStream {
 
     Builder.AdvancedStream builder;
 

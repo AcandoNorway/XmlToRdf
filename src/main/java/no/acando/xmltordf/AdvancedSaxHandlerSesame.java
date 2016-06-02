@@ -36,7 +36,7 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI> {
 
 
     Repository repository;
-    private ArrayBlockingQueue<Statement> queue = new ArrayBlockingQueue<>(10000, false);
+    private ArrayBlockingQueue<Statement> queue;
     private boolean notDone = true;
     private Thread repoThread;
 
@@ -52,6 +52,7 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI> {
     public AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
         super(null, builder);
 
+        queue = new ArrayBlockingQueue<>(builder.buffer, false);
 
 
         MemoryStore memoryStore = new MemoryStore();
@@ -271,8 +272,18 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI> {
         Model mixedContentModel = RDFCollections.asRDF(collect, head, new LinkedHashModel());
 
 
-        queue.add(valueFactory.createStatement(subjectNode, predicateNode, head));
-        mixedContentModel.forEach(s -> queue.add(s));
+        try {
+            queue.put(valueFactory.createStatement(subjectNode, predicateNode, head));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        mixedContentModel.forEach(s -> {
+            try {
+                queue.put(s);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
 
         return null;
     }
@@ -283,9 +294,13 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI> {
         notDone = false;
 
 
-        queue.add(EndOfFileStatement);
+            try {
+                queue.put(EndOfFileStatement);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
 
-        try {
+            try {
             repoThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();

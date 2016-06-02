@@ -766,6 +766,29 @@ public class XmlToRdfTest {
 
     }
 
+    @Test
+    public void setQueueSize() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+
+            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+
+            .setBuffer(1)
+
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+
+            .setBuffer(1)
+            .build());
+
+
+
+
+    }
+
+
 
     private void testAdvancedJena(XmlToRdfAdvancedJena build) throws IOException, ParserConfigurationException, SAXException {
         StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();

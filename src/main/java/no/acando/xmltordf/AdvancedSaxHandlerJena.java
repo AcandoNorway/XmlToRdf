@@ -20,6 +20,7 @@ import org.apache.jena.atlas.io.NullOutputStream;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.*;
+import org.apache.jena.graph.impl.GraphWithPerform;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
@@ -41,7 +42,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<RDFDatatype> {
     private Graph g;
 
     Dataset dataset;
-    private ArrayBlockingQueue<Triple> queue = new ArrayBlockingQueue<>(10000, false);
+    private ArrayBlockingQueue<Triple> queue;
     private boolean notDone = true;
     private Thread jenaThread;
 
@@ -49,8 +50,10 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<RDFDatatype> {
     private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile));
 
 
-    public AdvancedSaxHandlerJena(Builder.Advanced<RDFDatatype, ? extends Builder.Advanced> builder) {
+    public AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
         super(new NullOutputStream(), builder);
+
+        queue = new ArrayBlockingQueue<>(builder.buffer, false);
         dataset = DatasetFactory.createMem();
         g = dataset.getDefaultModel().getGraph();
 
@@ -60,35 +63,18 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<RDFDatatype> {
             @Override
             public void run() {
 
-                int size = 10000;
-                ArrayList<Triple> buff = new ArrayList<>(size);
-
-                int i = 0;
                 while (notDone || !queue.isEmpty()) {
                     try {
                         Triple take = queue.take();
                         if (take != EndOfFileTriple) {
-                            buff.add(take);
-                            i++;
+                            ((GraphWithPerform) g).performAdd(take);
                         }
 
                     } catch (InterruptedException e) {
                         //e.printStackTrace();
                     }
 
-                    if (i >= size - 10) {
-                        GraphUtil.add(g, buff);
-                        buff = new ArrayList<>();
-                        i = 0;
-                    }
-
-
                 }
-
-                if (i > 0) {
-                    GraphUtil.add(g, buff);
-                }
-
 
             }
         };

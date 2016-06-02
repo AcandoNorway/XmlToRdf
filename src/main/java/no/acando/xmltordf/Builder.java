@@ -48,7 +48,7 @@ public class Builder {
         return new AdvancedJena();
     }
 
-    static class Default<This extends Default<This>> {
+    static class Default<T extends Default<T>> {
 
         String overrideNamespace;
         Map<String, String> mapForClasses;
@@ -57,34 +57,34 @@ public class Builder {
         Map<String, StringTransform> transformForAttributeValueMap = new HashMapNoOverwrite<>();
 
 
-        public This overrideNamespace(String ns) {
+        public T overrideNamespace(String ns) {
             this.overrideNamespace = ns;
-            return (This) this;
+            return (T) this;
         }
 
-        public This addMapForClasses(Map<String, String> map) {
+        public T addMapForClasses(Map<String, String> map) {
 
             mapForClasses = map;
-            return (This) this;
+            return (T) this;
         }
 
-        public This addTransformForClass(String fullUriFrom, String fullUriTo) {
+        public T addTransformForClass(String fullUriFrom, String fullUriTo) {
 
             if (mapForClasses == null) {
                 mapForClasses = new HashMapNoOverwrite<>();
             }
             mapForClasses.put(fullUriFrom, fullUriTo);
-            return (This) this;
+            return (T) this;
         }
 
 
-        public This autoDetectLiteralProperties(boolean b) {
+        public T autoDetectLiteralProperties(boolean b) {
             autoDetectLiteralProperties = b;
 
-            return (This) this;
+            return (T) this;
         }
 
-        public This addTransformForAttributeValue(String elementName, String attributeName, StringTransform transform) {
+        public T addTransformForAttributeValue(String elementName, String attributeName, StringTransform transform) {
             if (elementName == null) {
                 elementName = "";
             }
@@ -95,49 +95,49 @@ public class Builder {
             transformForAttributeValueMap.put(elementName + seperator + attributeName, transform);
             transformForAttributeValue = true;
 
-            return (This) this;
+            return (T) this;
 
         }
 
 
     }
 
-    static private class DefaultWithAddIndex<This extends DefaultWithAddIndex<This>> extends Default<This> {
+    static private class DefaultWithAddIndex<T extends DefaultWithAddIndex<T>> extends Default<T> {
         boolean addIndex = false;
 
         Map<String, StringTransform> useAttributedForIdMap = new HashMapNoOverwrite<>();
         boolean useAttributedForId = false;
         String autoAddSuffixToNamespace = "#";
 
-        public This addIndex(boolean b) {
+        public T addIndex(boolean b) {
 
             addIndex = true;
-            return (This) this;
+            return (T) this;
         }
 
 
-        public This addUseAttributeForId(String elementName, String attributeName, StringTransform p2) {
+        public T addUseAttributeForId(String elementName, String attributeName, StringTransform p2) {
             if (elementName == null) {
                 elementName = "";
             }
             useAttributedForIdMap.put(elementName + seperator + attributeName, p2);
             useAttributedForId = true;
 
-            return (This) this;
+            return (T) this;
         }
 
 
-        public This autoAddSuffixToNamespace(String sign) {
+        public T autoAddSuffixToNamespace(String sign) {
             autoAddSuffixToNamespace = sign;
-            return (This) this;
+            return (T) this;
         }
 
 
-        public This autoAddSuffixToNamespace(boolean enabled) {
+        public T autoAddSuffixToNamespace(boolean enabled) {
             if (!enabled) {
                 autoAddSuffixToNamespace = null;
             }
-            return (This) this;
+            return (T) this;
         }
 
 
@@ -151,7 +151,7 @@ public class Builder {
         }
     }
 
-    static public class Advanced<Datatype, This extends Advanced<Datatype, This>> extends DefaultWithAddIndex<This> {
+    static public class Advanced<Datatype, T extends Advanced<Datatype, T>> extends DefaultWithAddIndex<T> {
         boolean autoConvertShallowChildrenToProperties;
         String baseNamespace;
         AppliesTo baseNamespaceAppliesTo;
@@ -166,40 +166,40 @@ public class Builder {
         Map<String, Datatype> datatypeOnElement = new HashMapNoOverwrite<>();
 
 
-        public This autoConvertShallowChildrenToProperties(boolean b) {
+        public T autoConvertShallowChildrenToProperties(boolean b) {
             autoConvertShallowChildrenToProperties = b;
-            return (This) this;
+            return (T) this;
         }
 
-        public This autoAttributeNamespace(boolean b) {
+        public T autoAttributeNamespace(boolean b) {
             autoAttributeNamespace = b;
-            return (This) this;
+            return (T) this;
         }
 
-        public This setBaseNamespace(String namespace, AppliesTo which) {
+        public T setBaseNamespace(String namespace, AppliesTo which) {
 
             baseNamespace = namespace;
             baseNamespaceAppliesTo = which;
 
-            return (This) this;
+            return (T) this;
         }
 
 
-        public This autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
+        public T autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
             autoConvertShallowChildrenWithAutoDetectLiteralProperties = b;
-            return (This) this;
+            return (T) this;
 
         }
 
-        public This autoTypeLiterals(boolean autoTypeLiterals) {
+        public T autoTypeLiterals(boolean autoTypeLiterals) {
             this.autoTypeLiterals = autoTypeLiterals;
-            return (This) this;
+            return (T) this;
         }
 
 
-        public This insertPropertyBetween(String newProperty, String parent, String child) {
+        public T insertPropertyBetween(String newProperty, String parent, String child) {
             insertPropertyBetween.put(parent + seperator + child, newProperty);
-            return (This) this;
+            return (T) this;
         }
 
         String getInsertPropertyBetween(String parent, String child) {
@@ -207,11 +207,11 @@ public class Builder {
         }
 
 
-        public This invertProperty(String property, String parent, String child) {
+        public T invertProperty(String property, String parent, String child) {
 
             invertProperty.put(property, new ParentChild(parent, child));
 
-            return (This) this;
+            return (T) this;
 
         }
 
@@ -226,16 +226,16 @@ public class Builder {
 
         }
 
-        public This uuidBasedIdInsteadOfBlankNodes(boolean b) {
+        public T uuidBasedIdInsteadOfBlankNodes(boolean b) {
             uuidBasedIdInsteadOfBlankNodes = b;
-            return (This) this;
+            return (T) this;
         }
 
-        public This setDatatype(String fullUriForElement, Datatype datatype) {
+        public T setDatatype(String fullUriForElement, Datatype datatype) {
 
             datatypeOnElement.put(fullUriForElement, datatype);
 
-            return (This) this;
+            return (T) this;
         }
 
         class ParentChild {
@@ -262,11 +262,11 @@ public class Builder {
         private Map<String, ComplexClassTransform> complexTransformForClass = new HashMapNoOverwrite<>();
 
 
-        public This addComplexTransformForClass(String className, ComplexClassTransform transform) {
+        public T addComplexTransformForClass(String className, ComplexClassTransform transform) {
 
             complexTransformForClass.put(className, transform);
 
-            return (This) this;
+            return (T) this;
         }
 
         void doComplexTransformForClass(Element element) {
@@ -277,16 +277,30 @@ public class Builder {
         }
     }
 
+    static public class AdvancedWithBuffer<Datatype, T extends AdvancedWithBuffer<Datatype, T>> extends Advanced<Datatype, T> {
+        int buffer = 1000;
 
-    static public class AdvancedJena extends Advanced<RDFDatatype, AdvancedJena> {
+
+        public T setBuffer(int size){
+            this.buffer = size;
+
+            return (T) this;
+        }
+
+    }
+
+
+        static public class AdvancedJena extends AdvancedWithBuffer<RDFDatatype, AdvancedJena> {
+
 
         public XmlToRdfAdvancedJena build() {
             return new XmlToRdfAdvancedJena(this);
         }
 
+
     }
 
-    static public class AdvancedSesame extends Advanced<IRI, AdvancedSesame> {
+    static public class AdvancedSesame extends AdvancedWithBuffer<IRI, AdvancedSesame> {
         public XmlToRdfAdvancedSesame build() {
             return new XmlToRdfAdvancedSesame(this);
         }
