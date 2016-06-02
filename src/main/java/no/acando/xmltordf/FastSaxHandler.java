@@ -151,25 +151,20 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         if (!value.equals("")) {
             if (builder.autoDetectLiteralProperties) {
 
-                String pop = out.pop(); //should return the rdf:type line or the last attr line
 
-                if (pop.split(" ")[1].equals("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>")) {
-
+                if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
 
                     if (stringStack.isEmpty()) {
-                        out.println(pop);
                         out.println(createTripleLiteral(stringPop, hasValue, value));
                         stringStack.push(stringPop);
-                        return;
+
+                    } else {
+                        out.pop();
+                        out.pop();
+                        out.println(createTripleLiteral(stringStack.peek(), typePop, value));
                     }
 
-                    out.pop(); //remove the hasChild line
-
-                    out.println(createTripleLiteral(stringStack.peek(), typePop, value));
-
                 } else {
-                    out.println(pop);
-
                     out.println(createTripleLiteral(stringPop, hasValue, value));
                 }
 
@@ -177,10 +172,8 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             } else {
                 out.println(createTripleLiteral(stringPop, hasValue, value));
             }
-        }
 
-        // @TODO consider using hashing here.
-        if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
+        } else if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
             String outPop = out.pop();
             if (out.peek().equals(createTriple(stringStack.peek(), hasChild, stringPop))) {
                 out.pop();
@@ -189,11 +182,14 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             }
         }
 
+        // @TODO consider using hashing here.
+        // Handle empty elements
+
+
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-//        String value = new String(ch, start, length);
 
         stringBuilderStack.peek().append(ch, start, length);
 
