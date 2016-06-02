@@ -16,254 +16,230 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.rdf.model.Model;
-import org.apache.jena.rdf.model.ModelFactory;
-import org.apache.jena.rdf.model.Statement;
-import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDF;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.PrintStream;
 import java.util.Map;
 import java.util.Stack;
 
 import static no.acando.xmltordf.Common.seperator;
 
 
-
 public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
-        private UndoableBufferedPrintWriter out;
-        private Stack<String> stringStack = new Stack<>();
-        private Stack<String> typeStack = new Stack<>();
+    private UndoableBufferedPrintWriter out;
+    private Stack<String> stringStack = new Stack<>();
+    private Stack<StringBuilder> stringBuilderStack = new Stack<>();
+
+    private Stack<String> typeStack = new Stack<>();
 
 
-        private final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
-        private final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
+    private final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
+    private final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
 
 
-        private long index = 0;
+    private long index = 0;
 
-        Builder.Fast builder;
-        BufferedOutputStream buff;
+    Builder.Fast builder;
+    BufferedOutputStream buff;
 
-        public FastSaxHandler(OutputStream out, Builder.Fast builder) {
-                buff = new BufferedOutputStream(out, 1000000);
-                this.out = new UndoableBufferedPrintWriter(new PrintStream(buff, false));
-                this.builder = builder;
+    public FastSaxHandler(OutputStream out, Builder.Fast builder) {
+        buff = new BufferedOutputStream(out, 1000000);
+        this.out = new UndoableBufferedPrintWriter(new PrintStream(buff, false));
+        this.builder = builder;
+    }
+
+
+    @Override
+    public void endDocument() throws SAXException {
+        out.flush();
+        try {
+            buff.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+
+
+        String ns = builder.overrideNamespace;
+        if (ns == null) {
+            ns = uri;
+        }
+
+        String fullyQualifiedName = ns + qName;
+
+        if (builder.mapForClasses != null && builder.mapForClasses.containsKey(uri + qName)) {
+            fullyQualifiedName = builder.mapForClasses.get(uri + qName);
+        }
+
+        String bnode = "_:index" + index++;
+
+
+        if (stringStack.size() > 0) {
+            String parent = stringStack.peek();
+            out.println(createTriple(parent, hasChild, bnode));
+        }
+
+        out.println(createTriple(bnode, RDF.type.getURI(), fullyQualifiedName));
+
+        typeStack.push(fullyQualifiedName);
+
+
+        stringStack.push(bnode);
+
+        stringBuilderStack.push(new StringBuilder());
+
+        for (int i = 0; i < attributes.getLength(); i++) {
+            String uriAttr = attributes.getURI(i);
+            String nameAttr = attributes.getLocalName(i);
+            String valueAttr = attributes.getValue(i);
+            String qname = attributes.getQName(i);
+
+            if (builder.transformForAttributeValue) {
+                StringTransform stringTransform = null;
+
+                Map<String, StringTransform> map = builder.transformForAttributeValueMap;
+
+                if (map.containsKey(uri + localName + seperator + uriAttr + nameAttr)) {
+                    stringTransform = map.get(uri + localName + seperator + uriAttr + nameAttr);
+                } else if (map.containsKey(uri + localName + seperator)) {
+                    stringTransform = map.get(uri + localName + seperator);
+                } else if (map.containsKey(seperator + uriAttr + nameAttr)) {
+                    stringTransform = map.get(seperator + uriAttr + nameAttr);
+                } else if (map.containsKey(seperator)) {
+                    stringTransform = map.get(seperator);
+                }
+
+                if (stringTransform != null) {
+                    valueAttr = stringTransform.transform(valueAttr);
+                }
+
+            }
+
+            if (builder.overrideNamespace != null) {
+                uriAttr = builder.overrideNamespace;
+            }
+
+            if (uriAttr == null || uriAttr.trim().equals("")) {
+                uriAttr = uri;
+            }
+
+            out.println(createTripleLiteral(bnode, uriAttr + nameAttr, valueAttr));
+
+
         }
 
 
+    }
+
+    @Override
+    public void endElement(String uri, String localName, String qName) throws SAXException {
 
 
-        @Override
-        public void endDocument() throws SAXException {
-                out.flush();
-                try {
-                        buff.flush();
-                } catch (IOException e) {
-                        e.printStackTrace();
+        String stringPop = stringStack.pop();
+        String typePop = typeStack.pop();
+        String value = stringBuilderStack.pop().toString().trim();
+
+        if (!value.equals("")) {
+            if (builder.autoDetectLiteralProperties) {
+
+                String pop = out.pop(); //should return the rdf:type line or the last attr line
+
+                if (pop.split(" ")[1].equals("<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>")) {
+
+
+                    if (stringStack.isEmpty()) {
+                        out.println(pop);
+                        out.println(createTripleLiteral(stringPop, hasValue, value));
+                        stringStack.push(stringPop);
+                        return;
+                    }
+
+                    out.pop(); //remove the hasChild line
+
+                    out.println(createTripleLiteral(stringStack.peek(), typePop, value));
+
+                } else {
+                    out.println(pop);
+
+                    out.println(createTripleLiteral(stringPop, hasValue, value));
                 }
+
+
+            } else {
+                out.println(createTripleLiteral(stringPop, hasValue, value));
+            }
         }
 
-        @Override
-        public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-
-
-                String ns = builder.overrideNamespace;
-                if (ns == null) {
-                        ns = uri;
-                }
-
-                String fullyQualifiedName = ns + qName;
-
-                if (builder.mapForClasses != null && builder.mapForClasses.containsKey(uri + qName)) {
-                        fullyQualifiedName = builder.mapForClasses.get(uri + qName);
-                }
-
-                String bnode = "_:index" + index++;
-
-
-                if (stringStack.size() > 0) {
-                        String parent = stringStack.peek();
-                        out.println(createTriple(parent, hasChild, bnode));
-                }
-
-                out.println(createTriple(bnode, RDF.type.getURI(), fullyQualifiedName));
-
-                typeStack.push(fullyQualifiedName);
-
-
-                stringStack.push(bnode);
-
-                for (int i = 0; i < attributes.getLength(); i++) {
-                        String uriAttr = attributes.getURI(i);
-                        String nameAttr = attributes.getLocalName(i);
-                        String valueAttr = attributes.getValue(i);
-                        String qname = attributes.getQName(i);
-
-                        if (builder.transformForAttributeValue) {
-                                StringTransform stringTransform = null;
-
-                                Map<String, StringTransform> map = builder.transformForAttributeValueMap;
-
-                                if (map.containsKey(uri + localName + seperator + uriAttr + nameAttr)) {
-                                        stringTransform = map.get(uri + localName + seperator + uriAttr + nameAttr);
-                                } else if (map.containsKey(uri + localName + seperator)) {
-                                        stringTransform = map.get(uri + localName + seperator);
-                                } else if (map.containsKey(seperator + uriAttr + nameAttr)) {
-                                        stringTransform = map.get(seperator + uriAttr + nameAttr);
-                                } else if (map.containsKey(seperator)) {
-                                        stringTransform = map.get(seperator);
-                                }
-
-                                if (stringTransform != null) {
-                                        valueAttr = stringTransform.transform(valueAttr);
-                                }
-
-                        }
-
-                        if (builder.overrideNamespace != null) {
-                                uriAttr = builder.overrideNamespace;
-                        }
-
-                        if (uriAttr == null || uriAttr.trim().equals("")) {
-                                uriAttr = uri;
-                        }
-
-                        out.println(createTripleLiteral(bnode, uriAttr + nameAttr, valueAttr));
-
-
-                }
-
-
+        // @TODO consider using hashing here.
+        if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
+            String outPop = out.pop();
+            if (out.peek().equals(createTriple(stringStack.peek(), hasChild, stringPop))) {
+                out.pop();
+            } else {
+                out.println(outPop);
+            }
         }
 
-        @Override
-        public void endElement(String uri, String localName, String qName) throws SAXException {
+    }
+
+    @Override
+    public void characters(char[] ch, int start, int length) throws SAXException {
+//        String value = new String(ch, start, length);
+
+        stringBuilderStack.peek().append(ch, start, length);
+
+    }
 
 
-                String stringPop = stringStack.pop();
-                String typePop = typeStack.pop();
+    String createTriple(String subject, String predicate, String object) {
 
-                // @TODO consider using hashing here.
-                if(out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))){
-                        String outPop = out.pop();
-                        if(out.peek().equals(createTriple(stringStack.peek(), hasChild, stringPop))){
-                                out.pop();
-                        }else{
-                                out.println(outPop);
-                        }
-                }
+        boolean subjectIsBlank = subject.startsWith("_:");
+        boolean objectIsBlank = object.startsWith("_:");
+
+        if (subjectIsBlank) {
+            if (objectIsBlank) {
+                return subject + " <" + predicate + "> " + object + '.';
+
+            } else {
+                return subject + " <" + predicate + "> <" + object + ">.";
+
+            }
+        } else {
+            if (objectIsBlank) {
+                return '<' + subject + "> <" + predicate + "> " + object + '.';
+
+            } else {
+                return '<' + subject + "> " + '<' + predicate + "> <" + object + ">.";
+
+            }
+        }
+
+    }
+
+    private String createTripleLiteral(String subject, String predicate, String literal) {
+        literal = literal
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"");
+
+        boolean oIsBlank = subject.startsWith("_:");
+        if (oIsBlank) {
+            return subject + " <" + predicate + "> \"\"\"" + literal + "\"\"\".";
+
+        } else {
+            return '<' + subject + "> <" + predicate + "> \"\"\"" + literal + "\"\"\" .";
 
         }
 
-        @Override
-        public void characters(char[] ch, int start, int length) throws SAXException {
-                String value = new String(ch, start, length).trim();
-
-                if (value.length() > 0) {
-
-                        if (builder.autoDetectLiteralProperties) {
-
-                                String pop = out.pop(); //should return the rdf:type line or the last attr line
-
-                                if (pop.contains(" <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> ")) {
-
-                                        if (pop.contains("\"")) { //special case to handle that "<http://www.w3.org/1999/02/22-rdf-syntax-ns#type>" is part of a string literal from an xml attribute
-                                                Model m = ModelFactory.createDefaultModel().read(new StringReader(pop), null, "N-Triples");
-                                                StmtIterator stmtIterator = m.listStatements();
-                                                while (stmtIterator.hasNext()) {
-                                                        Statement next = stmtIterator.next();
-                                                        boolean isRdfType = next.getPredicate().getURI().equals("http://www.w3.org/1999/02/22-rdf-syntax-ns#type");
-                                                        if (!isRdfType) {
-                                                                out.println(pop);
-                                                                String peek = stringStack.peek();
-                                                                out.println(createTripleLiteral(peek, hasValue, value));
-                                                                return;
-                                                        }
-                                                }
-                                        }
-
-
-
-
-
-                                        String popStack = stringStack.pop();
-
-                                        if (stringStack.isEmpty()) {
-                                                out.println(pop);
-                                                out.println(createTripleLiteral(popStack, hasValue, value));
-                                                stringStack.push(popStack);
-                                                return;
-                                        }
-
-                                        out.pop(); //remove the hasChild line
-
-                                        out.println(createTripleLiteral(stringStack.peek(), typeStack.peek(), value));
-
-                                        stringStack.push(popStack);
-
-
-                                } else {
-                                        out.println(pop);
-                                        String peek = stringStack.peek();
-                                        out.println(createTripleLiteral(peek, hasValue, value));
-                                }
-
-
-                        } else {
-                                String peek = stringStack.peek();
-                                out.println(createTripleLiteral(peek, hasValue, value));
-                        }
-
-
-                }
-        }
-
-
-        String createTriple(String subject, String predicate, String object) {
-
-                boolean subjectIsBlank = subject.startsWith("_:");
-                boolean objectIsBlank = object.startsWith("_:");
-
-                if(subjectIsBlank){
-                        if(objectIsBlank){
-                                return subject + " <"+ predicate +"> " + object + '.';
-
-                        }else {
-                                return subject + " <"+ predicate +"> <"+ object +">.";
-
-                        }
-                }else{
-                        if(objectIsBlank){
-                                return '<'+subject+"> <"+ predicate +"> " + object + '.';
-
-                        }else {
-                                return '<'+subject+"> " +'<'+ predicate +"> <"+ object +">.";
-
-                        }
-                }
-
-        }
-
-        private String createTripleLiteral(String subject, String predicate, String literal) {
-                literal = literal
-                    .replace("\\", "\\\\")
-                    .replace("\"", "\\\"");
-
-                boolean oIsBlank = subject.startsWith("_:");
-                if(oIsBlank){
-                        return subject + " <"+ predicate +"> \"" +  literal  + "\".";
-
-                }else{
-                        return '<'+subject+"> <" + predicate +"> \"" +  literal  + "\" .";
-
-                }
-
-        }
+    }
 
 
 }

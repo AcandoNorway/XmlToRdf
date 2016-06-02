@@ -512,10 +512,11 @@ public class XmlToRdfTest {
 
 
         //@TODO add support for long literals with new lines in fast
-//        testFast(Builder.getFastBuilder()
-//            .overrideNamespace("http://example.org")
-//            .build());
+        testFast(Builder.getFastBuilder()
+            .overrideNamespace("http://example.org")
+            .build());
     }
+
 
 
     private void testObject(XmlToRdfObject build) throws IOException, ParserConfigurationException, SAXException {
@@ -599,8 +600,10 @@ public class XmlToRdfTest {
             expected.createNewFile();
         }
 
-        build.fastConvertToStream(new FileInputStream(xml), new FileOutputStream(path + "/actualFast.n3"));
-        Model actualModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), path + "/actualFast.n3");
+        FileOutputStream out = new FileOutputStream(path + "/actualFast.ttl");
+        build.fastConvertToStream(new FileInputStream(xml), out);
+        out.close();
+        Model actualModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), path + "/actualFast.ttl");
 
         Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), expected.getCanonicalPath());
         boolean isomorphicWith = expectedModel.isIsomorphicWith(actualModel);
