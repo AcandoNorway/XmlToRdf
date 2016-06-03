@@ -16,8 +16,6 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.apache.jena.graph.NodeFactory;
-import org.openrdf.model.IRI;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -41,6 +39,8 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
     Stack<Element> elementStack = new Stack<>();
 
     Builder.Advanced<Datatype, ? extends Builder.Advanced> builder;
+
+    private long uriCounter = 0;
 
 
     public AdvancedSaxHandler(OutputStream out, Builder.Advanced<Datatype, ? extends Builder.Advanced> builder) {
@@ -73,9 +73,6 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-
-        //String value = new String(ch, start, length);
-
 
         if (length > 0) {
 
@@ -237,7 +234,7 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
             element.uri = tempUri + UUID.randomUUID().toString();
 
         } else {
-            element.uri = "_:" + UUID.randomUUID().toString();
+            element.uri = "_:" + uriCounter++;
 
         }
 
@@ -252,11 +249,11 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
             }
         }
 
-        for (int i = 0; i < attributes.getLength(); i++) {
+        int length = attributes.getLength();
+        for (int i = 0; i < length; i++) {
             String uriAttr = attributes.getURI(i);
             String nameAttr = attributes.getLocalName(i);
             String valueAttr = attributes.getValue(i);
-            String qname = attributes.getQName(i);
 
             if (builder.transformForAttributeValue) {
                 StringTransform stringTransform = null;
@@ -325,6 +322,7 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
 
 
     }
+
 
     @Override
     public void endDocument() throws SAXException {

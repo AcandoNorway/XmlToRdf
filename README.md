@@ -9,8 +9,11 @@ Benchmark results
 
 | Method | File size | Time |
 |--------|---|---|
-|Fast convert | 100 MB | 2.682 seconds |
-|Object convert | 100 MB | 6.466 seconds |
+|Fast convert | 100 MB | 2.027 seconds |
+|Object convert | 100 MB |  2.980 seconds |
+|Jena convert | 100 MB |  9.980 seconds |
+|Sesame convert | 100 MB |  9.597 seconds |
+
 
 Benchmark information
  - *JDK*: JDK 1.8.0_65, VM 25.65-b01
