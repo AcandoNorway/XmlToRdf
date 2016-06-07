@@ -2,8 +2,9 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix dc: <http://purl.org/dc/elements/1.1/> .
-@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
 
 
 xmlToRdf:hasChild a  rdf:Property.
 xmlToRdf:hasValue a  rdf:Property.
+xmlToRdf:xsdReference a rdf:Property.
