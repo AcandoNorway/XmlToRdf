@@ -27,7 +27,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.openrdf.model.Statement;
-import org.openrdf.model.ValueFactory;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.repository.Repository;
@@ -48,6 +47,10 @@ import static junit.framework.TestCase.assertTrue;
 
 public class XmlToRdfTest {
 
+    public static final String HELLO = "hello";
+    public static final String HTTP_A = "http://a/";
+    public static final String HTTP_TEST = "http://test/";
+    public static final String HTTP_A_NAME = "http://a/name";
     final String RDF = org.apache.jena.vocabulary.RDF.uri;
 
 
@@ -61,11 +64,11 @@ public class XmlToRdfTest {
     @Test
     public void simple() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).build());
 
 
     }
@@ -74,9 +77,9 @@ public class XmlToRdfTest {
     @Test
     public void mixedContent() throws Exception {
         // testJena(Builder.getJenaBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 
         //testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
 
@@ -86,11 +89,11 @@ public class XmlToRdfTest {
     public void simpleWithAttrs() throws Exception {
 
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).build());
 
 
     }
@@ -107,17 +110,17 @@ public class XmlToRdfTest {
         };
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .overrideNamespace("http://test/")
+            .overrideNamespace(HTTP_TEST)
             .uuidBasedIdInsteadOfBlankNodes(true)
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .overrideNamespace("http://test/")
+            .overrideNamespace(HTTP_TEST)
             .uuidBasedIdInsteadOfBlankNodes(true)
             .build());
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .overrideNamespace("http://test/")
+            .overrideNamespace(HTTP_TEST)
             .uuidBasedIdInsteadOfBlankNodes(true)
             .build());
 
@@ -129,9 +132,9 @@ public class XmlToRdfTest {
     //  @Ignore
     @Test
     public void inLineData() throws Exception {
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).build());
 
         //testFast(Builder.getFastBuilder().overrideNamespace("http://test/").build());
 
@@ -139,11 +142,11 @@ public class XmlToRdfTest {
 
     @Test
     public void specialCharacters() throws Exception {
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).build());
 
 
     }
@@ -154,19 +157,19 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder
             .getAdvancedBuilderStream()
             .autoAttributeNamespace(false)
-            .setBaseNamespace("http://test/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
 
         testAdvancedSesame(Builder
             .getAdvancedBuilderSesame()
             .autoAttributeNamespace(false)
-            .setBaseNamespace("http://test/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
 
         testAdvancedJena(Builder
             .getAdvancedBuilderJena()
             .autoAttributeNamespace(false)
-            .setBaseNamespace("http://test/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
     }
 
@@ -241,9 +244,9 @@ public class XmlToRdfTest {
     @Test
     public void checkIndexes() throws Exception {
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").addIndex(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").addIndex(true).build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").addIndex(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).addIndex(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).addIndex(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).addIndex(true).build());
 
 
 //           testFast(Builder.getFastBuilder().overrideNamespace("http://test/").addIndex(true).build());
@@ -255,19 +258,19 @@ public class XmlToRdfTest {
     @Test
     public void attributeForId() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/")
-            .addUseAttributeForId("A", "id", (var) -> "http://test/" + var)
-            .addUseAttributeForId("B", "id", (var) -> "http://test/" + var)
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+            .addUseAttributeForId("A", "id", (var) -> HTTP_TEST + var)
+            .addUseAttributeForId("B", "id", (var) -> HTTP_TEST + var)
             .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/")
-            .addUseAttributeForId("A", "id", (var) -> "http://test/" + var)
-            .addUseAttributeForId("B", "id", (var) -> "http://test/" + var)
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
+            .addUseAttributeForId("A", "id", (var) -> HTTP_TEST + var)
+            .addUseAttributeForId("B", "id", (var) -> HTTP_TEST + var)
             .build());
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/")
-            .addUseAttributeForId("A", "id", (var) -> "http://test/" + var)
-            .addUseAttributeForId("B", "id", (var) -> "http://test/" + var)
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
+            .addUseAttributeForId("A", "id", (var) -> HTTP_TEST + var)
+            .addUseAttributeForId("B", "id", (var) -> HTTP_TEST + var)
             .build());
 
 
@@ -278,18 +281,18 @@ public class XmlToRdfTest {
 
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addUseAttributeForId("http://example.com/A", "id", (var) -> "http://test/" + var)
-            .addUseAttributeForId("http://example2.com/B", "id", (var) -> "http://test/" + var)
+            .addUseAttributeForId("http://example.com/A", "id", (var) -> HTTP_TEST + var)
+            .addUseAttributeForId("http://example2.com/B", "id", (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .addUseAttributeForId("http://example.com/A", "id", (var) -> "http://test/" + var)
-            .addUseAttributeForId("http://example2.com/B", "id", (var) -> "http://test/" + var)
+            .addUseAttributeForId("http://example.com/A", "id", (var) -> HTTP_TEST + var)
+            .addUseAttributeForId("http://example2.com/B", "id", (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addUseAttributeForId("http://example.com/A", "id", (var) -> "http://test/" + var)
-            .addUseAttributeForId("http://example2.com/B", "id", (var) -> "http://test/" + var)
+            .addUseAttributeForId("http://example.com/A", "id", (var) -> HTTP_TEST + var)
+            .addUseAttributeForId("http://example2.com/B", "id", (var) -> HTTP_TEST + var)
             .build());
     }
 
@@ -297,17 +300,17 @@ public class XmlToRdfTest {
     public void attributeForId2() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addUseAttributeForId(null, "id", (var) -> "http://test/" + var)
+            .addUseAttributeForId(null, "id", (var) -> HTTP_TEST + var)
             .build());
 
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .addUseAttributeForId(null, "id", (var) -> "http://test/" + var)
+            .addUseAttributeForId(null, "id", (var) -> HTTP_TEST + var)
             .build());
 
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addUseAttributeForId(null, "id", (var) -> "http://test/" + var)
+            .addUseAttributeForId(null, "id", (var) -> HTTP_TEST + var)
             .build());
     }
 
@@ -319,11 +322,11 @@ public class XmlToRdfTest {
         map.put("B", "http://hurra/B2");
 
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(false).addMapForClasses(map).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(false).addMapForClasses(map).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(false).addMapForClasses(map).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).addMapForClasses(map).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).addMapForClasses(map).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).addMapForClasses(map).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).addMapForClasses(map).build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).addMapForClasses(map).build());
 
 
     }
@@ -331,11 +334,11 @@ public class XmlToRdfTest {
     @Test
     public void detectLiteralProperties() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 
 
     }
@@ -343,10 +346,10 @@ public class XmlToRdfTest {
     @Test
     public void detectLiteralPropertiesWithAttributes() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 
 
     }
@@ -354,20 +357,20 @@ public class XmlToRdfTest {
     @Test
     public void detectLiteralPropertiesWithAttributesEdgeCaseWithRdfType() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 
 
     }
 
     @Test
     public void detectLiteralPropertiesEdgeCaseWithoutParent() throws Exception {
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 
 
     }
@@ -376,9 +379,9 @@ public class XmlToRdfTest {
     public void detectLiteralPropertiesEdgeCaseWithoutParent2() throws Exception {
 
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 //        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
 
@@ -388,19 +391,19 @@ public class XmlToRdfTest {
     public void detectLiteralPropertiesWithAttributesEdgeCaseWithoutParent() throws Exception {
 
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 
     }
 
     @Test
     public void tesAautoDetectLiteralPropertiesSetToFalse() throws Exception {
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(false).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(false).build());
 
 
     }
@@ -410,19 +413,19 @@ public class XmlToRdfTest {
     public void withEmptyElements() throws Exception {
 
 
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 
 
     }
 
     @Test
     public void withSpecialAmp() throws Exception {
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).autoDetectLiteralProperties(true).build());
 // testFast(Builder.getFastBuilder().overrideNamespace("http://test/").autoDetectLiteralProperties(true).build());
 
     }
@@ -431,16 +434,16 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/")
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(null, null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/")
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(null, null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/")
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(null, null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/")
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(null, null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
 
@@ -449,16 +452,16 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform2() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/")
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/")
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/")
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/")
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
 
@@ -467,16 +470,16 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform3() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/")
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(null, "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/")
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(null, "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/")
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(null, "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/")
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(null, "hurra", (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
 
@@ -486,16 +489,16 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform4() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/")
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/")
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/")
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/")
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .autoDetectLiteralProperties(true).build());
 
@@ -505,20 +508,20 @@ public class XmlToRdfTest {
     public void attrValueTransform5() throws Exception {
 
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://test/")
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .addTransformForAttributeValue(null, "test", (val) -> val.replaceAll("lala", "dada"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://test/")
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .addTransformForAttributeValue(null, "test", (val) -> val.replaceAll("lala", "dada"))
             .autoDetectLiteralProperties(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://test/")
+        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .addTransformForAttributeValue(null, "test", (val) -> val.replaceAll("lala", "dada"))
             .autoDetectLiteralProperties(true).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/")
+        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue("name", null, (val) -> val.replaceAll("ll", "qq"))
             .addTransformForAttributeValue(null, "test", (val) -> val.replaceAll("lala", "dada"))
 
@@ -567,13 +570,13 @@ public class XmlToRdfTest {
 //                        .autoConvertShallowChildrenToProperties(true).build());
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addUseAttributeForId(null, RDF + "nodeID", (var) -> "http://test/" + var)
+            .addUseAttributeForId(null, RDF + "nodeID", (var) -> HTTP_TEST + var)
             .autoConvertShallowChildrenToProperties(true).build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .addUseAttributeForId(null, RDF + "nodeID", (var) -> "http://test/" + var)
+            .addUseAttributeForId(null, RDF + "nodeID", (var) -> HTTP_TEST + var)
             .autoConvertShallowChildrenToProperties(true).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addUseAttributeForId(null, RDF + "nodeID", (var) -> "http://test/" + var)
+            .addUseAttributeForId(null, RDF + "nodeID", (var) -> HTTP_TEST + var)
             .autoConvertShallowChildrenToProperties(true).build());
     }
 
@@ -607,18 +610,18 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .autoConvertShallowChildrenToProperties(true)
             .autoConvertShallowChildrenWithAutoDetectLiteralProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .autoConvertShallowChildrenToProperties(true)
             .autoConvertShallowChildrenWithAutoDetectLiteralProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .autoConvertShallowChildrenToProperties(true)
             .autoConvertShallowChildrenWithAutoDetectLiteralProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
     }
 
@@ -628,18 +631,18 @@ public class XmlToRdfTest {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .autoConvertShallowChildrenToProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPropertyBetween("http://a/hasB", "http://a/A", "http://a/B")
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .autoConvertShallowChildrenToProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPropertyBetween("http://a/hasB", "http://a/A", "http://a/B")
             .build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .autoConvertShallowChildrenToProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPropertyBetween("http://a/hasB", "http://a/A", "http://a/B")
             .build());
 
@@ -661,7 +664,7 @@ public class XmlToRdfTest {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .autoConvertShallowChildrenToProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPropertyBetween("http://a/belongsToA", "http://a/A", "http://a/B")
             .invertProperty("http://a/belongsToA", "http://a/A", "http://a/B")
 
@@ -669,7 +672,7 @@ public class XmlToRdfTest {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .autoConvertShallowChildrenToProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPropertyBetween("http://a/belongsToA", "http://a/A", "http://a/B")
             .invertProperty("http://a/belongsToA", "http://a/A", "http://a/B")
 
@@ -677,7 +680,7 @@ public class XmlToRdfTest {
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .autoConvertShallowChildrenToProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPropertyBetween("http://a/belongsToA", "http://a/A", "http://a/B")
             .invertProperty("http://a/belongsToA", "http://a/A", "http://a/B")
 
@@ -712,7 +715,7 @@ public class XmlToRdfTest {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .autoConvertShallowChildrenToProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER)
             .setDatatype("http://a/date", XMLSchema.DATE)
 
@@ -720,7 +723,7 @@ public class XmlToRdfTest {
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .autoConvertShallowChildrenToProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XSDDatatype.XSDinteger)
             .setDatatype("http://a/date", XSDDatatype.XSDdate)
 
@@ -728,7 +731,7 @@ public class XmlToRdfTest {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .autoConvertShallowChildrenToProperties(true)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER.toString())
             .setDatatype("http://a/date", XMLSchema.DATE.toString())
 
@@ -746,7 +749,7 @@ public class XmlToRdfTest {
             .autoConvertShallowChildrenWithAutoDetectLiteralProperties(false)
             .autoConvertShallowChildrenToProperties(false)
             .autoDetectLiteralProperties(false)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER)
             .setDatatype("http://a/date", XMLSchema.DATE)
 
@@ -756,7 +759,7 @@ public class XmlToRdfTest {
             .autoConvertShallowChildrenWithAutoDetectLiteralProperties(false)
             .autoConvertShallowChildrenToProperties(false)
             .autoDetectLiteralProperties(false)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XSDDatatype.XSDinteger)
             .setDatatype("http://a/date", XSDDatatype.XSDdate)
 
@@ -767,7 +770,7 @@ public class XmlToRdfTest {
             .autoConvertShallowChildrenWithAutoDetectLiteralProperties(false)
             .autoConvertShallowChildrenToProperties(false)
             .autoDetectLiteralProperties(false)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER.toString())
             .setDatatype("http://a/date", XMLSchema.DATE.toString())
 
@@ -778,12 +781,10 @@ public class XmlToRdfTest {
     @Test
     public void literalOnPropertyTests() throws Exception {
 
-
-
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .autoDetectLiteralProperties(false)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
-          .mapLiteralOnProperty("http://a/name", "hello", SimpleValueFactory.getInstance().createIRI("http://test/"))
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+          .mapLiteralOnProperty(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
 
             .build());
 
@@ -791,16 +792,79 @@ public class XmlToRdfTest {
 
             .autoDetectLiteralProperties(false)
 
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
-            .mapLiteralOnProperty("http://a/name", "hello", NodeFactory.createURI("http://test/"))
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
 
             .build());
 
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .autoDetectLiteralProperties(false)
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
-            .mapLiteralOnProperty("http://a/name", "hello", "http://test/")
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, HTTP_TEST)
+
+
+            .build());
+
+    }
+
+    @Test
+    public void literalOnPropertyShallowTests() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .autoDetectLiteralProperties(false)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
+            .autoConvertShallowChildrenToProperties(true)
+
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+
+            .autoDetectLiteralProperties(false)
+
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
+            .autoConvertShallowChildrenToProperties(true)
+
+            .build());
+
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .autoDetectLiteralProperties(false)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, HTTP_TEST)
+            .autoConvertShallowChildrenToProperties(true)
+
+
+            .build());
+
+    }
+
+    @Test
+    public void literalOnPropertyTestWithAutoDetectLiteral() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .autoDetectLiteralProperties(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
+
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+
+            .autoDetectLiteralProperties(true)
+
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
+
+            .build());
+
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .autoDetectLiteralProperties(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, HTTP_TEST)
 
 
             .build());
@@ -812,14 +876,14 @@ public class XmlToRdfTest {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
 
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
 
             .setBuffer(1)
 
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
 
             .setBuffer(1)
             .build());

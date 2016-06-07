@@ -16,10 +16,8 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import jdk.management.resource.ResourceType;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.Node;
-import org.apache.jena.rdf.model.Resource;
 import org.openrdf.model.IRI;
 
 import java.util.HashMap;
@@ -167,9 +165,13 @@ public class Builder {
         private Map<String, ParentChild> invertProperty = new HashMapNoOverwrite<>();
         private Map<String, String> insertPropertyBetween = new HashMapNoOverwrite<>();
         Map<String, Datatype> datatypeOnElement = new HashMapNoOverwrite<>();
-        Map<String, Map<String, ResourceType>> literalMap = new HashMapNoOverwrite<>();
+        Map<String, Map<String, ResourceType>> literalMap = null;
 
         public T mapLiteralOnProperty(String property, String value, ResourceType resource) {
+            if (literalMap == null) {
+                literalMap = new HashMapNoOverwrite<>();
+            }
+
             if(!literalMap.containsKey(property)) {
                 literalMap.put(property, new HashMapNoOverwrite<String, ResourceType>());
             }
