@@ -29,14 +29,17 @@ import org.xml.sax.SAXException;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 
-public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI> {
+public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
 
     Repository repository;
-    private ArrayBlockingQueue<Statement> queue;
+    private LinkedBlockingDeque<Statement> queue;
     private boolean notDone = true;
     private Thread repoThread;
 
@@ -52,7 +55,7 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI> {
     public AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
         super(null, builder);
 
-        queue = new ArrayBlockingQueue<>(builder.buffer, false);
+        queue = new LinkedBlockingDeque<>(builder.buffer);
 
 
         MemoryStore memoryStore = new MemoryStore();
@@ -130,6 +133,35 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI> {
         return null;
 
     }
+
+    public String createTriple(String subject, String predicate, IRI objectNode) {
+
+
+        IRI predicateNode = valueFactory.createIRI(predicate);
+        Resource subjectNode = null;
+
+
+        if (!subject.startsWith("_:")) {
+            subjectNode = valueFactory.createIRI(subject);
+
+        } else {
+            subjectNode = valueFactory.createBNode(subject);
+
+        }
+
+
+
+
+        try {
+            queue.put(valueFactory.createStatement(subjectNode, predicateNode, objectNode));
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
 
     public String createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
         if (objectLiteral == null) {

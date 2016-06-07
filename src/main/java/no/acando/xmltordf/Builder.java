@@ -16,7 +16,10 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
+import jdk.management.resource.ResourceType;
 import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.graph.Node;
+import org.apache.jena.rdf.model.Resource;
 import org.openrdf.model.IRI;
 
 import java.util.HashMap;
@@ -151,7 +154,7 @@ public class Builder {
         }
     }
 
-    static public class Advanced<Datatype, T extends Advanced<Datatype, T>> extends DefaultWithAddIndex<T> {
+    static public class Advanced<ResourceType, Datatype, T extends Advanced<ResourceType, Datatype, T>> extends DefaultWithAddIndex<T> {
         boolean autoConvertShallowChildrenToProperties;
         String baseNamespace;
         AppliesTo baseNamespaceAppliesTo;
@@ -164,7 +167,15 @@ public class Builder {
         private Map<String, ParentChild> invertProperty = new HashMapNoOverwrite<>();
         private Map<String, String> insertPropertyBetween = new HashMapNoOverwrite<>();
         Map<String, Datatype> datatypeOnElement = new HashMapNoOverwrite<>();
+        Map<String, Map<String, ResourceType>> literalMap = new HashMapNoOverwrite<>();
 
+        public T mapLiteralOnProperty(String property, String value, ResourceType resource) {
+            if(!literalMap.containsKey(property)) {
+                literalMap.put(property, new HashMapNoOverwrite<String, ResourceType>());
+            }
+            literalMap.get(property).put(value, resource);
+            return (T) this;
+        }
 
         public T autoConvertShallowChildrenToProperties(boolean b) {
             autoConvertShallowChildrenToProperties = b;
@@ -277,11 +288,11 @@ public class Builder {
         }
     }
 
-    static public class AdvancedWithBuffer<Datatype, T extends AdvancedWithBuffer<Datatype, T>> extends Advanced<Datatype, T> {
+    static public class AdvancedWithBuffer<ResourceType, Datatype, T extends AdvancedWithBuffer<ResourceType, Datatype, T>> extends Advanced<ResourceType, Datatype, T> {
         int buffer = 1000;
 
 
-        public T setBuffer(int size){
+        public T setBuffer(int size) {
             this.buffer = size;
 
             return (T) this;
@@ -289,8 +300,7 @@ public class Builder {
 
     }
 
-
-        static public class AdvancedJena extends AdvancedWithBuffer<RDFDatatype, AdvancedJena> {
+    static public class AdvancedJena extends AdvancedWithBuffer<Node, RDFDatatype, AdvancedJena> {
 
 
         public XmlToRdfAdvancedJena build() {
@@ -300,7 +310,7 @@ public class Builder {
 
     }
 
-    static public class AdvancedSesame extends AdvancedWithBuffer<IRI, AdvancedSesame> {
+    static public class AdvancedSesame extends AdvancedWithBuffer<IRI, IRI, AdvancedSesame> {
         public XmlToRdfAdvancedSesame build() {
             return new XmlToRdfAdvancedSesame(this);
         }
@@ -308,7 +318,7 @@ public class Builder {
     }
 
 
-    static public class AdvancedStream extends Advanced<String, AdvancedStream> {
+    static public class AdvancedStream extends Advanced<String, String, AdvancedStream> {
         public XmlToRdfAdvancedStream build() {
             return new XmlToRdfAdvancedStream(this);
         }

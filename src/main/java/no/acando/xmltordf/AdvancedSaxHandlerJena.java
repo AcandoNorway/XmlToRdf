@@ -23,9 +23,11 @@ import org.apache.jena.graph.*;
 import org.apache.jena.graph.impl.GraphWithPerform;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.rdf.model.Resource;
 import org.apache.jena.sparql.util.NodeFactoryExtra;
 import org.openrdf.model.IRI;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.repository.Repository;
 import org.xml.sax.SAXException;
 
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 
-public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<RDFDatatype> {
+public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
 
     private static final Node RDF_REST = NodeFactory.createURI(RDF.REST.toString());
@@ -117,6 +119,34 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<RDFDatatype> {
         return null;
 
     }
+
+    public String createTriple(String subject, String predicate, Node objectNode) {
+
+
+        Node predicateNode = NodeFactory.createURI(predicate);
+        Node subjectNode = null;
+
+
+        if (!subject.startsWith("_:")) {
+            subjectNode = NodeFactory.createURI(subject);
+
+        } else {
+            subjectNode = NodeFactory.createBlankNode(subject);
+
+        }
+
+
+        Triple triple = new Triple(subjectNode, predicateNode, objectNode);
+        try {
+            queue.put(triple);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+
+    }
+
 
     public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
         if (objectLiteral == null) {

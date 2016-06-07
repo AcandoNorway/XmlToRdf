@@ -16,6 +16,7 @@ limitations under the License.
 
 import no.acando.xmltordf.*;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFLanguages;
@@ -26,6 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
 import org.openrdf.model.Statement;
+import org.openrdf.model.ValueFactory;
+import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -553,7 +556,11 @@ public class XmlToRdfTest {
     }
 
 
-    @Test
+
+
+
+
+        @Test
     public void skosFromLexaurus() throws Exception {
 //            testJena(Builder.getJenaBuilder()
 //                        .addUseAttributeForId(null, RDF + "nodeID", (var) -> "http://test/" + var)
@@ -733,6 +740,8 @@ public class XmlToRdfTest {
     @Test
     public void specifyDatatype2() throws Exception {
 
+
+
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .autoConvertShallowChildrenWithAutoDetectLiteralProperties(false)
             .autoConvertShallowChildrenToProperties(false)
@@ -761,6 +770,38 @@ public class XmlToRdfTest {
             .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER.toString())
             .setDatatype("http://a/date", XMLSchema.DATE.toString())
+
+            .build());
+
+    }
+
+    @Test
+    public void literalOnPropertyTests() throws Exception {
+
+
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .autoDetectLiteralProperties(false)
+            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+          .mapLiteralOnProperty("http://a/name", "hello", SimpleValueFactory.getInstance().createIRI("http://test/"))
+
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+
+            .autoDetectLiteralProperties(false)
+
+            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty("http://a/name", "hello", NodeFactory.createURI("http://test/"))
+
+            .build());
+
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .autoDetectLiteralProperties(false)
+            .setBaseNamespace("http://a/", Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty("http://a/name", "hello", "http://test/")
+
 
             .build());
 

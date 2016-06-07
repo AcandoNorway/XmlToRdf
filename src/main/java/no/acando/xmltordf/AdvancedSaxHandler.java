@@ -27,7 +27,7 @@ import java.util.*;
 import static no.acando.xmltordf.Common.seperator;
 
 
-public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.DefaultHandler{
+public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler{
     private final PrintStream out;
     final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
     final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
@@ -38,12 +38,12 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
 
     Stack<Element> elementStack = new Stack<>();
 
-    Builder.Advanced<Datatype, ? extends Builder.Advanced> builder;
+    Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
 
     private long uriCounter = 0;
 
 
-    public AdvancedSaxHandler(OutputStream out, Builder.Advanced<Datatype, ? extends Builder.Advanced> builder) {
+    public AdvancedSaxHandler(OutputStream out, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         if (out != null) {
             this.out = new PrintStream(out);
         } else {
@@ -69,6 +69,10 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
     abstract String createTripleLiteral(String subject, String predicate, String objectLiteral, Datatype datatype) ;
 
 
+    abstract String createTriple(String uri, String hasValue, ResourceType resourceType) ;
+
+
+
 
 
     @Override
@@ -91,7 +95,7 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
         builder.doComplexTransformForClass(pop);
 
 
-        if (builder.autoConvertShallowChildrenToProperties && pop.hasChild.size() == 0 && pop.parent != null) {
+        if (builder.autoConvertShallowChildrenToProperties && pop.hasChild.isEmpty() && pop.parent != null) {
             pop.shallow = true;
         }
 
@@ -101,15 +105,16 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
             }
         }
 
-        if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.parent != null && pop.properties.isEmpty() && pop.parent.mixedContent.size() == 0) {
+
+        if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.parent != null && pop.properties.isEmpty() && pop.parent.mixedContent.isEmpty()) {
             //convert to literal property
             if (pop.getHasValue() != null) {
                 pop.autoDetectedAsLiteralProperty = true;
                 if (builder.datatypeOnElement.containsKey(pop.type)) {
-                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue(), builder.datatypeOnElement.get(pop.type)));
+                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue(), builder.datatypeOnElement.get(pop.type))); //TRANSFORM
 
                 } else {
-                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue()));
+                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue())); //TRANSFORM
 
                 }
             }
@@ -119,10 +124,10 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
             out.println(createTriple(pop.parent.uri, pop.type, pop.uri));
             if (pop.getHasValue() != null) {
                 if (builder.datatypeOnElement.containsKey(pop.uri)) {
-                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue(), builder.datatypeOnElement.get(pop.uri)));
+                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue(), builder.datatypeOnElement.get(pop.uri))); //TRANSFORM
 
                 } else {
-                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue()));
+                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue())); //TRANSFORM
 
                 }
             }
@@ -150,11 +155,28 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
                 }
             }
             if (pop.getHasValue() != null) {
+                String hasValueText = pop.getHasValue();
+                ResourceType resourceType = null;
+                if(builder.literalMap.containsKey(pop.getType())){
+                     resourceType = builder.literalMap.get(pop.getType()).get(hasValueText);
+
+                }
+
                 if (builder.datatypeOnElement.containsKey(pop.type)) {
-                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue(), builder.datatypeOnElement.get(pop.type)));
+                   if(resourceType != null){
+                      throw new IllegalStateException("Can not both map literal to object and have datatype at the same time.");
+                   }else {
+                       out.println(createTripleLiteral(pop.uri, this.hasValue, hasValueText, builder.datatypeOnElement.get(pop.type))); //TRANSFORM
+                   }
 
                 } else {
-                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue()));
+                    if(resourceType != null){
+                        out.println(createTriple(pop.uri, this.hasValue, resourceType)); //TRANSFORM
+
+                    }else {
+                        out.println(createTripleLiteral(pop.uri, this.hasValue, hasValueText)); //TRANSFORM
+
+                    }
 
                 }
 
@@ -180,8 +202,6 @@ public abstract class AdvancedSaxHandler<Datatype> extends org.xml.sax.helpers.D
         cleanUp(pop);
 
     }
-
-
 
 
     private void cleanUp(Element pop) {

@@ -45,7 +45,7 @@ public class XmlToRdfAdvancedStream {
 
         SAXParser saxParser = factory.newSAXParser();
 
-        AdvancedSaxHandler<String> handler = new AdvancedSaxHandlerString(out, builder);
+        AdvancedSaxHandlerString handler = new AdvancedSaxHandlerString(out, builder);
 
 
         saxParser.parse(in, handler);

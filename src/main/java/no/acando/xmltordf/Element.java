@@ -12,7 +12,7 @@ public class Element {
     public Element parent;
     public StringBuilder hasValue;
     public List<Element> hasChild = new ArrayList<>(10);
-    public List<Property> properties = new ArrayList<>(10);
+    public List<Property> properties = new ArrayList<>(3);
      long index = 0;
      boolean shallow;
      boolean autoDetectedAsLiteralProperty;

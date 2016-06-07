@@ -28,7 +28,7 @@ import java.util.*;
 import static no.acando.xmltordf.Common.seperator;
 
 
-public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String> {
+public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
     private final PrintStream out;
     final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
     final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
