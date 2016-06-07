@@ -1056,7 +1056,7 @@ public class XmlToRdfTest {
 
     private String modelToString(Model createdModel) {
 
-        createdModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/ontology.ttl#");
+        createdModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
         createdModel.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
         createdModel.setNsPrefix("skos", "http://www.w3.org/2004/02/skos/core#");
 

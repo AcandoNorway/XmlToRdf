@@ -1,4 +1,4 @@
-@prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#> .
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
 
 <http://test/1>  a         <http://test/A> ;
         xmlToRdf:hasChild  <http://test/2> ;

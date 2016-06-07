@@ -29,11 +29,11 @@ import static no.acando.xmltordf.Common.seperator;
 
 public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler{
     private final PrintStream out;
-    final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
-    final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
-    final String index = "http://acandonorway.github.com/ontology.ttl#" + "index";
-    final String EndOfFile = "http://acandonorway.github.com/ontology.ttl#" + "EndOfFile";
-    private final String hasMixedContent = "http://acandonorway.github.com/ontology.ttl#" + "hasMixedContent";
+    final String hasChild = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasChild";
+    final String hasValue = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasValue";
+    final String index = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "index";
+    final String EndOfFile = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "EndOfFile";
+    private final String hasMixedContent = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasMixedContent";
 
 
     Stack<Element> elementStack = new Stack<>();

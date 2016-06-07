@@ -39,8 +39,8 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     private Stack<String> typeStack = new Stack<>();
 
 
-    private final String hasChild = "http://acandonorway.github.com/ontology.ttl#" + "hasChild";
-    private final String hasValue = "http://acandonorway.github.com/ontology.ttl#" + "hasValue";
+    private final String hasChild = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasChild";
+    private final String hasValue = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasValue";
 
 
     private long index = 0;
