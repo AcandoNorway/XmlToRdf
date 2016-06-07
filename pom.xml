@@ -7,6 +7,10 @@
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
     <version>1.2.0</version>
+    <packaging>pom</packaging>
+    <modules>
+        <module>doclet</module>
+    </modules>
 
     <dependencies>
         <dependency>
@@ -68,6 +72,14 @@
             <version>0.9.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>sun.jdk</groupId>
+            <artifactId>tools</artifactId>
+            <version>1.8</version>
+            <scope>system</scope>
+            <systemPath>${java.home}/../lib/tools.jar</systemPath>
+        </dependency>
+
 
     </dependencies>
 
@@ -82,6 +94,56 @@
                     <source>1.8</source>
                     <target>1.8</target>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.10.3</version>
+
+                <executions>
+                <execution>
+                <id>attach-javadoc</id>
+                <phase>prepare-package</phase>
+                <goals>
+                <goal>jar</goal>
+                </goals>
+                </execution>
+                </executions>
+                <configuration>
+                    <doclet>no.acando.xmltordf.doclet.GenerateDocs</doclet>
+                    <destDir>../documentation</destDir>
+
+                    <author>false</author>
+                    <useStandardDocletOptions>false</useStandardDocletOptions>
+
+                    <docletArtifacts>
+                        <docletArtifact>
+                            <groupId>no.acando</groupId>
+                            <artifactId>xmltordf_doclet</artifactId>
+                            <version>1.0</version>
+                        </docletArtifact>
+                    </docletArtifacts>
+                    <linksource>true</linksource>
+
+
+                    <sourcepath>${project.basedir}/../src</sourcepath>
+                    <!-- there has got to be a better way to do this! -->
+                    <!-- how can I fix the CSSD-Web - Base to use a proper manifest file? -->
+                    <!--<docletPath>-->
+                    <!--\;.;${project.build.outputDirectory};-->
+                    <!--/Users/havardottestad/.m2/repository/net/openhft/compiler/2.2.4/compiler-2.2.4.jar;-->
+                    <!--/Users/havardottestad/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar;-->
+
+                    <!--</docletPath>-->
+
+
+
+
+
+
+                </configuration>
+
             </plugin>
 
 

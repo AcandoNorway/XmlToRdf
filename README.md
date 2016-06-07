@@ -57,3 +57,8 @@ And then you need to use that directory as a local repository in your project:
     </repository>
 </repositories>
 ```
+
+Generate Documentation
+=================
+
+ javadoc -doclet no.acando.xmltordf.docs.GenerateDocs -docletpath target/classes/ src/main/java/no/acando/xmltordf/Builder.java

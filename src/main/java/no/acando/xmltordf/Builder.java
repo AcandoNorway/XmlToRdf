@@ -76,8 +76,31 @@ public class Builder {
             return (T) this;
         }
 
-        public T autoDetectLiteralProperties(boolean b) {
-            autoDetectLiteralProperties = b;
+
+	    /**
+           *
+           * @xml
+           * <Person xmlns="http://example.org/">
+           *    <name>John Doe</name>
+           * </Person>
+           * @optionLabel Auto detect literal properties enabled
+           * @optionCommand Builder.getAdvancedBuilderJena().autoDetectLiteralProperties(true).build()
+           *@optionJs
+           * var builder = Java.type("no.acando.xmltordf.Builder")
+           * .getAdvancedBuilderJena();
+           *
+           * print(builder.toString())
+           *
+           *
+           * @optionLabel Auto detect literal properties disabled
+           * @optionCommad Builder.getAdvancedBuilderJena().autoDetectLiteralProperties(false).build()
+           *
+           * @param enable auto detection of literal properties default true
+           *
+           * @return abc
+           */
+        public T autoDetectLiteralProperties(boolean enable) {
+            autoDetectLiteralProperties = enable;
 
             return (T) this;
         }
