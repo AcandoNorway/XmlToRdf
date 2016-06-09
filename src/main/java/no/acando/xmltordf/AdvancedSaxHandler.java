@@ -27,7 +27,8 @@ import java.util.*;
 import static no.acando.xmltordf.Common.seperator;
 
 
-public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler{
+public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler {
+    public static final String BLANK_NODE_PREFIX = "_:";
     private final PrintStream out;
     final String hasChild = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasChild";
     final String hasValue = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasValue";
@@ -35,13 +36,11 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     final String EndOfFile = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "EndOfFile";
     private final String hasMixedContent = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasMixedContent";
 
-
     Stack<Element> elementStack = new Stack<>();
 
     Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
 
     private long uriCounter = 0;
-
 
     public AdvancedSaxHandler(OutputStream out, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         if (out != null) {
@@ -57,7 +56,6 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         this.builder = builder;
     }
 
-
     abstract String createTriple(String subject, String predicate, String object);
 
     abstract String createTripleLiteral(String subject, String predicate, String objectLiteral);
@@ -68,12 +66,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
     abstract String createTripleLiteral(String subject, String predicate, String objectLiteral, Datatype datatype) ;
 
-
     abstract String createTriple(String uri, String hasValue, ResourceType resourceType) ;
-
-
-
-
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
@@ -86,14 +79,13 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
     }
 
+    //TODO: this method is enormous, consider breaking it down
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
         Element pop = elementStack.pop();
 
-
         builder.doComplexTransformForClass(pop);
-
 
         if (builder.autoConvertShallowChildrenToProperties && pop.hasChild.isEmpty() && pop.parent != null) {
             pop.shallow = true;
@@ -105,11 +97,10 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
         }
 
-
         if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.parent != null && pop.properties.isEmpty() && pop.parent.mixedContent.isEmpty()) {
             //convert to literal property
             if (pop.getHasValue() != null) {
-                Optional <ResourceType> resourceType = mapLiteralToResource(pop);
+                Optional<ResourceType> resourceType = mapLiteralToResource(pop);
                 pop.autoDetectedAsLiteralProperty = true;
                 if (builder.datatypeOnElement.containsKey(pop.type)) {
                     if (resourceType.isPresent()) {
@@ -145,9 +136,9 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                     }
                 }
             }
-            pop.properties.stream().forEach((p) -> {
-                if (p.value != null) {
-                    out.println(createTripleLiteral(pop.uri, p.uriAttr + p.qname, p.value));
+            pop.properties.stream().forEach((property) -> {
+                if (property.value != null) {
+                    out.println(createTripleLiteral(pop.uri, property.uriAttr + property.qname, property.value));
                 }
             });
 
@@ -169,20 +160,20 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                 }
             }
             if (pop.getHasValue() != null) {
-                Optional <ResourceType> resourceType = mapLiteralToResource(pop);
+                Optional<ResourceType> resourceType = mapLiteralToResource(pop);
 
                 if (builder.datatypeOnElement.containsKey(pop.type)) {
-                   if(resourceType.isPresent()){
+                   if (resourceType.isPresent()) {
                       throw new IllegalStateException("Can not both map literal to object and have datatype at the same time.");
-                   }else {
+                   } else {
                        out.println(createTripleLiteral(pop.uri, this.hasValue, pop.getHasValue(), builder.datatypeOnElement.get(pop.type))); //TRANSFORM
                    }
 
                 } else {
-                    if(resourceType.isPresent()){
+                    if (resourceType.isPresent()) {
                         out.println(createTriple(pop.uri, this.hasValue, resourceType.get())); //TRANSFORM
 
-                    }else {
+                    } else {
                         out.println(createTripleLiteral(pop.uri, this.hasValue, pop.getHasValue())); //TRANSFORM
 
                     }
@@ -195,9 +186,9 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
 
             }
-            pop.properties.stream().forEach((p) -> {
-                if (p.value != null) {
-                    out.println(createTripleLiteral(pop.uri, p.uriAttr + p.qname, p.value));
+            pop.properties.stream().forEach((property) -> {
+                if (property.value != null) {
+                    out.println(createTripleLiteral(pop.uri, property.uriAttr + property.qname, property.value));
                 }
             });
 
@@ -206,7 +197,6 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
 
         }
-
 
         cleanUp(pop);
 
@@ -223,16 +213,15 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         return Optional.empty();
     }
 
-
     private void cleanUp(Element pop) {
         pop.hasChild = null;
         pop.parent = null;
         pop.properties = null;
     }
 
+    //TODO: this method is enormous, consider breaking it down
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-
 
         boolean mixedContent = false;
         if (elementStack.size() > 0) {
@@ -250,7 +239,6 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
         }
 
-
         if ((uri == null || uri.isEmpty()) && builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justElements || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
             uri = builder.baseNamespace;
         }
@@ -260,7 +248,6 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         } else {
             element.type = uri + localName;
         }
-
 
         if (builder.mapForClasses != null && builder.mapForClasses.containsKey(uri + localName)) {
             element.type = builder.mapForClasses.get(uri + localName);
@@ -274,7 +261,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             element.uri = tempUri + UUID.randomUUID().toString();
 
         } else {
-            element.uri = "_:" + uriCounter++;
+            element.uri = BLANK_NODE_PREFIX + uriCounter++;
 
         }
 
@@ -330,7 +317,6 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                 }
             }
 
-
             if (builder.overrideNamespace != null) {
                 uriAttr = builder.overrideNamespace;
             }
@@ -340,7 +326,6 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                     uriAttr += builder.autoAddSuffixToNamespace;
                 }
             }
-
 
             if (uriAttr == null || uriAttr.isEmpty()) {
                 if (builder.autoAttributeNamespace && uri != null && !uri.isEmpty()) {
@@ -357,20 +342,15 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         element.parent = parent;
 
-
         elementStack.push(element);
 
-
     }
-
 
     @Override
     public void endDocument() throws SAXException {
 
         out.flush();
-
         out.close();
     }
-
 
 }
