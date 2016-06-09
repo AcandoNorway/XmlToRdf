@@ -77,21 +77,17 @@ public class Builder {
         }
 
 
-	    /**
-           *
-           * @xml
-           * <Person xmlns="http://example.org/">
-           *    <name>John Doe</name>
-           * </Person>
-           * @exampleLabel Auto detect literal properties enabled
-           * @exampleCommand Builder.getAdvancedBuilderStream().autoDetectLiteralProperties(true).build()
-           * @exampleLabel Auto detect literal properties disabled
-           * @exampleCommand Builder.getAdvancedBuilderStream().autoDetectLiteralProperties(false).build()
-           *
-           * @param enable auto detection of literal properties default true
-           *
-           * @return abc
-           */
+        /**
+         * @param enable auto detection of literal properties default true
+         * @return abc
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel Auto detect literal properties enabled
+         * @exampleCommand Builder.getAdvancedBuilderStream().autoDetectLiteralProperties(true).build()
+         * @exampleLabel Auto detect literal properties disabled
+         * @exampleCommand Builder.getAdvancedBuilderStream().autoDetectLiteralProperties(false).build()
+         */
         public T autoDetectLiteralProperties(boolean enable) {
             autoDetectLiteralProperties = enable;
 
@@ -203,6 +199,18 @@ public class Builder {
             return (T) this;
         }
 
+        /**
+         * @param b
+         * @return abc
+         * @description Converts elements that only have attributes to a property with the element name and a node with the attributes.
+         * @xml <people xmlns="http://example.org/">
+         * <person name="John Doe" age="89"  />
+         * </people>
+         * @exampleLabel autoConvertShallowChildrenToProperties enabled
+         * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenToProperties(true).build()
+         * @exampleLabel autoConvertShallowChildrenToProperties disabled
+         * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenToProperties(false).build()
+         */
         public T autoConvertShallowChildrenToProperties(boolean b) {
             autoConvertShallowChildrenToProperties = b;
             return (T) this;
@@ -219,6 +227,21 @@ public class Builder {
             return (T) this;
         }
 
+        /**
+         * @param b
+         * @return abc
+         * @description Converts elements ?
+         * @xml
+	   * <people xmlns="http://example.org/">
+	   * 		<person name="John Doe" age="89" >
+         * 		      <maritalStatus>unknown</maritalStatus>
+	   *       </person>
+	   * </people>
+	   * @exampleLabel autoConvertShallowChildrenWithAutoDetectLiteralProperties enabled
+         * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenWithAutoDetectLiteralProperties(true).build()
+         * @exampleLabel autoConvertShallowChildrenWithAutoDetectLiteralProperties disabled
+         * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenWithAutoDetectLiteralProperties(false).build()
+         */
         public T autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
             autoConvertShallowChildrenWithAutoDetectLiteralProperties = b;
             return (T) this;
@@ -229,6 +252,24 @@ public class Builder {
             return (T) this;
         }
 
+
+        /**
+         * @param newProperty
+         * @param parent
+         * @param child
+         * @return abc
+         * @description Converts elements ?
+         * @xml
+         * <people xmlns="http://example.org/">
+         * 		<person name="John Doe" age="89" >
+         * 		      <maritalStatus>unknown</maritalStatus>
+         *       </person>
+         * </people>
+         * @exampleLabel insertPropertyBetween enabled
+         * @exampleCommand Builder.getAdvancedBuilderStream().insertPropertyBetween("http://example.org/hasPerson", "http://example.org/people", "http://example.org/person").build()
+         * @exampleLabel insertPropertyBetween disabled
+         * @exampleCommand Builder.getAdvancedBuilderStream().build()
+         */
         public T insertPropertyBetween(String newProperty, String parent, String child) {
             if (insertPropertyBetween == null) {
                 insertPropertyBetween = new HashMapNoOverwrite<>();
@@ -245,6 +286,29 @@ public class Builder {
             return insertPropertyBetween.get(parent + seperator + child);
         }
 
+        /**
+         * @param newProperty
+         * @param parent
+         * @param child
+         * @return abc
+         * @description Converts elements ?
+         * @xml
+         * <person xmlns="http://example.org/"  name="John Doe">
+         * 		<dog name="Woof"  >
+         *       </dog>
+         * </person>
+         * @exampleLabel invertProperty
+         * @exampleCommand
+         * Builder.getAdvancedBuilderStream()
+         *      .insertPropertyBetween("http://example.org/ownedBy", "http://example.org/person", "http://example.org/dog")
+         *      .invertProperty("http://example.org/ownedBy", null, null)
+         *  .build()
+         * @exampleLabel invertProperty
+         * @exampleCommand
+         * Builder.getAdvancedBuilderStream()
+         *      .insertPropertyBetween("http://example.org/ownedBy", "http://example.org/person", "http://example.org/dog")
+         *      .build()
+         */
         public T invertProperty(String property, String parent, String child) {
             if (invertProperty == null) {
                 invertProperty = new HashMapNoOverwrite<>();

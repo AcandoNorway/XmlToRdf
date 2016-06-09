@@ -22,7 +22,8 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
 
-interface ExampleInterface {
+@SuppressWarnings("WeakerAccess")
+public interface ExampleInterface {
 
 	String toString(String xml) throws IOException, SAXException, ParserConfigurationException;
 

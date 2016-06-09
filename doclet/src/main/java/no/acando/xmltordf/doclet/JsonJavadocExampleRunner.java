@@ -79,7 +79,7 @@ public class JsonJavadocExampleRunner {
 
 			printWriter.println("**XML example**\n```xml");
 			printWriter.println(example.xml);
-			printWriter.println("```");
+			printWriter.println("```\n");
 
 			for (Example.InnerExample innerExample : example.innerExamples) {
 				counter++;
@@ -93,7 +93,7 @@ public class JsonJavadocExampleRunner {
 				printWriter.println("### " + innerExample.exampleLabel);
 				printWriter.println("**Java code**\n```java");
 				printWriter.println(innerExample.exampleCommand);
-				printWriter.println("```");
+				printWriter.println("```\n");
 
 
 				Class aClass = CompilerUtils.CACHED_COMPILER.loadFromJava(Builder.getAdvancedBuilderStream().getClass().getClassLoader(), "mypackage.Temp" + counter, builder);
@@ -114,7 +114,7 @@ public class JsonJavadocExampleRunner {
 
 				printWriter.println("**RDF output**\n```turtle");
 				printWriter.println(stringWriter.toString());
-				printWriter.println("```");
+				printWriter.println("```\n");
 
 			}
 
