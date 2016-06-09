@@ -83,17 +83,10 @@ public class Builder {
            * <Person xmlns="http://example.org/">
            *    <name>John Doe</name>
            * </Person>
-           * @optionLabel Auto detect literal properties enabled
-           * @optionCommand Builder.getAdvancedBuilderJena().autoDetectLiteralProperties(true).build()
-           *@optionJs
-           * var builder = Java.type("no.acando.xmltordf.Builder")
-           * .getAdvancedBuilderJena();
-           *
-           * print(builder.toString())
-           *
-           *
-           * @optionLabel Auto detect literal properties disabled
-           * @optionCommad Builder.getAdvancedBuilderJena().autoDetectLiteralProperties(false).build()
+           * @exampleLabel Auto detect literal properties enabled
+           * @exampleCommand Builder.getAdvancedBuilderStream().autoDetectLiteralProperties(true).build()
+           * @exampleLabel Auto detect literal properties disabled
+           * @exampleCommand Builder.getAdvancedBuilderStream().autoDetectLiteralProperties(false).build()
            *
            * @param enable auto detection of literal properties default true
            *

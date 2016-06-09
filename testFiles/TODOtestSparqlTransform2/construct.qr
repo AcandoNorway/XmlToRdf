@@ -1,8 +1,0 @@
-prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#>
-prefix : <http://example.com/>
-
-construct{
-    ?a :num ?c
-}where {
-    ?a :num ?c
-}

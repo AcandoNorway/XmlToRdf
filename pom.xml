@@ -5,11 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>no.acando</groupId>
-    <artifactId>xmltordf</artifactId>
-    <version>1.2.0</version>
+    <artifactId>xmltordf-parent</artifactId>
     <packaging>pom</packaging>
+    <version>1.2.0</version>
     <modules>
         <module>doclet</module>
+        <module>xmltordf</module>
     </modules>
 
     <dependencies>
@@ -80,7 +81,6 @@
             <systemPath>${java.home}/../lib/tools.jar</systemPath>
         </dependency>
 
-
     </dependencies>
 
     <build>
@@ -102,17 +102,17 @@
                 <version>2.10.3</version>
 
                 <executions>
-                <execution>
-                <id>attach-javadoc</id>
-                <phase>prepare-package</phase>
-                <goals>
-                <goal>jar</goal>
-                </goals>
-                </execution>
+                    <execution>
+                        <id>attach-javadoc</id>
+                        <phase>pre-site</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
                 </executions>
                 <configuration>
                     <doclet>no.acando.xmltordf.doclet.GenerateDocs</doclet>
-                    <destDir>../documentation</destDir>
+                    <destDir>documentation</destDir>
 
                     <author>false</author>
                     <useStandardDocletOptions>false</useStandardDocletOptions>
@@ -126,21 +126,7 @@
                     </docletArtifacts>
                     <linksource>true</linksource>
 
-
-                    <sourcepath>${project.basedir}/../src</sourcepath>
-                    <!-- there has got to be a better way to do this! -->
-                    <!-- how can I fix the CSSD-Web - Base to use a proper manifest file? -->
-                    <!--<docletPath>-->
-                    <!--\;.;${project.build.outputDirectory};-->
-                    <!--/Users/havardottestad/.m2/repository/net/openhft/compiler/2.2.4/compiler-2.2.4.jar;-->
-                    <!--/Users/havardottestad/.m2/repository/log4j/log4j/1.2.17/log4j-1.2.17.jar;-->
-
-                    <!--</docletPath>-->
-
-
-
-
-
+                    <sourcepath>${project.basedir}/src</sourcepath>
 
                 </configuration>
 

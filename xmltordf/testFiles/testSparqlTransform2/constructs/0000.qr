@@ -1,4 +1,4 @@
-prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#>
+prefix xmlToRdf: <http://acandonorway.github.com/ontology.ttl#>
 prefix : <http://example.com/>
 
 construct{
