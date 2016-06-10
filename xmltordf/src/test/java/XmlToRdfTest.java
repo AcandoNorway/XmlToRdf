@@ -599,7 +599,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .autoConvertShallowChildrenToProperties(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .insertPropertyBetween(hasB, a, aB)
+            .insertProperty(hasB).between(a, aB)
             .build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .autoConvertShallowChildrenToProperties(true)

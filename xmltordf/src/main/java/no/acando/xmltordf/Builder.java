@@ -88,10 +88,18 @@ public class Builder {
          * @exampleLabel Auto detect literal properties disabled
          * @exampleCommand Builder.getAdvancedBuilderStream().autoDetectLiteralProperties(false).build()
          */
-        public T autoDetectLiteralProperties(boolean enable) {
-            autoDetectLiteralProperties = enable;
+        public T simpleTypePolicy(SimpleTypePolicy policy) {
+            if(policy.equals(SimpleTypePolicy.compact)){
+                autoDetectLiteralProperties = true;
+            }else{
+                autoDetectLiteralProperties = false;
+            }
 
             return (T) this;
+        }
+
+        public enum SimpleTypePolicy{
+            compact, expand
         }
 
         public T addTransformForAttributeValue(String elementName, String attributeName, StringTransform transform) {
@@ -279,6 +287,22 @@ public class Builder {
             return (T) this;
         }
 
+        public Between<T> insertProperty(String newProperty) {
+            Advanced<Datatype, T> that = this;
+            return new Between<T>() {
+                @Override
+                public T between(String parent, String child) {
+                    insertPropertyBetween.put(parent + seperator + child, newProperty);
+                    return (T) that;
+                }
+            };
+
+        }
+
+        public interface Between<TT>{
+            TT between(String parent, String child);
+        }
+
         String getInsertPropertyBetween(String parent, String child) {
             if (insertPropertyBetween == null) {
                 insertPropertyBetween = new HashMapNoOverwrite<>();
@@ -309,12 +333,52 @@ public class Builder {
          *      .insertPropertyBetween("http://example.org/ownedBy", "http://example.org/person", "http://example.org/dog")
          *      .build()
          */
-        public T invertProperty(String property, String parent, String child) {
+        public T invertPropertyBetween(String property, String parent, String child) {
             if (invertProperty == null) {
                 invertProperty = new HashMapNoOverwrite<>();
             }
             invertProperty.put(property, new ParentChild(parent, child));
             return (T) this;
+        }
+
+        public BetweenWithWildcard<T> invertProperty(String property){
+
+            Advanced<Datatype, T> that = this;
+
+            return new BetweenWithWildcard<T>(){
+                @Override
+                public T between(String parent, String child) {
+                    invertProperty.put(property, new ParentChild(parent, child));
+                    return (T) that;
+                }
+
+                @Override
+                public T betweenAny() {
+                    invertProperty.put(property, new ParentChild(null, null));
+                    return (T) that;
+                }
+
+                @Override
+                public T fromAnyParentToChild(String child) {
+                    invertProperty.put(property, new ParentChild(null, child));
+                    return (T) that;
+                }
+
+                @Override
+                public T fromParentToAnyChild(String parent) {
+                    invertProperty.put(property, new ParentChild(parent, null));
+                    return (T) that;
+                }
+            };
+
+        }
+
+        public interface BetweenWithWildcard<TT>{
+
+            TT between(String parent, String child);
+            TT betweenAny();
+            TT fromAnyParentToChild(String child);
+            TT fromParentToAnyChild(String parent);
         }
 
         boolean checkInvertProperty(String property, String parent, String child) {
