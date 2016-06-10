@@ -28,21 +28,16 @@ import org.openrdf.sail.memory.MemoryStore;
 import org.xml.sax.SAXException;
 
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.LinkedBlockingDeque;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 
 
 public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
-
     Repository repository;
     private LinkedBlockingDeque<Statement> queue;
     private boolean notDone = true;
     private Thread repoThread;
-
 
     private final Statement EndOfFileStatement = SimpleValueFactory.getInstance().createStatement(
         SimpleValueFactory.getInstance().createIRI(EndOfFile),
@@ -57,12 +52,10 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
         queue = new LinkedBlockingDeque<>(builder.buffer);
 
-
         MemoryStore memoryStore = new MemoryStore();
         memoryStore.initialize();
 
         this.builder = builder;
-        Thread thread = Thread.currentThread();
         repoThread = new Thread() {
             @Override
             public void run() {
@@ -70,27 +63,23 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
                 NotifyingSailConnection connection = memoryStore.getConnection();
                 connection.begin(IsolationLevels.NONE);
 
-
-                    while (notDone || !queue.isEmpty()) {
-                        try {
-                            Statement take = queue.take();
-                            if(take != EndOfFileStatement) {
-                                connection.addStatement(take.getSubject(), take.getPredicate(), take.getObject());
-                            }
-
-                        } catch (InterruptedException e) {
-                            //e.printStackTrace();
+                while (notDone || !queue.isEmpty()) {
+                    try {
+                        Statement take = queue.take();
+                        if (take != EndOfFileStatement) {
+                            connection.addStatement(take.getSubject(), take.getPredicate(), take.getObject());
                         }
+
+                    } catch (InterruptedException interruptedException) {
+                        //TODO: handle or throw this back up
                     }
+                }
 
-
-                    connection.commit();
+                connection.commit();
 
                 connection.close();
 
                 repository = new SailRepository(memoryStore);
-
-
 
             }
         };
@@ -98,36 +87,17 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         repoThread.start();
     }
 
-
     public String createTriple(String subject, String predicate, String object) {
 
-
         IRI predicateNode = valueFactory.createIRI(predicate);
-        Resource subjectNode = null;
-        Resource objectNode = null;
-
-
-        if (!subject.startsWith("_:")) {
-            subjectNode = valueFactory.createIRI(subject);
-
-        } else {
-            subjectNode = valueFactory.createBNode(subject);
-
-        }
-
-        if (!object.startsWith("_:")) {
-            objectNode = valueFactory.createIRI(object);
-
-        } else {
-            objectNode = valueFactory.createBNode(object);
-
-        }
-
+        Resource subjectNode = getResource(subject);
+        Resource objectNode = getResource(object);
 
         try {
             queue.put(valueFactory.createStatement(subjectNode, predicateNode, objectNode));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException interruptedException) {
+            //TODO: handle or throw this
+            interruptedException.printStackTrace();
         }
 
         return null;
@@ -136,32 +106,19 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     public String createTriple(String subject, String predicate, IRI objectNode) {
 
-
         IRI predicateNode = valueFactory.createIRI(predicate);
-        Resource subjectNode = null;
-
-
-        if (!subject.startsWith("_:")) {
-            subjectNode = valueFactory.createIRI(subject);
-
-        } else {
-            subjectNode = valueFactory.createBNode(subject);
-
-        }
-
-
-
+        Resource subjectNode = getResource(subject);
 
         try {
             queue.put(valueFactory.createStatement(subjectNode, predicateNode, objectNode));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException interruptedException) {
+            //TODO: handle or throw this
+            interruptedException.printStackTrace();
         }
 
         return null;
 
     }
-
 
     public String createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
         if (objectLiteral == null) {
@@ -169,24 +126,15 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         }
 
         IRI predicateNode = valueFactory.createIRI(predicate);
-        Resource subjectNode;
-
-
-        if (!subject.startsWith("_:")) {
-            subjectNode = valueFactory.createIRI(subject);
-
-        } else {
-            subjectNode = valueFactory.createBNode(subject);
-
-        }
-
+        Resource subjectNode = getResource(subject);
 
         Literal literal = valueFactory.createLiteral(objectLiteral, datatype);
 
         try {
             queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException interruptedException) {
+            //TODO: handle or throw this
+            interruptedException.printStackTrace();
         }
 
         return null;
@@ -198,27 +146,24 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         }
 
         IRI predicateNode = valueFactory.createIRI(predicate);
-        Resource subjectNode = null;
-
-
-        if (!subject.startsWith("_:")) {
-            subjectNode = valueFactory.createIRI(subject);
-
-        } else {
-            subjectNode = valueFactory.createBNode(subject);
-
-        }
-
+        Resource subjectNode = getResource(subject);
 
         Literal literal = valueFactory.createLiteral(objectLiteral);
 
+        //TODO: do we care about other literal types? If it's neither int nor long, then what?
         if (builder.autoTypeLiterals) {
             try {
                 literal = valueFactory.createLiteral(Integer.parseInt(objectLiteral));
             } catch (Exception e) {
+                //TODO: handle or throw this
+                //TODO: consider using a specific exception
+                //TODO: consider using a better exception variable name
                 try {
                     literal = valueFactory.createLiteral(Long.parseLong(objectLiteral));
                 } catch (Exception ee) {
+                    //TODO: handle or throw this
+                    //TODO: consider using a specific exception
+                    //TODO: consider using a better exception variable name
                 }
             }
 
@@ -227,57 +172,36 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         try {
             queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));
         } catch (InterruptedException e) {
+            //TODO: handle or throw this
             e.printStackTrace();
         }
 
         return null;
-
 
     }
 
     public String createTripleLiteral(String subject, String predicate, long objectLong) {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
-        Resource subjectNode = null;
-
-
-        if (!subject.startsWith("_:")) {
-            subjectNode = valueFactory.createIRI(subject);
-
-        } else {
-            subjectNode = valueFactory.createBNode(subject);
-
-        }
-
+        Resource subjectNode = getResource(subject);
 
         Literal literal = valueFactory.createLiteral(objectLong);
-
 
         try {
             queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));
         } catch (InterruptedException e) {
+            //TODO: handle or throw this
             e.printStackTrace();
         }
 
         return null;
 
-
     }
 
     public String createList(String subject, String predicate, List<Object> mixedContent) {
 
-
         IRI predicateNode = valueFactory.createIRI(predicate);
-        Resource subjectNode = null;
-
-
-        if (!subject.startsWith("_:")) {
-            subjectNode = valueFactory.createIRI(subject);
-
-        } else {
-            subjectNode = valueFactory.createBNode(subject);
-
-        }
+        Resource subjectNode = getResource(subject);
 
         Resource head = valueFactory.createBNode();
 
@@ -291,7 +215,6 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
                 Element objectElement = (Element) content;
                 if (!objectElement.getUri().startsWith("_:")) {
                     return valueFactory.createIRI(objectElement.getUri());
-
                 } else {
                     return valueFactory.createBNode(objectElement.getUri());
                 }
@@ -303,39 +226,47 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
         Model mixedContentModel = RDFCollections.asRDF(collect, head, new LinkedHashModel());
 
-
         try {
             queue.put(valueFactory.createStatement(subjectNode, predicateNode, head));
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException interruptedException) {
+            //TODO: handle or throw this
+            interruptedException.printStackTrace();
         }
-        mixedContentModel.forEach(s -> {
+        mixedContentModel.forEach(statement -> {
             try {
-                queue.put(s);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                queue.put(statement);
+            } catch (InterruptedException interruptedException) {
+                //TODO: handle or throw this
+                interruptedException.printStackTrace();
             }
         });
 
         return null;
     }
 
-        @Override
+    @Override
     public void endDocument() throws SAXException {
 
         notDone = false;
 
+        try {
+            queue.put(EndOfFileStatement);
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
 
-            try {
-                queue.put(EndOfFileStatement);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-
-            try {
+        try {
             repoThread.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        } catch (InterruptedException interruptedException) {
+            interruptedException.printStackTrace();
+        }
+    }
+
+    private Resource getResource(String subject) {
+        if (!subject.startsWith(BLANK_NODE_PREFIX)) {
+            return  valueFactory.createIRI(subject);
+        } else {
+            return valueFactory.createBNode(subject);
         }
     }
 
