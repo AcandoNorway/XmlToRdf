@@ -32,21 +32,20 @@ public class Builder {
         justAttributes, justElements, bothElementsAndAttributes
     }
 
-
-    static public Fast getFastBuilder() {
-        return new Fast();
-    }
-
-    static public AdvancedStream getAdvancedBuilderStream() {
-        return new AdvancedStream();
+    static public AdvancedJena getAdvancedBuilderJena() {
+        return new AdvancedJena();
     }
 
     static public AdvancedSesame getAdvancedBuilderSesame() {
         return new AdvancedSesame();
     }
 
-    static public AdvancedJena getAdvancedBuilderJena() {
-        return new AdvancedJena();
+    static public AdvancedStream getAdvancedBuilderStream() {
+        return new AdvancedStream();
+    }
+
+    static public Fast getFastBuilder() {
+        return new Fast();
     }
 
     static class Default<T extends Default<T>> {
@@ -57,9 +56,8 @@ public class Builder {
         boolean transformForAttributeValue = false;
         Map<String, StringTransform> transformForAttributeValueMap = new HashMapNoOverwrite<>();
 
-
-        public T overrideNamespace(String ns) {
-            this.overrideNamespace = ns;
+        public T overrideNamespace(String namespace) {
+            this.overrideNamespace = namespace;
             return (T) this;
         }
 
@@ -100,7 +98,6 @@ public class Builder {
 
         }
 
-
     }
 
     static private class DefaultWithAddIndex<T extends DefaultWithAddIndex<T>> extends Default<T> {
@@ -116,7 +113,6 @@ public class Builder {
             return (T) this;
         }
 
-
         public T addUseAttributeForId(String elementName, String attributeName, StringTransform p2) {
             if (elementName == null) {
                 elementName = "";
@@ -127,12 +123,10 @@ public class Builder {
             return (T) this;
         }
 
-
         public T autoAddSuffixToNamespace(String sign) {
             autoAddSuffixToNamespace = sign;
             return (T) this;
         }
-
 
         public T autoAddSuffixToNamespace(boolean enabled) {
             if (!enabled) {
@@ -141,18 +135,16 @@ public class Builder {
             return (T) this;
         }
 
-
     }
 
     static public class Fast extends Default<Fast> {
-
 
         public XmlToRdfFast build() {
             return new XmlToRdfFast(this);
         }
     }
 
-    static public class Advanced<ResourceType, Datatype, T extends Advanced<ResourceType, Datatype, T>> extends DefaultWithAddIndex<T> {
+    static public class Advanced<ResourceType, DataType, T extends Advanced<ResourceType, DataType, T>> extends DefaultWithAddIndex<T> {
         boolean autoConvertShallowChildrenToProperties;
         String baseNamespace;
         AppliesTo baseNamespaceAppliesTo;
@@ -164,7 +156,7 @@ public class Builder {
 
         private Map<String, ParentChild> invertProperty = new HashMapNoOverwrite<>();
         private Map<String, String> insertPropertyBetween = new HashMapNoOverwrite<>();
-        Map<String, Datatype> datatypeOnElement = new HashMapNoOverwrite<>();
+        Map<String, DataType> dataTypeOnElement = new HashMapNoOverwrite<>();
         Map<String, Map<String, ResourceType>> literalMap = null;
 
         public T mapLiteralOnProperty(String property, String value, ResourceType resource) {
@@ -172,7 +164,7 @@ public class Builder {
                 literalMap = new HashMapNoOverwrite<>();
             }
 
-            if(!literalMap.containsKey(property)) {
+            if (!literalMap.containsKey(property)) {
                 literalMap.put(property, new HashMapNoOverwrite<String, ResourceType>());
             }
             literalMap.get(property).put(value, resource);
@@ -190,10 +182,8 @@ public class Builder {
         }
 
         public T setBaseNamespace(String namespace, AppliesTo which) {
-
             baseNamespace = namespace;
             baseNamespaceAppliesTo = which;
-
             return (T) this;
         }
 
@@ -201,7 +191,6 @@ public class Builder {
         public T autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
             autoConvertShallowChildrenWithAutoDetectLiteralProperties = b;
             return (T) this;
-
         }
 
         public T autoTypeLiterals(boolean autoTypeLiterals) {
@@ -219,13 +208,9 @@ public class Builder {
             return insertPropertyBetween.get(parent + seperator + child);
         }
 
-
         public T invertProperty(String property, String parent, String child) {
-
             invertProperty.put(property, new ParentChild(parent, child));
-
             return (T) this;
-
         }
 
         boolean checkInvertProperty(String property, String parent, String child) {
@@ -244,10 +229,8 @@ public class Builder {
             return (T) this;
         }
 
-        public T setDatatype(String fullUriForElement, Datatype datatype) {
-
-            datatypeOnElement.put(fullUriForElement, datatype);
-
+        public T setDatatype(String fullUriForElement, DataType datatype) {
+            dataTypeOnElement.put(fullUriForElement, datatype);
             return (T) this;
         }
 
@@ -274,7 +257,6 @@ public class Builder {
 
         private Map<String, ComplexClassTransform> complexTransformForClass = new HashMapNoOverwrite<>();
 
-
         public T addComplexTransformForClass(String className, ComplexClassTransform transform) {
 
             complexTransformForClass.put(className, transform);
@@ -293,52 +275,41 @@ public class Builder {
     static public class AdvancedWithBuffer<ResourceType, Datatype, T extends AdvancedWithBuffer<ResourceType, Datatype, T>> extends Advanced<ResourceType, Datatype, T> {
         int buffer = 1000;
 
-
         public T setBuffer(int size) {
             this.buffer = size;
-
             return (T) this;
         }
 
     }
 
     static public class AdvancedJena extends AdvancedWithBuffer<Node, RDFDatatype, AdvancedJena> {
-
-
         public XmlToRdfAdvancedJena build() {
             return new XmlToRdfAdvancedJena(this);
         }
-
-
     }
 
     static public class AdvancedSesame extends AdvancedWithBuffer<IRI, IRI, AdvancedSesame> {
         public XmlToRdfAdvancedSesame build() {
             return new XmlToRdfAdvancedSesame(this);
         }
-
     }
-
 
     static public class AdvancedStream extends Advanced<String, String, AdvancedStream> {
         public XmlToRdfAdvancedStream build() {
             return new XmlToRdfAdvancedStream(this);
         }
-
     }
 
-
-    static class HashMapNoOverwrite<k, v> extends HashMap<k, v> {
+    static class HashMapNoOverwrite<Key, Value> extends HashMap<Key, Value> {
 
         @Override
-        public v put(k key, v value) {
+        public Value put(Key key, Value value) {
             if (containsKey(key)) {
                 throw new RuntimeException("Attempted to overwrite key: '" + key.toString() + "' with value: '" + value.toString() + "'");
             }
             return super.put(key, value);
         }
     }
-
 
 }
 
