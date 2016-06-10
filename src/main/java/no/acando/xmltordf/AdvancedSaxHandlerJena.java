@@ -187,7 +187,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
                     Element objectElement = (Element) content;
 
-                    if (objectElement.getUri().startsWith(BLANK_NODE_PREFIX)) {
+                    if (isBlankNode(objectElement.getUri())) {
                         return NodeFactory.createBlankNode(objectElement.getUri());
                     } else {
                         return NodeFactory.createURI(objectElement.getUri());
@@ -249,7 +249,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
     }
 
     private Node getNode(String subject) {
-        if (!subject.startsWith(BLANK_NODE_PREFIX)) {
+        if (!isBlankNode(subject)) {
             return NodeFactory.createURI(subject);
         } else {
             return NodeFactory.createBlankNode(subject);

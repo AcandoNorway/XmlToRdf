@@ -346,6 +346,10 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
     }
 
+    public boolean isBlankNode(String node) {
+        return node.startsWith(BLANK_NODE_PREFIX);
+    }
+
     @Override
     public void endDocument() throws SAXException {
 

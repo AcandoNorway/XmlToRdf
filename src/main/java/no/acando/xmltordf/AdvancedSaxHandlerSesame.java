@@ -263,7 +263,7 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
     }
 
     private Resource getResource(String subject) {
-        if (!subject.startsWith(BLANK_NODE_PREFIX)) {
+        if (!isBlankNode(subject)) {
             return  valueFactory.createIRI(subject);
         } else {
             return valueFactory.createBNode(subject);

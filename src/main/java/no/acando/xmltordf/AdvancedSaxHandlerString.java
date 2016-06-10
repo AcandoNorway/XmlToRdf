@@ -22,18 +22,29 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.List;
-import java.util.Stack;
 
 
 public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
+    public static final char OPEN_CHEVRON_CHAR = '<';
+    public static final String OPEN_CLOSE_CHEVRON_STRING = "> <";
+    public static final String OPEN_CHEVRON_STRING = " <";
+    public static final String XMLSCHEMA_LONG = "\"^^<http://www.w3.org/2001/XMLSchema#long>";
+    public static final String FULL_STOP_STRING = " .";
+    public static final char CLOSE_CHEVRON_CHAR = '>';
+    public static final String CLOSE_CHEVRON_STRING = "> ";
+    public static final char FULL_STOP_CHAR = '.';
+    public static final String CLOSE_CHEVRON_FULL_STOP_STRING = ">.";
+    public static final String CLOSE_CHEVRON_TRIPLE_ESCAPE_STRING = "> \"\"\"";
+    public static final String TRIPLE_ESCAPE_FULL_STOP_STRING = "\"\"\" .";
+    public static final String CLOSE_CHEVRON_ESCAPE_STRING = "> \"";
+    public static final String CLOSE_CHEVRON_SPACE_FULL_STOP_STRING = "> .";
+    public static final String TRIPLE_ESCAPE_ISTYPE_OPEN_CHEVRON_STRING = "\"\"\"^^<";
+    public static final String DOUBLE_ESCAPE = "\\";
+    public static final String SINGLE_ESCAPE = "\"";
+    public static final String TRIPLE_ESCAPE = "\\\"";
+    public static final String QUADRUPLE_ESCAPE = "\\\\";
+    public static final char WHITESPACE_CHAR = ' ';
     private final PrintStream out;
-    final String hasChild = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasChild";
-    final String hasValue = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasValue";
-    final String index = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "index";
-    final String EndOfFile = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "EndOfFile";
-    private final String hasMixedContent = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasMixedContent";
-
-    Stack<Element> elementStack = new Stack<>();
 
     public AdvancedSaxHandlerString(OutputStream out, Builder.AdvancedStream builder) {
         super(out, builder);
@@ -51,24 +62,19 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
     }
 
     public String createTriple(String subject, String predicate, String object) {
-        boolean subjectIsBlank = subject.startsWith("_:");
-        boolean objectIsBlank = object.startsWith("_:");
+        boolean objectIsBlank = isBlankNode(object);
 
-        if (subjectIsBlank) {
+        if (isBlankNode(subject)) {
             if (objectIsBlank) {
-                return subject + " <" + predicate + "> " + object + '.';
-
+                return subject + OPEN_CHEVRON_STRING + predicate + CLOSE_CHEVRON_STRING + object + FULL_STOP_CHAR;
             } else {
-                return subject + " <" + predicate + "> <" + object + ">.";
-
+                return subject + OPEN_CHEVRON_STRING + predicate + OPEN_CLOSE_CHEVRON_STRING + object + CLOSE_CHEVRON_FULL_STOP_STRING;
             }
         } else {
             if (objectIsBlank) {
-                return '<' + subject + "> <" + predicate + "> " + object + '.';
-
+                return OPEN_CHEVRON_CHAR + subject + OPEN_CLOSE_CHEVRON_STRING + predicate + CLOSE_CHEVRON_STRING + object + FULL_STOP_CHAR;
             } else {
-                return '<' + subject + "> <" + predicate + "> <" + object + ">.";
-
+                return OPEN_CHEVRON_CHAR + subject + OPEN_CLOSE_CHEVRON_STRING + predicate + OPEN_CLOSE_CHEVRON_STRING + object + CLOSE_CHEVRON_FULL_STOP_STRING;
             }
         }
 
@@ -80,52 +86,48 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
         }
 
         objectLiteral = objectLiteral
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"");
+            .replace(DOUBLE_ESCAPE, QUADRUPLE_ESCAPE)
+            .replace(SINGLE_ESCAPE, TRIPLE_ESCAPE);
 
-        if (!subject.startsWith("_:")) {
-            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
-
+        if (!isBlankNode(subject)) {
+            return OPEN_CHEVRON_CHAR + subject + OPEN_CLOSE_CHEVRON_STRING + predicate + CLOSE_CHEVRON_TRIPLE_ESCAPE_STRING + objectLiteral + TRIPLE_ESCAPE_FULL_STOP_STRING;
         } else {
-            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
-
+            return subject + OPEN_CHEVRON_STRING + predicate + CLOSE_CHEVRON_TRIPLE_ESCAPE_STRING + objectLiteral + TRIPLE_ESCAPE_FULL_STOP_STRING;
         }
 
     }
 
     public String createTripleLiteral(String subject, String predicate, long objectLong) {
 
-        if (!subject.startsWith("_:")) {
-            return '<' + subject + "> <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+        if (!isBlankNode(subject)) {
+            return OPEN_CHEVRON_CHAR + subject + OPEN_CLOSE_CHEVRON_STRING + predicate + CLOSE_CHEVRON_ESCAPE_STRING + objectLong + XMLSCHEMA_LONG + FULL_STOP_STRING;
         } else {
-            return subject + " <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+            return subject + OPEN_CHEVRON_STRING + predicate + CLOSE_CHEVRON_ESCAPE_STRING + objectLong + XMLSCHEMA_LONG + FULL_STOP_STRING;
         }
 
     }
 
     public String createList(String subject, String predicate, List<Object> mixedContent) {
-        predicate = '<' + predicate + '>';
-        if (!subject.startsWith(BLANK_NODE_PREFIX)) {
-            subject = '<' + subject + '>';
+        predicate = OPEN_CHEVRON_CHAR + predicate + CLOSE_CHEVRON_CHAR;
+        if (!isBlankNode(subject)) {
+            subject = OPEN_CHEVRON_CHAR + subject + CLOSE_CHEVRON_CHAR;
         }
 
-        StringBuilder stringBuilder = new StringBuilder(subject + ' ' + predicate + " (");
+        StringBuilder stringBuilder = new StringBuilder(subject + WHITESPACE_CHAR + predicate + " (");
 
         mixedContent.forEach(content -> {
             if (content instanceof String) {
                 String objectLiteral = (String) content;
                 objectLiteral = objectLiteral
-                    .replace("\\", "\\\\")
-                    .replace("\"", "\\\"");
+                    .replace(DOUBLE_ESCAPE, QUADRUPLE_ESCAPE)
+                    .replace(SINGLE_ESCAPE, TRIPLE_ESCAPE);
                 stringBuilder.append("\"\"\"" + objectLiteral + "\"\"\" ");
-
             } else if (content instanceof Element) {
                 Element objectElement = (Element) content;
-                if (objectElement.getUri().startsWith(BLANK_NODE_PREFIX)) {
-                    stringBuilder.append(objectElement.getUri() + ' ');
+                if (isBlankNode(objectElement.getUri())) {
+                    stringBuilder.append(objectElement.getUri() + WHITESPACE_CHAR);
                 } else {
-                    stringBuilder.append('<' + objectElement.getUri() + "> ");
-
+                    stringBuilder.append(OPEN_CHEVRON_CHAR + objectElement.getUri() + CLOSE_CHEVRON_STRING);
                 }
             } else {
                 throw new IllegalStateException("Unknown type of: " + content.getClass().toString());
@@ -137,19 +139,16 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
 
     }
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral, String datatype) {
+    public String createTripleLiteral(String subject, String predicate, String objectLiteral, String dataType) {
 
         objectLiteral = objectLiteral
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"");
+            .replace(DOUBLE_ESCAPE, QUADRUPLE_ESCAPE)
+            .replace(SINGLE_ESCAPE, TRIPLE_ESCAPE);
 
-        boolean oIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
-        if (oIsBlank) {
-            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + datatype.toString() + "> .";
-
+        if (isBlankNode(subject)) {
+            return subject + OPEN_CHEVRON_STRING + predicate + CLOSE_CHEVRON_TRIPLE_ESCAPE_STRING + objectLiteral + TRIPLE_ESCAPE_ISTYPE_OPEN_CHEVRON_STRING + dataType.toString() + CLOSE_CHEVRON_SPACE_FULL_STOP_STRING;
         } else {
-            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + datatype.toString() + "> .";
-
+            return OPEN_CHEVRON_CHAR + subject + OPEN_CLOSE_CHEVRON_STRING + predicate + CLOSE_CHEVRON_TRIPLE_ESCAPE_STRING + objectLiteral + TRIPLE_ESCAPE_ISTYPE_OPEN_CHEVRON_STRING + dataType.toString() + CLOSE_CHEVRON_SPACE_FULL_STOP_STRING;
         }
 
     }
@@ -158,9 +157,7 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
     public void endDocument() throws SAXException {
 
         out.flush();
-
         out.close();
     }
-
 
 }
