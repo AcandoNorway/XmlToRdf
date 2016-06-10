@@ -16,16 +16,13 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.apache.jena.graph.NodeFactory;
-import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.*;
-
-import static no.acando.xmltordf.Common.seperator;
+import java.util.List;
+import java.util.Stack;
 
 
 public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
@@ -36,9 +33,7 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
     final String EndOfFile = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "EndOfFile";
     private final String hasMixedContent = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasMixedContent";
 
-
     Stack<Element> elementStack = new Stack<>();
-
 
     public AdvancedSaxHandlerString(OutputStream out, Builder.AdvancedStream builder) {
         super(out, builder);
@@ -72,7 +67,7 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
                 return '<' + subject + "> <" + predicate + "> " + object + '.';
 
             } else {
-                return '<' + subject + "> " + '<' + predicate + "> <" + object + ">.";
+                return '<' + subject + "> <" + predicate + "> <" + object + ">.";
 
             }
         }
@@ -84,11 +79,9 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
             return "";
         }
 
-
         objectLiteral = objectLiteral
             .replace("\\", "\\\\")
             .replace("\"", "\\\"");
-
 
         if (!subject.startsWith("_:")) {
             return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
@@ -98,23 +91,21 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
 
         }
 
-
     }
 
     public String createTripleLiteral(String subject, String predicate, long objectLong) {
 
         if (!subject.startsWith("_:")) {
-            return '<' + subject + "> <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+            return '<' + subject + "> <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
         } else {
-            return subject + " <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+            return subject + " <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
         }
-
 
     }
 
     public String createList(String subject, String predicate, List<Object> mixedContent) {
         predicate = '<' + predicate + '>';
-        if (!subject.startsWith("_:")) {
+        if (!subject.startsWith(BLANK_NODE_PREFIX)) {
             subject = '<' + subject + '>';
         }
 
@@ -130,7 +121,7 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
 
             } else if (content instanceof Element) {
                 Element objectElement = (Element) content;
-                if (objectElement.getUri().startsWith("_:")) {
+                if (objectElement.getUri().startsWith(BLANK_NODE_PREFIX)) {
                     stringBuilder.append(objectElement.getUri() + ' ');
                 } else {
                     stringBuilder.append('<' + objectElement.getUri() + "> ");
@@ -147,24 +138,21 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
     }
 
     public String createTripleLiteral(String subject, String predicate, String objectLiteral, String datatype) {
-        if (objectLiteral == null) {
-            return "";
+
+        objectLiteral = objectLiteral
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"");
+
+        boolean oIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
+        if (oIsBlank) {
+            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + datatype.toString() + "> .";
+
+        } else {
+            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + datatype.toString() + "> .";
+
         }
 
-        predicate = '<' + predicate + '>';
-
-        if (!subject.startsWith("_:")) {
-            subject = '<' + subject + '>';
-        }
-
-
-        objectLiteral = objectLiteral.replaceAll("\\\\", "\\\\\\\\");
-
-        objectLiteral = NodeFactory.createLiteral(objectLiteral, "", false).toString();
-
-        return subject + ' ' + predicate + ' ' + objectLiteral + "^^<" + datatype.toString() + "> .";
     }
-
 
     @Override
     public void endDocument() throws SAXException {
