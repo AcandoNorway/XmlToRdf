@@ -25,8 +25,9 @@ import java.util.Map;
 
 import static no.acando.xmltordf.Common.seperator;
 
-
 public class Builder {
+
+    //TODO: consider abstracting some of this out to their own class files
 
     public enum AppliesTo {
         justAttributes, justElements, bothElementsAndAttributes
@@ -76,7 +77,6 @@ public class Builder {
             return (T) this;
         }
 
-
         public T autoDetectLiteralProperties(boolean b) {
             autoDetectLiteralProperties = b;
 
@@ -84,12 +84,8 @@ public class Builder {
         }
 
         public T addTransformForAttributeValue(String elementName, String attributeName, StringTransform transform) {
-            if (elementName == null) {
-                elementName = "";
-            }
-            if (attributeName == null) {
-                attributeName = "";
-            }
+            elementName = nullValueCheck(elementName);
+            attributeName = nullValueCheck(attributeName);
 
             transformForAttributeValueMap.put(elementName + seperator + attributeName, transform);
             transformForAttributeValue = true;
@@ -114,9 +110,7 @@ public class Builder {
         }
 
         public T addUseAttributeForId(String elementName, String attributeName, StringTransform p2) {
-            if (elementName == null) {
-                elementName = "";
-            }
+            elementName = nullValueCheck(elementName);
             useAttributedForIdMap.put(elementName + seperator + attributeName, p2);
             useAttributedForId = true;
 
@@ -309,6 +303,13 @@ public class Builder {
             }
             return super.put(key, value);
         }
+    }
+
+    public static String nullValueCheck(String value) {
+        if (value == null) {
+            value = "";
+        }
+        return value;
     }
 
 }
