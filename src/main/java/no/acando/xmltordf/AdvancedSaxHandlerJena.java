@@ -19,45 +19,40 @@ package no.acando.xmltordf;
 import org.apache.jena.atlas.io.NullOutputStream;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
-import org.apache.jena.graph.*;
+import org.apache.jena.graph.Graph;
+import org.apache.jena.graph.Node;
+import org.apache.jena.graph.NodeFactory;
+import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.impl.GraphWithPerform;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.rdf.model.Resource;
-import org.apache.jena.sparql.util.NodeFactoryExtra;
-import org.openrdf.model.IRI;
 import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.repository.Repository;
 import org.xml.sax.SAXException;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 
 public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
-
     private static final Node RDF_REST = NodeFactory.createURI(RDF.REST.toString());
     private static final Node RDF_FIRST = NodeFactory.createURI(RDF.FIRST.toString());
     private static final Node RDF_NIL = NodeFactory.createURI(RDF.NIL.toString());
-    private Graph g;
+    private Graph graph;
 
     Dataset dataset;
     private ArrayBlockingQueue<Triple> queue;
     private boolean notDone = true;
     private Thread jenaThread;
 
-
-    private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile));
-
+    private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile));
 
     public AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
         super(new NullOutputStream(), builder);
 
         queue = new ArrayBlockingQueue<>(builder.buffer, false);
         dataset = DatasetFactory.createMem();
-        g = dataset.getDefaultModel().getGraph();
+        graph = dataset.getDefaultModel().getGraph();
 
         this.builder =  builder;
         Thread thread = Thread.currentThread();
@@ -69,11 +64,11 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
                     try {
                         Triple take = queue.take();
                         if (take != EndOfFileTriple) {
-                            ((GraphWithPerform) g).performAdd(take);
+                            ((GraphWithPerform) graph).performAdd(take);
                         }
 
                     } catch (InterruptedException e) {
-                        //e.printStackTrace();
+                        //TODO: handle this or throw it up the stack
                     }
 
                 }
@@ -85,69 +80,39 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
     }
 
 
+    //TODO: this always returns null, what up?
     public String createTriple(String subject, String predicate, String object) {
-
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
         Node objectNode = null;
 
+        subjectNode = getNode(subject);
+        objectNode = getNode(object);
 
-        if (!subject.startsWith("_:")) {
-            subjectNode = NodeFactory.createURI(subject);
-
-        } else {
-            subjectNode = NodeFactory.createBlankNode(subject);
-
-        }
-
-        if (!object.startsWith("_:")) {
-            objectNode = NodeFactory.createURI(object);
-
-        } else {
-            objectNode = NodeFactory.createBlankNode(object);
-
-        }
-
-        Triple triple = new Triple(subjectNode, predicateNode, objectNode);
-        try {
-            queue.put(triple);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        addTripleToQueue(predicateNode, subjectNode, objectNode);
 
         return null;
 
     }
 
-    public String createTriple(String subject, String predicate, Node objectNode) {
 
+
+    //TODO: this always returns null, what up?
+    public String createTriple(String subject, String predicate, Node objectNode) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
 
-
-        if (!subject.startsWith("_:")) {
-            subjectNode = NodeFactory.createURI(subject);
-
-        } else {
-            subjectNode = NodeFactory.createBlankNode(subject);
-
-        }
-
-
-        Triple triple = new Triple(subjectNode, predicateNode, objectNode);
-        try {
-            queue.put(triple);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        subjectNode = getNode(subject);
+        addTripleToQueue(predicateNode, subjectNode, objectNode);
 
         return null;
 
     }
 
 
+    //TODO: this always returns null, what up?
     public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
         if (objectLiteral == null) {
             return null;
@@ -156,28 +121,17 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
 
-
-        if (!subject.startsWith("_:")) {
-            subjectNode = NodeFactory.createURI(subject);
-
-        } else {
-            subjectNode = NodeFactory.createBlankNode(subject);
-        }
+        subjectNode = getNode(subject);
 
         Node literal = NodeFactory.createLiteral(objectLiteral, null, false);
 
-        Triple triple = new Triple(subjectNode, predicateNode, literal);
-        try {
-            queue.put(triple);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        addTripleToQueue(predicateNode, subjectNode, literal);
 
         return null;
 
-
     }
 
+    //TODO: this always returns null, what up?
     public String createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
         if (objectLiteral == null) {
             return null;
@@ -186,74 +140,40 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
 
-        if (!subject.startsWith("_:")) {
-            subjectNode = NodeFactory.createURI(subject);
-
-        } else {
-            subjectNode = NodeFactory.createBlankNode(subject);
-        }
-
+        subjectNode = getNode(subject);
 
         Node literal = NodeFactory.createLiteral(objectLiteral, datatype);
 
-        Triple triple = new Triple(subjectNode, predicateNode, literal);
-        try {
-            queue.put(triple);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        addTripleToQueue(predicateNode, subjectNode, literal);
 
         return null;
 
-
     }
 
-
+    //TODO: this always returns null, what up?
     public String createTripleLiteral(String subject, String predicate, long objectLong) {
-
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
 
+        subjectNode = getNode(subject);
+        Node literal = NodeFactory.createLiteral(objectLong + "", XSDDatatype.XSDlong);
 
-        if (!subject.startsWith("_:")) {
-            subjectNode = NodeFactory.createURI(subject);
-
-        } else {
-            subjectNode = NodeFactory.createBlankNode(subject);
-
-        }
-        Node literal = NodeFactory.createLiteral(objectLong+"", XSDDatatype.XSDlong);
-
-        Triple triple = new Triple(subjectNode, predicateNode, literal);
-        try {
-            queue.put(triple);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        addTripleToQueue(predicateNode, subjectNode, literal);
 
         return null;
-
 
     }
 
     public String createList(String subject, String predicate, List<Object> mixedContent) {
 
-
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
 
-
-        if (!subject.startsWith("_:")) {
-            subjectNode = NodeFactory.createURI(subject);
-
-        } else {
-            subjectNode = NodeFactory.createBlankNode(subject);
-        }
+        subjectNode = getNode(subject);
 
         final Node[] head = new Node[1];
         final Node[] temporaryNode = new Node[1];
-
 
         mixedContent
             .stream()
@@ -267,7 +187,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
                     Element objectElement = (Element) content;
 
-                    if (objectElement.getUri().startsWith("_:")) {
+                    if (isBlankNode(objectElement.getUri())) {
                         return NodeFactory.createBlankNode(objectElement.getUri());
                     } else {
                         return NodeFactory.createURI(objectElement.getUri());
@@ -286,6 +206,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
                     try {
                         queue.put(new Triple(head[0], RDF_FIRST, value));
                     } catch (InterruptedException e) {
+                        //TODO: handle or throw up the stack
                         e.printStackTrace();
                     }
 
@@ -295,13 +216,13 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
                         queue.put(new Triple(blankNode, RDF_FIRST, value));
 
                     } catch (InterruptedException e) {
+                        //TODO: handle or throw up the stack
                         e.printStackTrace();
                     }
 
                 }
 
                 temporaryNode[0] = blankNode;
-
 
             });
 
@@ -310,29 +231,29 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
             queue.put(new Triple(subjectNode, predicateNode, head[0]));
 
         } catch (InterruptedException e) {
+            //TODO: handle or throw up the stack
             e.printStackTrace();
         }
 
-
-//
-//        try {
-//            queue.put(new Triple(subjectNode, predicateNode, head[0]));
-//
-//
-//            queue.put(new Triple(head[0], RDF_FIRST, collect.get(0)));
-//            Node parent = head[0];
-//            for (int i = 1; i < collect.size(); i++) {
-//                Node blankNode = NodeFactory.createBlankNode();
-//                parent = blankNode;
-//            }
-//
-//
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
-
-
         return null;
+    }
+
+    private void addTripleToQueue(Node predicateNode, Node subjectNode, Node objectNode) {
+        Triple triple = new Triple(subjectNode, predicateNode, objectNode);
+        try {
+            queue.put(triple);
+        } catch (InterruptedException e) {
+            //TODO: handle this or throw it up the stack
+            e.printStackTrace();
+        }
+    }
+
+    private Node getNode(String subject) {
+        if (!isBlankNode(subject)) {
+            return NodeFactory.createURI(subject);
+        } else {
+            return NodeFactory.createBlankNode(subject);
+        }
     }
 
     @Override
@@ -344,6 +265,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
             queue.put(EndOfFileTriple);
             jenaThread.join();
         } catch (InterruptedException e) {
+            //TODO: handle or throw up the stack
             e.printStackTrace();
         }
     }

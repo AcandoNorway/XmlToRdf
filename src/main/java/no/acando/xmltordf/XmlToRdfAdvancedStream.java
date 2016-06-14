@@ -16,10 +16,6 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.query.Dataset;
-import org.apache.jena.rdf.model.Model;
-import org.openrdf.repository.Repository;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -42,14 +38,11 @@ public class XmlToRdfAdvancedStream {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
 
-
         SAXParser saxParser = factory.newSAXParser();
 
         AdvancedSaxHandlerString handler = new AdvancedSaxHandlerString(out, builder);
 
-
         saxParser.parse(in, handler);
-
 
     }
 

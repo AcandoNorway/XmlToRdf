@@ -16,29 +16,16 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.apache.jena.graph.NodeFactory;
-import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.*;
-
-import static no.acando.xmltordf.Common.seperator;
+import java.util.List;
 
 
 public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
     private final PrintStream out;
-    final String hasChild = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasChild";
-    final String hasValue = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasValue";
-    final String index = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "index";
-    final String EndOfFile = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "EndOfFile";
-    private final String hasMixedContent = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasMixedContent";
-
-
-    Stack<Element> elementStack = new Stack<>();
-
 
     public AdvancedSaxHandlerString(OutputStream out, Builder.AdvancedStream builder) {
         super(out, builder);
@@ -56,24 +43,19 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
     }
 
     public String createTriple(String subject, String predicate, String object) {
-        boolean subjectIsBlank = subject.startsWith("_:");
-        boolean objectIsBlank = object.startsWith("_:");
+        boolean objectIsBlank = isBlankNode(object);
 
-        if (subjectIsBlank) {
+        if (isBlankNode(subject)) {
             if (objectIsBlank) {
                 return subject + " <" + predicate + "> " + object + '.';
-
             } else {
                 return subject + " <" + predicate + "> <" + object + ">.";
-
             }
         } else {
             if (objectIsBlank) {
                 return '<' + subject + "> <" + predicate + "> " + object + '.';
-
             } else {
-                return '<' + subject + "> " + '<' + predicate + "> <" + object + ">.";
-
+                return '<' + subject + "> <" + predicate + "> <" + object + ">.";
             }
         }
 
@@ -84,37 +66,31 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
             return "";
         }
 
-
         objectLiteral = objectLiteral
             .replace("\\", "\\\\")
             .replace("\"", "\\\"");
 
-
-        if (!subject.startsWith("_:")) {
+        if (!isBlankNode(subject)) {
             return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
-
         } else {
             return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
-
         }
-
 
     }
 
     public String createTripleLiteral(String subject, String predicate, long objectLong) {
 
-        if (!subject.startsWith("_:")) {
-            return '<' + subject + "> <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+        if (!isBlankNode(subject)) {
+            return '<' + subject + "> <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
         } else {
-            return subject + " <" + predicate + "> " + '"' + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+            return subject + " <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
         }
-
 
     }
 
     public String createList(String subject, String predicate, List<Object> mixedContent) {
         predicate = '<' + predicate + '>';
-        if (!subject.startsWith("_:")) {
+        if (!isBlankNode(subject)) {
             subject = '<' + subject + '>';
         }
 
@@ -127,14 +103,12 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
                     .replace("\\", "\\\\")
                     .replace("\"", "\\\"");
                 stringBuilder.append("\"\"\"" + objectLiteral + "\"\"\" ");
-
             } else if (content instanceof Element) {
                 Element objectElement = (Element) content;
-                if (objectElement.getUri().startsWith("_:")) {
+                if (isBlankNode(objectElement.getUri())) {
                     stringBuilder.append(objectElement.getUri() + ' ');
                 } else {
                     stringBuilder.append('<' + objectElement.getUri() + "> ");
-
                 }
             } else {
                 throw new IllegalStateException("Unknown type of: " + content.getClass().toString());
@@ -146,33 +120,25 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
 
     }
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral, String datatype) {
-        if (objectLiteral == null) {
-            return "";
+    public String createTripleLiteral(String subject, String predicate, String objectLiteral, String dataType) {
+
+        objectLiteral = objectLiteral
+            .replace("\\", "\\\\")
+            .replace("\"", "\\\"");
+
+        if (isBlankNode(subject)) {
+            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType.toString() + "> .";
+        } else {
+            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType.toString() + "> .";
         }
 
-        predicate = '<' + predicate + '>';
-
-        if (!subject.startsWith("_:")) {
-            subject = '<' + subject + '>';
-        }
-
-
-        objectLiteral = objectLiteral.replaceAll("\\\\", "\\\\\\\\");
-
-        objectLiteral = NodeFactory.createLiteral(objectLiteral, "", false).toString();
-
-        return subject + ' ' + predicate + ' ' + objectLiteral + "^^<" + datatype.toString() + "> .";
     }
-
 
     @Override
     public void endDocument() throws SAXException {
 
         out.flush();
-
         out.close();
     }
-
 
 }

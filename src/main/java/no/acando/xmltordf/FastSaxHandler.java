@@ -20,54 +20,39 @@ import org.apache.jena.vocabulary.RDF;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.Stack;
 
+import static no.acando.xmltordf.Common.BLANK_NODE_PREFIX;
 import static no.acando.xmltordf.Common.seperator;
 
 
 public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
     private UndoableBufferedPrintWriter out;
-    private Stack<String> stringStack = new Stack<>();
+    private Stack<String> nodeIdStack = new Stack<>();
     private Stack<StringBuilder> stringBuilderStack = new Stack<>();
 
     private Stack<String> typeStack = new Stack<>();
 
-
-    private final String hasChild = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasChild";
-    private final String hasValue = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasValue";
-
-
     private long index = 0;
 
     Builder.Fast builder;
-    BufferedOutputStream buff;
 
     public FastSaxHandler(OutputStream out, Builder.Fast builder) {
-        buff = new BufferedOutputStream(out, 1000000);
-        this.out = new UndoableBufferedPrintWriter(new PrintStream(buff, false));
+        this.out = new UndoableBufferedPrintWriter(new PrintStream(out, false));
         this.builder = builder;
     }
-
 
     @Override
     public void endDocument() throws SAXException {
         out.flush();
-        try {
-            buff.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-
 
         String ns = builder.overrideNamespace;
         if (ns == null) {
@@ -82,18 +67,16 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         String bnode = "_:index" + index++;
 
-
-        if (stringStack.size() > 0) {
-            String parent = stringStack.peek();
-            out.println(createTriple(parent, hasChild, bnode));
+        if (nodeIdStack.size() > 0) {
+            String parent = nodeIdStack.peek();
+            out.println(createTriple(parent, XmlToRdfVocabulary.hasChild, bnode));
         }
 
         out.println(createTriple(bnode, RDF.type.getURI(), fullyQualifiedName));
 
         typeStack.push(fullyQualifiedName);
 
-
-        stringStack.push(bnode);
+        nodeIdStack.push(bnode);
 
         stringBuilderStack.push(new StringBuilder());
 
@@ -101,13 +84,14 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             String uriAttr = attributes.getURI(i);
             String nameAttr = attributes.getLocalName(i);
             String valueAttr = attributes.getValue(i);
-            String qname = attributes.getQName(i);
 
             if (builder.transformForAttributeValue) {
                 StringTransform stringTransform = null;
 
                 Map<String, StringTransform> map = builder.transformForAttributeValueMap;
 
+                // TODO: fix me after open source o'clock
+                // Handles support for wildcard search
                 if (map.containsKey(uri + localName + seperator + uriAttr + nameAttr)) {
                     stringTransform = map.get(uri + localName + seperator + uriAttr + nameAttr);
                 } else if (map.containsKey(uri + localName + seperator)) {
@@ -134,72 +118,68 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
             out.println(createTripleLiteral(bnode, uriAttr + nameAttr, valueAttr));
 
-
         }
-
 
     }
 
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
-
-        String stringPop = stringStack.pop();
+        String stringPop = nodeIdStack.pop();
         String typePop = typeStack.pop();
         String value = stringBuilderStack.pop().toString().trim();
 
         if (!value.isEmpty()) {
-            if (builder.autoDetectLiteralProperties) {
-
-
-                if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
-
-                    if (stringStack.isEmpty()) {
-                        out.println(createTripleLiteral(stringPop, hasValue, value));
-                        stringStack.push(stringPop);
-
-                    } else {
-                        out.pop();
-                        out.pop();
-                        out.println(createTripleLiteral(stringStack.peek(), typePop, value));
-                    }
-
-                } else {
-                    out.println(createTripleLiteral(stringPop, hasValue, value));
-                }
-
-
-            } else {
-                out.println(createTripleLiteral(stringPop, hasValue, value));
-            }
-
+            handleTextValue(stringPop, typePop, value);
         } else if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
-            String outPop = out.pop();
-            if (out.peek().equals(createTriple(stringStack.peek(), hasChild, stringPop))) {
-                out.pop();
-            } else {
-                out.println(outPop);
-            }
+            cleanUpEmptyTag(stringPop);
         }
 
-        // @TODO consider using hashing here.
-        // Handle empty elements
+    }
 
+    private void cleanUpEmptyTag(String stringPop) {
+        String outPop = out.pop();
+        if (out.peek().equals(createTriple(nodeIdStack.peek(), XmlToRdfVocabulary.hasChild, stringPop))) {
+            out.pop();
+        } else {
+            out.println(outPop);
+        }
+    }
 
+    //TODO: Comment me
+    private void handleTextValue(String stringPop, String typePop, String value) {
+        if (builder.autoDetectLiteralProperties) {
+
+            if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
+
+                if (nodeIdStack.isEmpty()) {
+                    out.println(createTripleLiteral(stringPop, XmlToRdfVocabulary.hasValue, value));
+                    nodeIdStack.push(stringPop);
+
+                } else {
+                    out.pop();
+                    out.pop();
+                    out.println(createTripleLiteral(nodeIdStack.peek(), typePop, value));
+                }
+
+            } else {
+                out.println(createTripleLiteral(stringPop, XmlToRdfVocabulary.hasValue, value));
+            }
+
+        } else {
+            out.println(createTripleLiteral(stringPop, XmlToRdfVocabulary.hasValue, value));
+        }
     }
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
-
         stringBuilderStack.peek().append(ch, start, length);
-
     }
-
 
     String createTriple(String subject, String predicate, String object) {
 
-        boolean subjectIsBlank = subject.startsWith("_:");
-        boolean objectIsBlank = object.startsWith("_:");
+        boolean subjectIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
+        boolean objectIsBlank = object.startsWith(BLANK_NODE_PREFIX);
 
         if (subjectIsBlank) {
             if (objectIsBlank) {
@@ -214,7 +194,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
                 return '<' + subject + "> <" + predicate + "> " + object + '.';
 
             } else {
-                return '<' + subject + "> " + '<' + predicate + "> <" + object + ">.";
+                return '<' + subject + "> <"+ predicate + "> <" + object + ">.";
 
             }
         }
@@ -226,7 +206,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             .replace("\\", "\\\\")
             .replace("\"", "\\\"");
 
-        boolean oIsBlank = subject.startsWith("_:");
+        boolean oIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
         if (oIsBlank) {
             return subject + " <" + predicate + "> \"\"\"" + literal + "\"\"\".";
 
@@ -236,7 +216,6 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         }
 
     }
-
 
 }
 
