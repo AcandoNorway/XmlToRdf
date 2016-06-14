@@ -28,7 +28,6 @@ import static no.acando.xmltordf.Common.seperator;
 
 
 public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler {
-    public static final String BLANK_NODE_PREFIX = "_:";
     private final PrintStream out;
     final String hasChild = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasChild";
     final String hasValue = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasValue";
@@ -261,7 +260,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             element.uri = tempUri + UUID.randomUUID().toString();
 
         } else {
-            element.uri = BLANK_NODE_PREFIX + uriCounter++;
+            element.uri = Common.BLANK_NODE_PREFIX + uriCounter++;
 
         }
 
@@ -347,7 +346,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     }
 
     public boolean isBlankNode(String node) {
-        return node.startsWith(BLANK_NODE_PREFIX);
+        return node.startsWith(Common.BLANK_NODE_PREFIX);
     }
 
     @Override

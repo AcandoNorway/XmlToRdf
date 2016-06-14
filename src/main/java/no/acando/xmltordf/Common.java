@@ -19,4 +19,6 @@ package no.acando.xmltordf;
 class Common {
       final static public String seperator = "::_____&&_____::";
 
+
+      public static final String BLANK_NODE_PREFIX = "_:";
 }
