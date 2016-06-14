@@ -583,7 +583,7 @@ public class XmlToRdfTest {
 
     @Test
     public void testSparqlTransforms2() throws Exception {
-        PostProcessingJena postProcessing = Builder.getAdvancedBuilderJena().overrideNamespace("http://example.com/").build().convertForPostProcessingJena(new FileInputStream("testFiles/testSparqlTransform2/input.xml"));
+        PostProcessingJena postProcessing = Builder.getAdvancedBuilderJena().overrideNamespace("http://example.com/").build().convertForPostProcessing(new FileInputStream("testFiles/testSparqlTransform2/input.xml"));
 
         Model extractedModel = postProcessing
             .outputIntermediaryModels(new File("testFiles/testSparqlTransform2/intermediary"))

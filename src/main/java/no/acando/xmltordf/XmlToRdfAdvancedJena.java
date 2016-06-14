@@ -16,11 +16,8 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.rdf.model.Model;
-import org.openrdf.repository.Repository;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -28,8 +25,6 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-
 
 public class XmlToRdfAdvancedJena {
 
@@ -39,31 +34,22 @@ public class XmlToRdfAdvancedJena {
         this.builder = builder;
     }
 
-
     public Dataset convertToDataset(InputStream in) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
 
-
         SAXParser saxParser = factory.newSAXParser();
 
-//        ObjectBasedSaxHandler2 handler = new ObjectBasedSaxHandler2(builder);
         AdvancedSaxHandlerJena handler = new AdvancedSaxHandlerJena(builder);
-
 
         saxParser.parse(in, handler);
         return handler.dataset;
     }
 
-
-
-
-
-    public PostProcessingJena convertForPostProcessingJena(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
+    public PostProcessingJena convertForPostProcessing(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         Model model = convertToDataset(inputStream).getDefaultModel();
         inputStream.close();
         return new PostProcessingJena(model);
     }
-
 
 }
