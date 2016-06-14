@@ -20,8 +20,6 @@ import org.apache.jena.vocabulary.RDF;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.io.BufferedOutputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Map;
@@ -45,22 +43,15 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     private long index = 0;
 
     Builder.Fast builder;
-    BufferedOutputStream buff;
 
     public FastSaxHandler(OutputStream out, Builder.Fast builder) {
-        buff = new BufferedOutputStream(out, 1000000);
-        this.out = new UndoableBufferedPrintWriter(new PrintStream(buff, false));
+        this.out = new UndoableBufferedPrintWriter(new PrintStream(out, false));
         this.builder = builder;
     }
 
     @Override
     public void endDocument() throws SAXException {
         out.flush();
-        try {
-            buff.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override
