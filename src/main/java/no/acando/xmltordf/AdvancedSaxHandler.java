@@ -32,7 +32,7 @@ import static no.acando.xmltordf.XmlToRdfVocabulary.hasValue;
 public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler {
     private final PrintStream out;
 
-    final Deque<Element> elementStack = new ArrayDeque<>(100);
+    private final Deque<Element> elementStack = new ArrayDeque<>(100);
 
     Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
 
@@ -120,6 +120,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         } else if (pop.shallow) {
 
+            //@TODO handle pop.parent == null
             out.println(createTriple(pop.parent.uri, pop.type, pop.uri));
             if (pop.getHasValue() != null) {
                 Optional<ResourceType> resourceType = mapLiteralToResource(pop);
