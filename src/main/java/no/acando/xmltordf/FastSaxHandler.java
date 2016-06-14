@@ -132,14 +132,14 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
-        final String stringPop = nodeIdStack.pop();
+        final String nodeId = nodeIdStack.pop();
         final String typePop = typeStack.pop();
         final String value = stringBuilderStack.pop().toString().trim();
 
         if (!value.isEmpty()) {
-            handleTextValue(stringPop, typePop, value);
-        } else if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
-            cleanUpEmptyTag(stringPop);
+            handleTextValue(nodeId, typePop, value);
+        } else if (out.peek().equals(createTriple(nodeId, RDF.type.getURI(), typePop))) {
+            cleanUpEmptyTag(nodeId);
         }
 
     }
@@ -154,27 +154,36 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     }
 
     //TODO: Comment me
-    private void handleTextValue(String stringPop, String typePop, String value) {
+    private void handleTextValue(String nodeId, String typePop, String value) {
+
         if (builder.autoDetectLiteralProperties) {
 
-            if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
+            // check if element has no attributes or child elements
+            if (out.peek().equals(createTriple(nodeId, RDF.type.getURI(), typePop))) {
 
+                // check if root element
                 if (nodeIdStack.isEmpty()) {
-                    out.println(createTripleLiteral(stringPop, XmlToRdfVocabulary.hasValue, value));
-                    nodeIdStack.push(stringPop);
+                    // use hasValue with root element
+                    out.pop();
+                    out.println(createTripleLiteral(nodeId, typePop, value));
 
                 } else {
+                    // remove rdf:type and hasChild statements
                     out.pop();
                     out.pop();
+
+                    // print value directly on property to parent element
                     out.println(createTripleLiteral(nodeIdStack.peek(), typePop, value));
                 }
 
             } else {
-                out.println(createTripleLiteral(stringPop, XmlToRdfVocabulary.hasValue, value));
+                // if there are attributes or child elements, then print using hasValue
+                out.println(createTripleLiteral(nodeId, XmlToRdfVocabulary.hasValue, value));
             }
 
         } else {
-            out.println(createTripleLiteral(stringPop, XmlToRdfVocabulary.hasValue, value));
+            // print using hasValue
+            out.println(createTripleLiteral(nodeId, XmlToRdfVocabulary.hasValue, value));
         }
     }
 
@@ -183,7 +192,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         stringBuilderStack.peek().append(ch, start, length);
     }
 
-    String createTriple(String subject, String predicate, String object) {
+    private String createTriple(String subject, String predicate, String object) {
 
         final boolean subjectIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
         final boolean objectIsBlank = object.startsWith(BLANK_NODE_PREFIX);

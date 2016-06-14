@@ -151,20 +151,14 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
         Literal literal = valueFactory.createLiteral(objectLiteral);
 
-        //TODO: do we care about other literal types? If it's neither int nor long, then what?
+        //@TODO finish implementing autoTypeLiterals
         if (builder.autoTypeLiterals) {
             try {
                 literal = valueFactory.createLiteral(Integer.parseInt(objectLiteral));
             } catch (Exception e) {
-                //TODO: handle or throw this
-                //TODO: consider using a specific exception
-                //TODO: consider using a better exception variable name
                 try {
                     literal = valueFactory.createLiteral(Long.parseLong(objectLiteral));
                 } catch (Exception ee) {
-                    //TODO: handle or throw this
-                    //TODO: consider using a specific exception
-                    //TODO: consider using a better exception variable name
                 }
             }
 

@@ -1,4 +1,5 @@
-_:28e3cbf2-406a-4b55-826e-e075af4e7b9d <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://example.orga> .
-_:28e3cbf2-406a-4b55-826e-e075af4e7b9d <http://acandonorway.github.com/XmlToRdf/ontology.ttl#hasValue>"""fjkejf ejwkfj ewlfkewjfl kewjkflje kwlfjklewjfk lewjkfljewklfj ekwljfklewjk fljewkfj klewjf kljekwl fjklewj
-    kf ljewk lfjkewljf klejwk lfjekl jfklejwklfjewk ljfklewj klfjekwl jfklewjklfjkew ljfkl ejwklfjewkljfklewjkfj ewkljfkelw
-    fewfewfewfew hfjkewh fjkhewjk fhjekwhfjk ehwj kfhewjkfkewh fjkhew jkfhjkewhfj kewh fjkhew jkfhej kwhfjkewhjk fewhf""" .
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+[ <http://example.orga>  "fjkejf ejwkfj ewlfkewjfl kewjkflje kwlfjklewjfk lewjkfljewklfj ekwljfklewjk fljewkfj klewjf kljekwl fjklewj\n    kf ljewk lfjkewljf klejwk lfjekl jfklejwklfjewk ljfklewj klfjekwl jfklewjklfjkew ljfkl ejwklfjewkljfklewjkfj ewkljfkelw\n    fewfewfewfew hfjkewh fjkhewjk fhjekwhfjk ehwj kfhewjkfkewh fjkhew jkfhjkewhfj kewh fjkhew jkfhej kwhfjkewhjk fewhf" ] .

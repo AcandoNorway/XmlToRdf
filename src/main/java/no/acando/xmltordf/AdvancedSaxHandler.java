@@ -93,21 +93,27 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
         }
 
-        if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.parent != null && pop.properties.isEmpty() && pop.parent.mixedContent.isEmpty()) {
+        if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.properties.isEmpty() && (pop.parent == null || pop.parent.mixedContent.isEmpty())) {
             //convert to literal property
             if (pop.getHasValue() != null) {
+
+                String tempUri = pop.uri;
+                if (pop.parent != null) {
+                    tempUri = pop.parent.uri;
+                }
+
                 Optional<ResourceType> resourceType = mapLiteralToResource(pop);
                 pop.autoDetectedAsLiteralProperty = true;
                 if (builder.dataTypeOnElement != null && builder.dataTypeOnElement.containsKey(pop.type)) {
                     if (resourceType.isPresent()) {
                         throw new IllegalStateException("Can not both map literal to object and have datatype at the same time.");
                     }
-                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue(), builder.dataTypeOnElement.get(pop.type))); //TRANSFORM
+                    out.println(createTripleLiteral(tempUri, pop.type, pop.getHasValue(), builder.dataTypeOnElement.get(pop.type))); //TRANSFORM
                 } else {
                     if (resourceType.isPresent()) {
-                        out.println(createTriple(pop.parent.uri, pop.type, resourceType.get()));
+                        out.println(createTriple(tempUri, pop.type, resourceType.get()));
                     } else {
-                        out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue())); //TRANSFORM
+                        out.println(createTripleLiteral(tempUri, pop.type, pop.getHasValue())); //TRANSFORM
                     }
                 }
             }
