@@ -580,30 +580,6 @@ public class XmlToRdfTest {
             .autoConvertShallowChildrenToProperties(true).build());
     }
 
-
-    @Test
-    public void testSparqlTransforms2() throws Exception {
-        PostProcessingJena postProcessing = Builder.getAdvancedBuilderJena().overrideNamespace("http://example.com/").build().convertForPostProcessing(new FileInputStream("testFiles/testSparqlTransform2/input.xml"));
-
-        Model extractedModel = postProcessing
-            .outputIntermediaryModels(new File("testFiles/testSparqlTransform2/intermediary"))
-            .sparqlTransform(new File("testFiles/testSparqlTransform2/transform.qr"))
-            .sparqlTransform(new File("testFiles/testSparqlTransform2/transforms/"))
-            .extractConstruct(new File("testFiles/testSparqlTransform2/constructs/"))
-            .extractConstruct(new File("testFiles/testSparqlTransform2/construct.qr"))
-            .getExtractedModel();
-
-
-        Model model = FileManager.get().readModel(ModelFactory.createDefaultModel(), "testFiles/testSparqlTransform2/expected.ttl");
-        if (!model.isIsomorphicWith(extractedModel)) {
-
-            assertEquals("Something went wrong with the test. ", modelToString(extractedModel), modelToString(extractedModel));
-
-        }
-
-
-    }
-
     @Test
     public void convertShallowElementsToPropertiesWithAutoDetectLiteralProperties() throws Exception {
 
