@@ -16,19 +16,14 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import com.github.mustachejava.DefaultMustacheFactory;
-import com.github.mustachejava.Mustache;
-import com.github.mustachejava.MustacheFactory;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.StringWriter;
 
 
-public class PostProcessingSesame {
+public class PostProcessingSesame extends  PostProcessing {
 
     Repository repository;
 
@@ -38,17 +33,19 @@ public class PostProcessingSesame {
 
 
     public PostProcessingSesame mustacheTransform(InputStream mustacheTemplate, Object input) throws IOException {
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mustache = mf.compile(new InputStreamReader(mustacheTemplate), "");
-        StringWriter stringWriter = new StringWriter();
-        mustache.execute(stringWriter, input).flush();
+        String stringWriter = compileMustacheTemplate(mustacheTemplate, input);
 
         try (RepositoryConnection connection = repository.getConnection()) {
-            connection.prepareUpdate(stringWriter.toString()).execute();
+            connection.prepareUpdate(stringWriter).execute();
         }
 
         return this;
 
+    }
+
+    @Override
+    public PostProcessingSesame mustacheExtract(InputStream mustacheTemplate, Object input) throws IOException {
+       throw new UnsupportedOperationException("Not implemented yet.");
     }
 
 
