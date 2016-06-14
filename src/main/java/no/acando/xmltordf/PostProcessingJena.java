@@ -26,7 +26,6 @@ import org.apache.jena.update.UpdateAction;
 import java.io.IOException;
 import java.io.InputStream;
 
-//TODO: comment me or make me better with mustache
 public class PostProcessingJena extends PostProcessing {
 
     private Model model;

@@ -62,9 +62,6 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
     }
 
     public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
-        if (objectLiteral == null) {
-            return "";
-        }
 
         objectLiteral = objectLiteral
             .replace("\\", "\\\\")
@@ -127,9 +124,9 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
             .replace("\"", "\\\"");
 
         if (isBlankNode(subject)) {
-            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType.toString() + "> .";
+            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType + "> .";
         } else {
-            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType.toString() + "> .";
+            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType + "> .";
         }
 
     }

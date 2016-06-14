@@ -54,8 +54,7 @@ public class Builder {
         String overrideNamespace;
         Map<String, String> mapForClasses;
         boolean autoDetectLiteralProperties = true;
-        boolean transformForAttributeValue = false;
-        Map<String, StringTransform> transformForAttributeValueMap = new HashMapNoOverwrite<>();
+        Map<String, StringTransform> transformForAttributeValueMap = null;
 
         public T overrideNamespace(String namespace) {
             this.overrideNamespace = namespace;
@@ -87,8 +86,11 @@ public class Builder {
             elementName = nullValueCheck(elementName);
             attributeName = nullValueCheck(attributeName);
 
+            if (transformForAttributeValueMap == null) {
+                transformForAttributeValueMap = new HashMapNoOverwrite<>();
+            }
+
             transformForAttributeValueMap.put(elementName + seperator + attributeName, transform);
-            transformForAttributeValue = true;
 
             return (T) this;
 
@@ -100,7 +102,6 @@ public class Builder {
         boolean addIndex = false;
 
         Map<String, StringTransform> useAttributedForIdMap = new HashMapNoOverwrite<>();
-        boolean useAttributedForId = false;
         String autoAddSuffixToNamespace = "#";
 
         public T addIndex(boolean b) {
@@ -112,7 +113,6 @@ public class Builder {
         public T addUseAttributeForId(String elementName, String attributeName, StringTransform p2) {
             elementName = nullValueCheck(elementName);
             useAttributedForIdMap.put(elementName + seperator + attributeName, p2);
-            useAttributedForId = true;
 
             return (T) this;
         }
@@ -148,9 +148,9 @@ public class Builder {
         boolean autoTypeLiterals;
         boolean uuidBasedIdInsteadOfBlankNodes = false;
 
-        private Map<String, ParentChild> invertProperty = new HashMapNoOverwrite<>();
-        private Map<String, String> insertPropertyBetween = new HashMapNoOverwrite<>();
-        Map<String, DataType> dataTypeOnElement = new HashMapNoOverwrite<>();
+        private Map<String, ParentChild> invertProperty = null;
+        private Map<String, String> insertPropertyBetween = null;
+        Map<String, DataType> dataTypeOnElement = null;
         Map<String, Map<String, ResourceType>> literalMap = null;
 
         public T mapLiteralOnProperty(String property, String value, ResourceType resource) {
@@ -194,20 +194,33 @@ public class Builder {
 
 
         public T insertPropertyBetween(String newProperty, String parent, String child) {
+            if (insertPropertyBetween == null) {
+                insertPropertyBetween = new HashMapNoOverwrite<>();
+
+            }
             insertPropertyBetween.put(parent + seperator + child, newProperty);
             return (T) this;
         }
 
         String getInsertPropertyBetween(String parent, String child) {
+            if (insertPropertyBetween == null) {
+                insertPropertyBetween = new HashMapNoOverwrite<>();
+            }
             return insertPropertyBetween.get(parent + seperator + child);
         }
 
         public T invertProperty(String property, String parent, String child) {
+            if (invertProperty == null) {
+                invertProperty = new HashMapNoOverwrite<>();
+            }
             invertProperty.put(property, new ParentChild(parent, child));
             return (T) this;
         }
 
         boolean checkInvertProperty(String property, String parent, String child) {
+            if (invertProperty == null) {
+                return false;
+            }
 
             ParentChild parentChild = invertProperty.get(property);
             if (parentChild != null) {
@@ -224,6 +237,9 @@ public class Builder {
         }
 
         public T setDatatype(String fullUriForElement, DataType datatype) {
+            if (dataTypeOnElement == null) {
+                dataTypeOnElement = new HashMapNoOverwrite<>();
+            }
             dataTypeOnElement.put(fullUriForElement, datatype);
             return (T) this;
         }
@@ -294,7 +310,7 @@ public class Builder {
         }
     }
 
-    static class HashMapNoOverwrite<Key, Value> extends HashMap<Key, Value> {
+    private static class HashMapNoOverwrite<Key, Value> extends HashMap<Key, Value> {
 
         @Override
         public Value put(Key key, Value value) {
@@ -305,7 +321,7 @@ public class Builder {
         }
     }
 
-    public static String nullValueCheck(String value) {
+    private static String nullValueCheck(String value) {
         if (value == null) {
             value = "";
         }

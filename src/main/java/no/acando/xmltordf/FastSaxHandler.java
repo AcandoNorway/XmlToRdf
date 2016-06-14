@@ -22,8 +22,9 @@ import org.xml.sax.SAXException;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Map;
-import java.util.Stack;
 
 import static no.acando.xmltordf.Common.BLANK_NODE_PREFIX;
 import static no.acando.xmltordf.Common.seperator;
@@ -31,11 +32,16 @@ import static no.acando.xmltordf.Common.seperator;
 
 public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
-    private UndoableBufferedPrintWriter out;
-    private Stack<String> nodeIdStack = new Stack<>();
-    private Stack<StringBuilder> stringBuilderStack = new Stack<>();
+    private final UndoableBufferedPrintWriter out;
 
-    private Stack<String> typeStack = new Stack<>();
+    // A Deque used as a stack to keep track of the URI/Bnode ID of the parent elements
+    private final Deque<String> nodeIdStack = new ArrayDeque<>(100);
+
+    // A Deque used as a stack to hold the string builders that keep all the characters in the value of the xml element
+    private final Deque<StringBuilder> stringBuilderStack = new ArrayDeque<>(100);
+
+    // A Deque used as a stack to keep track of what are essentially the element names, which are used for rdf:type
+    private final Deque<String> typeStack = new ArrayDeque<>(100);
 
     private long index = 0;
 
@@ -49,6 +55,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     @Override
     public void endDocument() throws SAXException {
         out.flush();
+
     }
 
     @Override
@@ -65,7 +72,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             fullyQualifiedName = builder.mapForClasses.get(uri + qName);
         }
 
-        String bnode = "_:index" + index++;
+        final String bnode = "_:index" + index++;
 
         if (nodeIdStack.size() > 0) {
             String parent = nodeIdStack.peek();
@@ -82,10 +89,10 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         for (int i = 0; i < attributes.getLength(); i++) {
             String uriAttr = attributes.getURI(i);
-            String nameAttr = attributes.getLocalName(i);
+            final String nameAttr = attributes.getLocalName(i);
             String valueAttr = attributes.getValue(i);
 
-            if (builder.transformForAttributeValue) {
+            if (builder.transformForAttributeValueMap != null) {
                 StringTransform stringTransform = null;
 
                 Map<String, StringTransform> map = builder.transformForAttributeValueMap;
@@ -125,9 +132,9 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     @Override
     public void endElement(String uri, String localName, String qName) throws SAXException {
 
-        String stringPop = nodeIdStack.pop();
-        String typePop = typeStack.pop();
-        String value = stringBuilderStack.pop().toString().trim();
+        final String stringPop = nodeIdStack.pop();
+        final String typePop = typeStack.pop();
+        final String value = stringBuilderStack.pop().toString().trim();
 
         if (!value.isEmpty()) {
             handleTextValue(stringPop, typePop, value);
@@ -178,8 +185,8 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
     String createTriple(String subject, String predicate, String object) {
 
-        boolean subjectIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
-        boolean objectIsBlank = object.startsWith(BLANK_NODE_PREFIX);
+        final boolean subjectIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
+        final boolean objectIsBlank = object.startsWith(BLANK_NODE_PREFIX);
 
         if (subjectIsBlank) {
             if (objectIsBlank) {
@@ -194,7 +201,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
                 return '<' + subject + "> <" + predicate + "> " + object + '.';
 
             } else {
-                return '<' + subject + "> <"+ predicate + "> <" + object + ">.";
+                return '<' + subject + "> <" + predicate + "> <" + object + ">.";
 
             }
         }
@@ -206,7 +213,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             .replace("\\", "\\\\")
             .replace("\"", "\\\"");
 
-        boolean oIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
+        final boolean oIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
         if (oIsBlank) {
             return subject + " <" + predicate + "> \"\"\"" + literal + "\"\"\".";
 

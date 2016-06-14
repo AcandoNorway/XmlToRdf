@@ -17,49 +17,58 @@ limitations under the License.
 package no.acando.xmltordf;
 
 import java.io.PrintStream;
-import java.util.Vector;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.NoSuchElementException;
 
 
 public class UndoableBufferedPrintWriter {
 
-        PrintStream out;
-        int vectorSize = 10;
+    private final PrintStream out;
+    private final int SIZE = 10;
 
-        Vector<String> vector = new Vector<>();
+    private int counter = 0;
+    private final Deque<String> deque = new ArrayDeque<>(12);
 
-        public UndoableBufferedPrintWriter(PrintStream out) {
-                this.out = out;
+    public UndoableBufferedPrintWriter(PrintStream out) {
+        this.out = out;
+    }
+
+
+    void println(String s) {
+
+        deque.push(s);
+
+        counter++;
+        while (counter > SIZE) {
+            out.println(deque.removeLast());
+            counter--;
+        }
+    }
+
+    String peek() {
+
+        return deque.peek();
+    }
+
+
+    String pop() {
+        counter--;
+
+        return deque.pop();
+    }
+
+    void flush() {
+        try {
+            while (true) {
+                out.println(deque.pop());
+            }
+        } catch (NoSuchElementException e) {
+            // done with loop
         }
 
-
-        void println(String s){
-                vector.add(s);
-
-                while(vector.size() > vectorSize){
-                        out.println(vector.remove(0));
-                }
-        }
-
-        String peek(){
-
-                return vector.get(vector.size()-1);
-        }
-
-
-        String pop(){
-
-
-                return vector.remove(vector.size()-1);
-        }
-
-        void flush(){
-                while(vector.size() > 0){
-                        out.println(vector.remove(0));
-                }
-
-                out.flush();
-        }
-
+        out.flush();
+    }
 
 
 }

@@ -71,7 +71,8 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
                         }
 
                     } catch (InterruptedException interruptedException) {
-                        //TODO: handle or throw this back up
+                        //print and ignore
+                        System.out.println(interruptedException.getMessage());
                     }
                 }
 
@@ -264,7 +265,7 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     private Resource getResource(String subject) {
         if (!isBlankNode(subject)) {
-            return  valueFactory.createIRI(subject);
+            return valueFactory.createIRI(subject);
         } else {
             return valueFactory.createBNode(subject);
         }

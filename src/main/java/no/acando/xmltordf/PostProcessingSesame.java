@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-public class PostProcessingSesame extends  PostProcessing {
+public class PostProcessingSesame extends PostProcessing {
 
     Repository repository;
 
@@ -45,14 +45,13 @@ public class PostProcessingSesame extends  PostProcessing {
 
     @Override
     public PostProcessingSesame mustacheExtract(InputStream mustacheTemplate, Object input) throws IOException {
-       throw new UnsupportedOperationException("Not implemented yet.");
+        throw new UnsupportedOperationException("Not implemented yet.");
     }
 
 
-    public Repository getRepository(){
+    public Repository getRepository() {
         return repository;
     }
-
 
 
 }

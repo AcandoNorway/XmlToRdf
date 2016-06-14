@@ -54,7 +54,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         dataset = DatasetFactory.createMem();
         graph = dataset.getDefaultModel().getGraph();
 
-        this.builder =  builder;
+        this.builder = builder;
         Thread thread = Thread.currentThread();
         jenaThread = new Thread() {
             @Override
@@ -68,7 +68,8 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
                         }
 
                     } catch (InterruptedException e) {
-                        //TODO: handle this or throw it up the stack
+                        // print and ignore
+                        System.out.println(e.getMessage());
                     }
 
                 }
@@ -95,7 +96,6 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         return null;
 
     }
-
 
 
     //TODO: this always returns null, what up?
@@ -265,8 +265,8 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
             queue.put(EndOfFileTriple);
             jenaThread.join();
         } catch (InterruptedException e) {
-            //TODO: handle or throw up the stack
-            e.printStackTrace();
+            // print and ignore
+            System.out.println(e.getMessage());
         }
     }
 
