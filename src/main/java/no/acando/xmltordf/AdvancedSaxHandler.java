@@ -25,15 +25,12 @@ import java.io.PrintStream;
 import java.util.*;
 
 import static no.acando.xmltordf.Common.seperator;
+import static no.acando.xmltordf.XmlToRdfVocabulary.hasChild;
+import static no.acando.xmltordf.XmlToRdfVocabulary.hasValue;
 
 
 public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler {
     private final PrintStream out;
-    final String hasChild = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasChild";
-    final String hasValue = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasValue";
-    final String index = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "index";
-    final String EndOfFile = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "EndOfFile";
-    private final String hasMixedContent = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasMixedContent";
 
     Stack<Element> elementStack = new Stack<>();
 
@@ -142,7 +139,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             });
 
             if (builder.addIndex) {
-                out.println(createTripleLiteral(pop.uri, index, pop.index));
+                out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.index, pop.index));
             }
         } else {
             out.println(createTriple(pop.uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", pop.type));
@@ -165,22 +162,22 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                    if (resourceType.isPresent()) {
                       throw new IllegalStateException("Can not both map literal to object and have datatype at the same time.");
                    } else {
-                       out.println(createTripleLiteral(pop.uri, this.hasValue, pop.getHasValue(), builder.dataTypeOnElement.get(pop.type))); //TRANSFORM
+                       out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue(), builder.dataTypeOnElement.get(pop.type))); //TRANSFORM
                    }
 
                 } else {
                     if (resourceType.isPresent()) {
-                        out.println(createTriple(pop.uri, this.hasValue, resourceType.get())); //TRANSFORM
+                        out.println(createTriple(pop.uri, hasValue, resourceType.get())); //TRANSFORM
 
                     } else {
-                        out.println(createTripleLiteral(pop.uri, this.hasValue, pop.getHasValue())); //TRANSFORM
+                        out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue())); //TRANSFORM
 
                     }
 
                 }
 
                 if (pop.mixedContent.size() > 0) {
-                    out.println(createList(pop.uri, hasMixedContent, pop.mixedContent));
+                    out.println(createList(pop.uri, XmlToRdfVocabulary.hasMixedContent, pop.mixedContent));
                 }
 
 
@@ -192,7 +189,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             });
 
             if (builder.addIndex) {
-                out.println(createTripleLiteral(pop.uri, index, pop.index));
+                out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.index, pop.index));
             }
 
         }

@@ -267,7 +267,7 @@ public class XmlToRdfTest {
     public void attributeForIdWithNs() throws Exception {
 
         final String a = "http://example.com/A";
-        final String b = "http://example.com/B";
+        final String b = "http://example2.com/B";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .addUseAttributeForId(a, ID, (var) -> HTTP_TEST + var)
@@ -438,7 +438,7 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform2() throws Exception {
 
-        final String hurrah = "hurrah";
+        final String hurrah = "hurra";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
@@ -459,7 +459,7 @@ public class XmlToRdfTest {
     @Test
     public void attrValueTransform3() throws Exception {
 
-        final String hurrah = "hurrah";
+        final String hurrah = "hurra";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .addTransformForAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))

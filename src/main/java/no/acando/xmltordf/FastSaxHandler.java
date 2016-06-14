@@ -37,9 +37,6 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
     private Stack<String> typeStack = new Stack<>();
 
-    private final String hasChild = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasChild";
-    private final String hasValue = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#" + "hasValue";
-
     private long index = 0;
 
     Builder.Fast builder;
@@ -72,7 +69,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         if (nodeIdStack.size() > 0) {
             String parent = nodeIdStack.peek();
-            out.println(createTriple(parent, hasChild, bnode));
+            out.println(createTriple(parent, XmlToRdfVocabulary.hasChild, bnode));
         }
 
         out.println(createTriple(bnode, RDF.type.getURI(), fullyQualifiedName));
@@ -142,7 +139,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
     private void cleanUpEmptyTag(String stringPop) {
         String outPop = out.pop();
-        if (out.peek().equals(createTriple(nodeIdStack.peek(), hasChild, stringPop))) {
+        if (out.peek().equals(createTriple(nodeIdStack.peek(), XmlToRdfVocabulary.hasChild, stringPop))) {
             out.pop();
         } else {
             out.println(outPop);
@@ -156,7 +153,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             if (out.peek().equals(createTriple(stringPop, RDF.type.getURI(), typePop))) {
 
                 if (nodeIdStack.isEmpty()) {
-                    out.println(createTripleLiteral(stringPop, hasValue, value));
+                    out.println(createTripleLiteral(stringPop, XmlToRdfVocabulary.hasValue, value));
                     nodeIdStack.push(stringPop);
 
                 } else {
@@ -166,11 +163,11 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
                 }
 
             } else {
-                out.println(createTripleLiteral(stringPop, hasValue, value));
+                out.println(createTripleLiteral(stringPop, XmlToRdfVocabulary.hasValue, value));
             }
 
         } else {
-            out.println(createTripleLiteral(stringPop, hasValue, value));
+            out.println(createTripleLiteral(stringPop, XmlToRdfVocabulary.hasValue, value));
         }
     }
 

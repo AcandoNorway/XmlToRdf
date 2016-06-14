@@ -45,7 +45,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
     private boolean notDone = true;
     private Thread jenaThread;
 
-    private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile), NodeFactory.createURI(EndOfFile));
+    private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile));
 
     public AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
         super(new NullOutputStream(), builder);

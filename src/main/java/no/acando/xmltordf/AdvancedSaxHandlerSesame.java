@@ -40,9 +40,9 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
     private Thread repoThread;
 
     private final Statement EndOfFileStatement = SimpleValueFactory.getInstance().createStatement(
-        SimpleValueFactory.getInstance().createIRI(EndOfFile),
-        SimpleValueFactory.getInstance().createIRI(EndOfFile),
-        SimpleValueFactory.getInstance().createIRI(EndOfFile)
+        SimpleValueFactory.getInstance().createIRI(XmlToRdfVocabulary.EndOfFile),
+        SimpleValueFactory.getInstance().createIRI(XmlToRdfVocabulary.EndOfFile),
+        SimpleValueFactory.getInstance().createIRI(XmlToRdfVocabulary.EndOfFile)
     );
 
     private SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
