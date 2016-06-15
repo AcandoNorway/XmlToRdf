@@ -203,7 +203,10 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         if (builder.literalMap != null) {
             Map<String, ResourceType> stringResourceTypeMap = builder.literalMap.get(pop.getType());
             if (stringResourceTypeMap != null) {
-                return Optional.of(stringResourceTypeMap.get(pop.getHasValue()));
+                ResourceType value = stringResourceTypeMap.get(pop.getHasValue());
+                if (value != null) {
+                    return Optional.of(value);
+                }
             }
         }
         return Optional.empty();
@@ -278,7 +281,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             String nameAttr = attributes.getLocalName(i);
             String valueAttr = attributes.getValue(i);
 
-		valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
+            valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
 
             if (builder.useAttributedForIdMap != null) {
                 StringTransform stringTransform = null;

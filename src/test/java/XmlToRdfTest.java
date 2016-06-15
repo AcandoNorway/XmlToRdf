@@ -798,6 +798,29 @@ public class XmlToRdfTest {
     }
 
     @Test
+    public void literalOnPropertyNullPointer() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .autoDetectLiteralProperties(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .autoDetectLiteralProperties(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .autoDetectLiteralProperties(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .mapLiteralOnProperty(HTTP_A_NAME, HELLO, HTTP_TEST)
+            .build());
+
+    }
+
+    @Test
     public void setQueueSize() throws Exception {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()

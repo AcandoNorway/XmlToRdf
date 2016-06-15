@@ -1,0 +1,10 @@
+<A>
+    <B>
+        <num>1</num>
+        <name>not hello</name>
+    </B>
+    <B>
+        <num>1</num>
+        <name>hello</name>
+    </B>
+</A>
