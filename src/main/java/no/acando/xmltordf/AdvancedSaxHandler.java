@@ -230,6 +230,19 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
         }
 
+        if(builder.xsiTypeSupport && attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null){
+            String type = attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type");
+
+            if(type.contains(":")){
+                String[] split = type.split(":");
+                uri = prefixUriMap.get(split[0]);
+                localName = split[1];
+            }else{
+                localName = type;
+            }
+
+        }
+
         Element element = new Element();
 
         if (builder.autoAddSuffixToNamespace != null) {
@@ -280,6 +293,10 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             String uriAttr = attributes.getURI(i);
             String nameAttr = attributes.getLocalName(i);
             String valueAttr = attributes.getValue(i);
+
+            if(builder.xsiTypeSupport && uriAttr.equals("http://www.w3.org/2001/XMLSchema-instance") && nameAttr.equals("type")){
+                continue;
+            }
 
             valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
 
@@ -348,8 +365,19 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     @Override
     public void startPrefixMapping(String prefix, String uri) throws SAXException {
 
-        System.out.println(prefix);
-        System.out.println(uri);
+        if (builder.autoAddSuffixToNamespace != null) {
+            if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
+                uri += builder.autoAddSuffixToNamespace;
+            }
+        }
+
+        if ((uri == null || uri.isEmpty()) && builder.baseNamespace != null) {
+            uri = builder.baseNamespace;
+        }
+
+        if (builder.overrideNamespace != null) {
+            uri = builder.overrideNamespace;
+        }
 
         prefixUriMap.put(prefix, uri);
 
