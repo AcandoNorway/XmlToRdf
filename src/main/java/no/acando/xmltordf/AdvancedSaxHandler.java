@@ -283,6 +283,12 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
             valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
 
+            if(builder.resolveAsQnameInAttributeValue && valueAttr.contains(":")){
+                String[] split = valueAttr.split(":");
+                split[0] = prefixUriMap.get(split[0]);
+                valueAttr = String.join("", split);
+            }
+
             if (builder.useAttributedForIdMap != null) {
                 StringTransform stringTransform = null;
                 if (builder.useAttributedForIdMap.containsKey(uri + localName + seperator + uriAttr + nameAttr)) {
@@ -335,6 +341,18 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         out.flush();
         out.close();
+    }
+
+    HashMap<String, String> prefixUriMap = new HashMap<>();
+
+    @Override
+    public void startPrefixMapping(String prefix, String uri) throws SAXException {
+
+        System.out.println(prefix);
+        System.out.println(uri);
+
+        prefixUriMap.put(prefix, uri);
+
     }
 
 }

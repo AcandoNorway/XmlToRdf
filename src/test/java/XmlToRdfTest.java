@@ -821,6 +821,53 @@ public class XmlToRdfTest {
     }
 
     @Test
+    public void qnameInAttributeValue() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .autoDetectLiteralProperties(true)
+            .resolveAsQnameInAttributeValue(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .autoDetectLiteralProperties(true)
+            .resolveAsQnameInAttributeValue(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .autoDetectLiteralProperties(true)
+            .resolveAsQnameInAttributeValue(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .build());
+
+    }
+
+
+    @Test
+    public void xsiTypeSupport() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .autoDetectLiteralProperties(true)
+            .xsiTypeSupport(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .autoDetectLiteralProperties(true)
+            .xsiTypeSupport(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .autoDetectLiteralProperties(true)
+            .xsiTypeSupport(true)
+            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+            .build());
+
+    }
+
+    @Test
     public void setQueueSize() throws Exception {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()

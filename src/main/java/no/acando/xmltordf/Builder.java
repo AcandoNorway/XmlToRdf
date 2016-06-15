@@ -170,6 +170,8 @@ public class Builder {
         private Map<String, String> insertPropertyBetween = null;
         Map<String, DataType> dataTypeOnElement = null;
         Map<String, Map<String, ResourceType>> literalMap = null;
+        boolean resolveAsQnameInAttributeValue;
+         boolean xsiTypeSupport;
 
         public T mapLiteralOnProperty(String property, String value, ResourceType resource) {
             if (literalMap == null) {
@@ -254,11 +256,21 @@ public class Builder {
             return (T) this;
         }
 
+        public T resolveAsQnameInAttributeValue(boolean b) {
+            resolveAsQnameInAttributeValue = b;
+            return (T) this;
+        }
+
         public T setDatatype(String fullUriForElement, DataType datatype) {
             if (dataTypeOnElement == null) {
                 dataTypeOnElement = new HashMapNoOverwrite<>();
             }
             dataTypeOnElement.put(fullUriForElement, datatype);
+            return (T) this;
+        }
+
+        public T xsiTypeSupport(boolean b) {
+            this.xsiTypeSupport = b;
             return (T) this;
         }
 
@@ -281,6 +293,8 @@ public class Builder {
                 }
                 return true;
             }
+
+
         }
 
         private Map<String, ComplexClassTransform> complexTransformForClass = new HashMapNoOverwrite<>();
