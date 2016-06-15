@@ -96,6 +96,24 @@ public class Builder {
 
         }
 
+         String doTransformForAttribute(String element, String attribute, String value) {
+
+             if(transformForAttributeValueMap == null) return value;
+
+
+            if (transformForAttributeValueMap.containsKey(element + seperator + attribute)) {
+                return transformForAttributeValueMap.get(element + seperator + attribute).transform(value);
+            } else if (transformForAttributeValueMap.containsKey(element + seperator)) {
+                return transformForAttributeValueMap.get(element + seperator).transform(value);
+            } else if (transformForAttributeValueMap.containsKey(seperator + attribute)) {
+                return transformForAttributeValueMap.get(seperator + attribute).transform(value);
+            } else if (transformForAttributeValueMap.containsKey(seperator)) {
+                return transformForAttributeValueMap.get(seperator).transform(value);
+            }
+
+             return value;
+
+        }
     }
 
     static private class DefaultWithAddIndex<T extends DefaultWithAddIndex<T>> extends Default<T> {

@@ -92,28 +92,8 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             final String nameAttr = attributes.getLocalName(i);
             String valueAttr = attributes.getValue(i);
 
-            if (builder.transformForAttributeValueMap != null) {
-                StringTransform stringTransform = null;
+            valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
 
-                Map<String, StringTransform> map = builder.transformForAttributeValueMap;
-
-                // TODO: fix me after open source o'clock
-                // Handles support for wildcard search
-                if (map.containsKey(uri + localName + seperator + uriAttr + nameAttr)) {
-                    stringTransform = map.get(uri + localName + seperator + uriAttr + nameAttr);
-                } else if (map.containsKey(uri + localName + seperator)) {
-                    stringTransform = map.get(uri + localName + seperator);
-                } else if (map.containsKey(seperator + uriAttr + nameAttr)) {
-                    stringTransform = map.get(seperator + uriAttr + nameAttr);
-                } else if (map.containsKey(seperator)) {
-                    stringTransform = map.get(seperator);
-                }
-
-                if (stringTransform != null) {
-                    valueAttr = stringTransform.transform(valueAttr);
-                }
-
-            }
 
             if (builder.overrideNamespace != null) {
                 uriAttr = builder.overrideNamespace;

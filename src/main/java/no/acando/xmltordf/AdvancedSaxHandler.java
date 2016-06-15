@@ -284,26 +284,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             String nameAttr = attributes.getLocalName(i);
             String valueAttr = attributes.getValue(i);
 
-            if (builder.transformForAttributeValueMap != null) {
-                StringTransform stringTransform = null;
-
-                Map<String, StringTransform> map = builder.transformForAttributeValueMap;
-
-                if (map.containsKey(uri + localName + seperator + uriAttr + nameAttr)) {
-                    stringTransform = map.get(uri + localName + seperator + uriAttr + nameAttr);
-                } else if (map.containsKey(uri + localName + seperator)) {
-                    stringTransform = map.get(uri + localName + seperator);
-                } else if (map.containsKey(seperator + uriAttr + nameAttr)) {
-                    stringTransform = map.get(seperator + uriAttr + nameAttr);
-                } else if (map.containsKey(seperator)) {
-                    stringTransform = map.get(seperator);
-                }
-
-                if (stringTransform != null) {
-                    valueAttr = stringTransform.transform(valueAttr);
-                }
-
-            }
+		valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
 
             if (builder.useAttributedForIdMap != null) {
                 StringTransform stringTransform = null;
