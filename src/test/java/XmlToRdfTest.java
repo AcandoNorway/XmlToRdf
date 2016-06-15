@@ -15,6 +15,7 @@ limitations under the License.
  */
 
 import no.acando.xmltordf.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.Model;
@@ -25,6 +26,7 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
+import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.vocabulary.XMLSchema;
@@ -1019,6 +1021,13 @@ public class XmlToRdfTest {
 
         writer.startRDF();
         try (RepositoryConnection connection = repository.getConnection()) {
+            RepositoryResult<Namespace> namespaces = connection.getNamespaces();
+
+            while(namespaces.hasNext()){
+                Namespace next = namespaces.next();
+                writer.handleNamespace(next.getPrefix(), next.getName());
+            }
+
             RepositoryResult<Statement> statements = connection.getStatements(null, null, null);
             while (statements.hasNext()) {
                 writer.handleStatement(statements.next());
