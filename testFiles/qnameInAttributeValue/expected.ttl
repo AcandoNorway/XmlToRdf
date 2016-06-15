@@ -5,6 +5,6 @@
 [ a                  <http://example.com/hello#A> ;
   xmlToRdf:hasChild  [ a                               <http://example.com/hello#name> ;
                        xmlToRdf:hasValue               "hello" ;
-                       <http://example2.com/abc#test>  "http://example2.com/abcr"
+                       <http://example2.com/abc#test>  "http://example2.com/abc#r"
                      ]
 ] .
