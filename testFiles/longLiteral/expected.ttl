@@ -2,4 +2,6 @@
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 
-[ <http://example.orga>  "fjkejf ejwkfj ewlfkewjfl kewjkflje kwlfjklewjfk lewjkfljewklfj ekwljfklewjk fljewkfj klewjf kljekwl fjklewj\n    kf ljewk lfjkewljf klejwk lfjekl jfklejwklfjewk ljfklewj klfjekwl jfklewjklfjkew ljfkl ejwklfjewkljfklewjkfj ewkljfkelw\n    fewfewfewfew hfjkewh fjkhewjk fhjekwhfjk ehwj kfhewjkfkewh fjkhew jkfhjkewhfj kewh fjkhew jkfhej kwhfjkewhjk fewhf" ] .
+[ a                  <http://example.orga> ;
+  xmlToRdf:hasValue  "fjkejf ejwkfj ewlfkewjfl kewjkflje kwlfjklewjfk lewjkfljewklfj ekwljfklewjk fljewkfj klewjf kljekwl fjklewj\n    kf ljewk lfjkewljf klejwk lfjekl jfklejwklfjewk ljfklewj klfjekwl jfklewjklfjkew ljfkl ejwklfjewkljfklewjkfj ewkljfkelw\n    fewfewfewfew hfjkewh fjkhewjk fhjekwhfjk ehwj kfhewjkfkewh fjkhew jkfhjkewhfj kewh fjkhew jkfhej kwhfjkewhjk fewhf"
+] .

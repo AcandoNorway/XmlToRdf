@@ -144,8 +144,7 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
                 // check if root element
                 if (nodeIdStack.isEmpty()) {
                     // use hasValue with root element
-                    out.pop();
-                    out.println(createTripleLiteral(nodeId, typePop, value));
+                    out.println(createTripleLiteral(nodeId, XmlToRdfVocabulary.hasValue, value));
 
                 } else {
                     // remove rdf:type and hasChild statements
