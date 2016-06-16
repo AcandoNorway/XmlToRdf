@@ -81,7 +81,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         Element pop = elementStack.pop();
 
-        builder.doComplexTransformForClass(pop);
+        builder.doComplexTransformForClassAtElementEnd(pop);
 
         if (builder.autoConvertShallowChildrenToProperties && pop.hasChild.isEmpty() && pop.parent != null) {
             pop.shallow = true;
