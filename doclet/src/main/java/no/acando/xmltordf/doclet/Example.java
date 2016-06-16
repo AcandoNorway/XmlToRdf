@@ -20,7 +20,6 @@ import java.util.LinkedList;
 
 
 class Example {
-	String methodName;
 	String xml;
 
 	LinkedList<InnerExample> innerExamples = new LinkedList<>();

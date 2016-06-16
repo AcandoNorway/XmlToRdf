@@ -50,7 +50,7 @@ public class GenerateDocs {
 
 		ClassDoc[] classDocs = builder.innerClasses(false);
 
-		List<Example> exampleList = new ArrayList<>();
+		List<Method> documentation = new ArrayList<>();
 
 		for (ClassDoc classDoc : classDocs) {
 
@@ -59,14 +59,21 @@ public class GenerateDocs {
 
 			for (MethodDoc method : methods) {
 				Example currentExample = null;
+				Method currentMethod = new Method();
+				currentMethod.name = method.name();
+				documentation.add(currentMethod);
 
 				Tag[] tags = method.tags();
 				for (Tag tag : tags) {
+
+					if (tag.name().equals("@description")) {
+						currentMethod.description = tag.text().trim();
+					}
+
 					if (tag.name().equals("@xml")) {
 						currentExample = new Example();
-						currentExample.methodName = method.name();
+						currentMethod.addExample(currentExample);
 						currentExample.xml = tag.text().trim();
-						exampleList.add(currentExample);
 					}
 
 					if (tag.name().equals("@exampleLabel")) {
@@ -80,7 +87,7 @@ public class GenerateDocs {
 		}
 
 
-		printWriter.println(new GsonBuilder().setPrettyPrinting().create().toJson(exampleList));
+		printWriter.println(new GsonBuilder().setPrettyPrinting().create().toJson(documentation));
 		printWriter.close();
 		System.out.println("done");
 

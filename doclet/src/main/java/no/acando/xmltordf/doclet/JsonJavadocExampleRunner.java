@@ -43,6 +43,7 @@ public class JsonJavadocExampleRunner {
 			"import java.io.ByteArrayInputStream;\n" +
 			"import java.io.IOException;\n" +
 			"import java.io.StringWriter;\n" +
+			"import no.acando.xmltordf.SimpleTypePolicy;\n" +
 			"\n" +
 			"\n" +
 			"public class TempCOUNTER implements ExampleInterface{\n" +
@@ -64,18 +65,28 @@ public class JsonJavadocExampleRunner {
 		String javadoc = "xmltordf/documentation/javadoc";
 		File file1 = new File(javadoc + ".json");
 		String json = FileUtils.readFileToString(file1);
-		Type listType = new TypeToken<ArrayList<Example>>() {
+		Type listType = new TypeToken<ArrayList<Method>>() {
 		}.getType();
-		List<Example> list = new Gson().fromJson(json, listType);
+		List<Method> list = new Gson().fromJson(json, listType);
 
 		int counter = 0;
 
 		PrintWriter printWriter = new PrintWriter(new File(javadoc + ".md"));
 
 
-		for (Example example : list) {
+		for (Method method : list) {
 
-			printWriter.println("## " + example.methodName);
+			printWriter.println("## " + method.name);
+
+			printWriter.println();
+			printWriter.println(method.description);
+			printWriter.println();
+
+
+			for (Example example : method.examples) {
+
+
+
 
 			printWriter.println("**XML example**\n```xml");
 			printWriter.println(example.xml);
@@ -87,7 +98,6 @@ public class JsonJavadocExampleRunner {
 						.replace("BUILDER", innerExample.exampleCommand.replace(";", ""))
 						.replace("COUNTER", "" + counter);
 
-				System.out.println(builder);
 
 
 				printWriter.println("### " + innerExample.exampleLabel);
@@ -96,26 +106,33 @@ public class JsonJavadocExampleRunner {
 				printWriter.println("```\n");
 
 
-				Class aClass = CompilerUtils.CACHED_COMPILER.loadFromJava(Builder.getAdvancedBuilderStream().getClass().getClassLoader(), "mypackage.Temp" + counter, builder);
+				try {
+					Class aClass = CompilerUtils.CACHED_COMPILER.loadFromJava(Builder.getAdvancedBuilderStream().getClass().getClassLoader(), "mypackage.Temp" + counter, builder);
 
-				String s = ((ExampleInterface) aClass.newInstance()).toString(example.xml);
+					String s = ((ExampleInterface) aClass.newInstance()).toString(example.xml);
 
 
-				Model defaultModel = ModelFactory.createDefaultModel();
+					Model defaultModel = ModelFactory.createDefaultModel();
 
-				defaultModel.read(new ByteArrayInputStream(s.getBytes()), "", "TTL");
+					defaultModel.read(new ByteArrayInputStream(s.getBytes()), "", "TTL");
 
-				defaultModel.setNsPrefix("ex", "http://example.org/");
-				defaultModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/ontology.ttl#");
-				StringWriter stringWriter = new StringWriter();
-				defaultModel.write(stringWriter, "TTL");
+					defaultModel.setNsPrefix("ex", "http://example.org/");
+					defaultModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
+					StringWriter stringWriter = new StringWriter();
+					defaultModel.write(stringWriter, "TTL");
 
-				System.out.println(stringWriter.toString());
+					printWriter.println("**RDF output**\n```turtle");
+					printWriter.println(stringWriter.toString());
+					printWriter.println("```\n");
 
-				printWriter.println("**RDF output**\n```turtle");
-				printWriter.println(stringWriter.toString());
-				printWriter.println("```\n");
+				}catch (Exception e){
+					System.out.println(builder);
+					throw e;
+				}
 
+
+
+			}
 			}
 
 

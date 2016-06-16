@@ -16,6 +16,7 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
+import com.sun.org.apache.regexp.internal.RE;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.Node;
 import org.openrdf.model.IRI;
@@ -56,18 +57,43 @@ public class Builder {
         boolean autoDetectLiteralProperties = true;
         Map<String, StringTransform> transformForAttributeValueMap = null;
 
+        /**
+         * @param
+         * @return
+         * @description Override all namespaces in the xml with a new namespace
+         * @description
+         * @xml <people xmlns="http://example.org/" xmlns:a="http://A.com/">
+         * <name a:test="hello">John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .overrideNamespace("http://otherNamespace.com/")
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T overrideNamespace(String namespace) {
             this.overrideNamespace = namespace;
             return (T) this;
         }
 
-        public T addMapForClasses(Map<String, String> map) {
-
-            mapForClasses = map;
-            return (T) this;
-        }
-
-        public T addTransformForClass(String fullUriFrom, String fullUriTo) {
+        /**
+         * @param
+         * @return
+         * @description Change the name of an element.
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .renameElement("http://example.org/people", "http://example.org/PEOPLE")
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
+        public T renameElement(String fullUriFrom, String fullUriTo) {
 
             if (mapForClasses == null) {
                 mapForClasses = new HashMapNoOverwrite<>();
@@ -79,14 +105,17 @@ public class Builder {
 
         /**
          * @param policy
-         * @return abc
+         * @return
+         * @description XML elements with only text inside and no attributes (known as Simple Type elements)
+         * can be compacted to use the element name as the RDF predicate or be expanded to use the xmlToRdf:hasChild
+         * predicate
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
          * @exampleLabel Auto detect literal properties enabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().autoDetectLiteralProperties(true).build()
+         * @exampleCommand Builder.getAdvancedBuilderStream().simpleTypePolicy(SimpleTypePolicy.compact).build()
          * @exampleLabel Auto detect literal properties disabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().autoDetectLiteralProperties(false).build()
+         * @exampleCommand Builder.getAdvancedBuilderStream().simpleTypePolicy(SimpleTypePolicy.expand).build()
          */
         public T simpleTypePolicy(SimpleTypePolicy policy) {
             if(policy.equals(SimpleTypePolicy.compact)){
@@ -99,6 +128,20 @@ public class Builder {
         }
 
 
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T addTransformForAttributeValue(String elementName, String attributeName, StringTransform transform) {
             elementName = nullValueCheck(elementName);
             attributeName = nullValueCheck(attributeName);
@@ -113,6 +156,20 @@ public class Builder {
 
         }
 
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         String doTransformForAttribute(String element, String attribute, String value) {
 
             if (transformForAttributeValueMap == null) {
@@ -136,17 +193,54 @@ public class Builder {
     }
 
     static private class DefaultWithAddIndex<T extends DefaultWithAddIndex<T>> extends Default<T> {
-        boolean addIndex = false;
+        boolean addIndex;
 
         Map<String, StringTransform> useAttributedForIdMap = new HashMapNoOverwrite<>();
         String autoAddSuffixToNamespace = "#";
 
-        public T addIndex(boolean b) {
-
-            addIndex = true;
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <person>
+         *       <name>element-zero</name>
+         * </person>
+         *  <person>
+         *       <name>element-one</name>
+         * </person>
+         *  <person>
+         *       <name>element-two</name>
+         * </person>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .addIndex(true)
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .addIndex(false)
+         * .build()
+         */
+        public T addIndex(boolean enabled) {
+            addIndex = enabled;
             return (T) this;
         }
 
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T addUseAttributeForId(String elementName, String attributeName, StringTransform p2) {
             elementName = nullValueCheck(elementName);
             useAttributedForIdMap.put(elementName + seperator + attributeName, p2);
@@ -154,11 +248,39 @@ public class Builder {
             return (T) this;
         }
 
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T autoAddSuffixToNamespace(String sign) {
             autoAddSuffixToNamespace = sign;
             return (T) this;
         }
 
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T autoAddSuffixToNamespace(boolean enabled) {
             if (!enabled) {
                 autoAddSuffixToNamespace = null;
@@ -185,47 +307,108 @@ public class Builder {
         boolean autoTypeLiterals;
         boolean uuidBasedIdInsteadOfBlankNodes = false;
 
-        private Map<String, ParentChild> invertProperty = null;
-        private Map<String, String> insertPropertyBetween = null;
+        private Map<String, ParentChild> invertPredicate = null;
+        private Map<String, String> insertPredicateBetween = null;
         Map<String, DataType> dataTypeOnElement = null;
         Map<String, Map<String, ResourceType>> literalMap = null;
         boolean resolveAsQnameInAttributeValue;
         boolean xsiTypeSupport;
 
-        public T mapLiteralOnProperty(String property, String value, ResourceType resource) {
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * <maritalStatus>married</maritalStatus>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .mapTextInElementToUri("http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
+        public T mapTextInElementToUri(String elementName, String from, ResourceType to) {
             if (literalMap == null) {
                 literalMap = new HashMapNoOverwrite<>();
             }
 
-            if (!literalMap.containsKey(property)) {
-                literalMap.put(property, new HashMapNoOverwrite<String, ResourceType>());
+            if (!literalMap.containsKey(elementName)) {
+                literalMap.put(elementName, new HashMapNoOverwrite<String, ResourceType>());
             }
-            literalMap.get(property).put(value, resource);
+
+            literalMap.get(elementName).put(from, to);
+
+
             return (T) this;
         }
+
 
         /**
          * @param b
          * @return abc
-         * @description Converts elements that only have attributes to a property with the element name and a node with the attributes.
+         * @description Converts elements that only have attributes to a predicate with the element name and a node with the attributes.
+         * @description
          * @xml <people xmlns="http://example.org/">
          * <person name="John Doe" age="89"  />
          * </people>
          * @exampleLabel autoConvertShallowChildrenToProperties enabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenToProperties(true).build()
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .autoConvertShallowChildrenToProperties(true)
+         * .build()
          * @exampleLabel autoConvertShallowChildrenToProperties disabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenToProperties(false).build()
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .autoConvertShallowChildrenToProperties(false)
+         * .build()
          */
         public T autoConvertShallowChildrenToProperties(boolean b) {
             autoConvertShallowChildrenToProperties = b;
             return (T) this;
         }
 
+        /**
+         * @param
+         * @return
+         * @description Uses the namespace for the element as the namespace for any attributes that lack namespaces. Default: true.
+         * @xml <people xmlns="http://example.org/">
+         * <name test="yay">John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .setBaseNamespace("http://none/", Builder.AppliesTo.bothElementsAndAttributes)
+         * .autoAttributeNamespace(true)
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .setBaseNamespace("http://none/", Builder.AppliesTo.bothElementsAndAttributes)
+         * .autoAttributeNamespace(false)
+         * .build()
+         */
         public T autoAttributeNamespace(boolean b) {
             autoAttributeNamespace = b;
             return (T) this;
         }
 
+        /**
+         * @param
+         * @return
+         * @description Sets a namespace for elements and attributes that lack their own namespace. This is recommended to use
+         * in order to make sure everything has a namespace in your final RDF.
+         * @xml <people xmlns:other="http://other.org/">
+         * <name other:age="1">John Doe</name>
+         * <other:name age="2">Unknown</other:name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .autoAttributeNamespace(false)
+         * .setBaseNamespace("http://example.org/", Builder.AppliesTo.bothElementsAndAttributes)
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T setBaseNamespace(String namespace, AppliesTo which) {
             baseNamespace = namespace;
             baseNamespaceAppliesTo = which;
@@ -252,6 +435,20 @@ public class Builder {
             return (T) this;
         }
 
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T autoTypeLiterals(boolean autoTypeLiterals) {
             this.autoTypeLiterals = autoTypeLiterals;
             return (T) this;
@@ -259,40 +456,32 @@ public class Builder {
 
 
         /**
-         * @param newProperty
-         * @param parent
-         * @param child
+         * @param predicate
          * @return abc
-         * @description Converts elements ?
+         * @description Uses the specified predicate between the parent and the child
          * @xml
          * <people xmlns="http://example.org/">
          * 		<person name="John Doe" age="89" >
          * 		      <maritalStatus>unknown</maritalStatus>
          *       </person>
          * </people>
-         * @exampleLabel insertPropertyBetween enabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().insertPropertyBetween("http://example.org/hasPerson", "http://example.org/people", "http://example.org/person").build()
-         * @exampleLabel insertPropertyBetween disabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .insertPredicate("http://example.org/hasPerson").between("http://example.org/people", "http://example.org/person")
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
          */
-        public T insertPropertyBetween(String newProperty, String parent, String child) {
-            if (insertPropertyBetween == null) {
-                insertPropertyBetween = new HashMapNoOverwrite<>();
-
-            }
-            insertPropertyBetween.put(parent + seperator + child, newProperty);
-            return (T) this;
-        }
-
-        public Between<T> insertProperty(String newProperty) {
+        public Between<T> insertPredicate(String predicate) {
             Advanced<ResourceType, DataType, T> that = this;
             return new Between<T>() {
                 @Override
                 public T between(String parent, String child) {
-                    if (insertPropertyBetween == null) {
-                        insertPropertyBetween = new HashMapNoOverwrite<>();
+                    if (insertPredicateBetween == null) {
+                        insertPredicateBetween = new HashMapNoOverwrite<>();
                     }
-                    insertPropertyBetween.put(parent + seperator + child, newProperty);
+                    insertPredicateBetween.put(parent + seperator + child, predicate);
                     return (T) that;
                 }
             };
@@ -303,72 +492,63 @@ public class Builder {
             TT between(String parent, String child);
         }
 
-        String getInsertPropertyBetween(String parent, String child) {
-            if (insertPropertyBetween == null) {
-                insertPropertyBetween = new HashMapNoOverwrite<>();
+        String getInsertPredicateBetween(String parent, String child) {
+            if (insertPredicateBetween == null) {
+                insertPredicateBetween = new HashMapNoOverwrite<>();
             }
-            return insertPropertyBetween.get(parent + seperator + child);
+            return insertPredicateBetween.get(parent + seperator + child);
         }
 
+
         /**
-         * @param newProperty
-         * @param parent
-         * @param child
+         * @param predicate
          * @return abc
-         * @description Converts elements ?
+         * @description Inverts an inserted predicate between two elements, so that the inherit parent -> child relationship is reversed.
          * @xml
          * <person xmlns="http://example.org/"  name="John Doe">
          * 		<dog name="Woof"  >
          *       </dog>
          * </person>
-         * @exampleLabel invertProperty
+         * @exampleLabel invertPredicate
          * @exampleCommand
          * Builder.getAdvancedBuilderStream()
-         *      .insertPropertyBetween("http://example.org/ownedBy", "http://example.org/person", "http://example.org/dog")
-         *      .invertProperty("http://example.org/ownedBy", null, null)
+         *      .insertPredicate("http://example.org/ownedBy").between("http://example.org/person", "http://example.org/dog")
+         *      .invertPredicate("http://example.org/ownedBy").betweenAny()
          *  .build()
-         * @exampleLabel invertProperty
+         * @exampleLabel invertPredicate
          * @exampleCommand
          * Builder.getAdvancedBuilderStream()
-         *      .insertPropertyBetween("http://example.org/ownedBy", "http://example.org/person", "http://example.org/dog")
+         *      .insertPredicate("http://example.org/ownedBy").between("http://example.org/person", "http://example.org/dog")
          *      .build()
          */
-        public T invertPropertyBetween(String property, String parent, String child) {
-            if (invertProperty == null) {
-                invertProperty = new HashMapNoOverwrite<>();
-            }
-            invertProperty.put(property, new ParentChild(parent, child));
-            return (T) this;
-        }
+        public BetweenWithWildcard<T> invertPredicate(String predicate){
 
-        public BetweenWithWildcard<T> invertProperty(String property){
-
-            if(invertProperty == null) invertProperty = new HashMapNoOverwrite<>();
+            if(invertPredicate == null) invertPredicate = new HashMapNoOverwrite<>();
 
             Advanced<ResourceType, DataType, T> that = this;
 
             return new BetweenWithWildcard<T>(){
                 @Override
                 public T between(String parent, String child) {
-                    invertProperty.put(property, new ParentChild(parent, child));
+                    invertPredicate.put(predicate, new ParentChild(parent, child));
                     return (T) that;
                 }
 
                 @Override
                 public T betweenAny() {
-                    invertProperty.put(property, new ParentChild(null, null));
+                    invertPredicate.put(predicate, new ParentChild(null, null));
                     return (T) that;
                 }
 
                 @Override
                 public T fromAnyParentToChild(String child) {
-                    invertProperty.put(property, new ParentChild(null, child));
+                    invertPredicate.put(predicate, new ParentChild(null, child));
                     return (T) that;
                 }
 
                 @Override
                 public T fromParentToAnyChild(String parent) {
-                    invertProperty.put(property, new ParentChild(parent, null));
+                    invertPredicate.put(predicate, new ParentChild(parent, null));
                     return (T) that;
                 }
             };
@@ -383,12 +563,12 @@ public class Builder {
             TT fromParentToAnyChild(String parent);
         }
 
-        boolean checkInvertProperty(String property, String parent, String child) {
-            if (invertProperty == null) {
+        boolean checkInvertPredicate(String predicate, String parent, String child) {
+            if (invertPredicate == null) {
                 return false;
             }
 
-            ParentChild parentChild = invertProperty.get(property);
+            ParentChild parentChild = invertPredicate.get(predicate);
             if (parentChild != null) {
                 return parentChild.correctParentChild(parent, child);
 
@@ -397,11 +577,46 @@ public class Builder {
 
         }
 
-        public T uuidBasedIdInsteadOfBlankNodes(boolean b) {
-            uuidBasedIdInsteadOfBlankNodes = b;
+        /**
+         * @param
+         * @return
+         * @description By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
+         * Blank nodes are locally unique, while UUIDs are globally unique. UUIDs take time to generate, depending on your system, and will make the conversion
+         * from XML to RDF considerably slower.
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .uuidBasedIdInsteadOfBlankNodes(true)
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .uuidBasedIdInsteadOfBlankNodes(false)
+         * .build()
+         */
+        public T uuidBasedIdInsteadOfBlankNodes(boolean enabled) {
+            uuidBasedIdInsteadOfBlankNodes = enabled;
             return (T) this;
         }
 
+        /**
+         * @param
+         * @return
+         * @description Specify the datatype on a Simple Type element. Use a string with AdvancedBuilderStream as the datatype,
+         * and the respective Sesame or Jena types with AdvancedBuilderSesame and AdvancedBuilderJena.
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * <age>1</age>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .setDatatype("http://example.org/age", "http://www.w3.org/2001/XMLSchema#integer")
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T setDatatype(String fullUriForElement, DataType datatype) {
             if (dataTypeOnElement == null) {
                 dataTypeOnElement = new HashMapNoOverwrite<>();
@@ -435,6 +650,20 @@ public class Builder {
 
         private Map<String, ComplexClassTransform> complexTransformForClassAtElementEnd = new HashMapNoOverwrite<>();
 
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T addComplexTransformForClassAtElementEnd(String className, ComplexClassTransform transform) {
 
             complexTransformForClassAtElementEnd.put(className, transform);
@@ -449,11 +678,41 @@ public class Builder {
             }
         }
 
+        /**
+         * @param
+         * @return
+         * @description Will resolve a qname inside an attribute by expanding it to a full URI as a string.
+         * @xml <people xmlns="http://example.org/" xmlns:test="http://test.com/">
+         * <name age="test:old">John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .resolveAsQnameInAttributeValue(true)
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .resolveAsQnameInAttributeValue(false)
+         * .build()
+         */
         public T resolveAsQnameInAttributeValue(boolean enabled) {
             resolveAsQnameInAttributeValue = enabled;
             return (T) this;
         }
 
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T xsiTypeSupport(boolean enabled) {
             this.xsiTypeSupport = enabled;
             return (T) this;
@@ -464,6 +723,20 @@ public class Builder {
     static public class AdvancedWithBuffer<ResourceType, Datatype, T extends AdvancedWithBuffer<ResourceType, Datatype, T>> extends Advanced<ResourceType, Datatype, T> {
         int buffer = 1000;
 
+        /**
+         * @param
+         * @return
+         * @description
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T setBuffer(int size) {
             this.buffer = size;
             return (T) this;
