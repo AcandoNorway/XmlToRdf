@@ -96,9 +96,11 @@ public class Builder {
 
         }
 
-         String doTransformForAttribute(String element, String attribute, String value) {
+        String doTransformForAttribute(String element, String attribute, String value) {
 
-             if(transformForAttributeValueMap == null) return value;
+            if (transformForAttributeValueMap == null) {
+                return value;
+            }
 
 
             if (transformForAttributeValueMap.containsKey(element + seperator + attribute)) {
@@ -111,7 +113,7 @@ public class Builder {
                 return transformForAttributeValueMap.get(seperator).transform(value);
             }
 
-             return value;
+            return value;
 
         }
     }
@@ -170,6 +172,8 @@ public class Builder {
         private Map<String, String> insertPropertyBetween = null;
         Map<String, DataType> dataTypeOnElement = null;
         Map<String, Map<String, ResourceType>> literalMap = null;
+        boolean resolveAsQnameInAttributeValue;
+        boolean xsiTypeSupport;
 
         public T mapLiteralOnProperty(String property, String value, ResourceType resource) {
             if (literalMap == null) {
@@ -199,7 +203,6 @@ public class Builder {
             return (T) this;
         }
 
-
         public T autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
             autoConvertShallowChildrenWithAutoDetectLiteralProperties = b;
             return (T) this;
@@ -209,7 +212,6 @@ public class Builder {
             this.autoTypeLiterals = autoTypeLiterals;
             return (T) this;
         }
-
 
         public T insertPropertyBetween(String newProperty, String parent, String child) {
             if (insertPropertyBetween == null) {
@@ -281,23 +283,36 @@ public class Builder {
                 }
                 return true;
             }
+
+
         }
 
-        private Map<String, ComplexClassTransform> complexTransformForClass = new HashMapNoOverwrite<>();
+        private Map<String, ComplexClassTransform> complexTransformForClassAtElementEnd = new HashMapNoOverwrite<>();
 
-        public T addComplexTransformForClass(String className, ComplexClassTransform transform) {
+        public T addComplexTransformForClassAtElementEnd(String className, ComplexClassTransform transform) {
 
-            complexTransformForClass.put(className, transform);
+            complexTransformForClassAtElementEnd.put(className, transform);
 
             return (T) this;
         }
 
-        void doComplexTransformForClass(Element element) {
-            ComplexClassTransform complexClassTransform = complexTransformForClass.get(element.type);
+        void doComplexTransformForClassAtElementEnd(Element element) {
+            ComplexClassTransform complexClassTransform = complexTransformForClassAtElementEnd.get(element.type);
             if (complexClassTransform != null) {
                 complexClassTransform.transform(element);
             }
         }
+
+        public T resolveAsQnameInAttributeValue(boolean enabled) {
+            resolveAsQnameInAttributeValue = enabled;
+            return (T) this;
+        }
+
+        public T xsiTypeSupport(boolean enabled) {
+            this.xsiTypeSupport = enabled;
+            return (T) this;
+        }
+
     }
 
     static public class AdvancedWithBuffer<ResourceType, Datatype, T extends AdvancedWithBuffer<ResourceType, Datatype, T>> extends Advanced<ResourceType, Datatype, T> {

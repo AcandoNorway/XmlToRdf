@@ -22,6 +22,7 @@ import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.util.RDFCollections;
 import org.openrdf.repository.Repository;
+import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.memory.MemoryStore;
@@ -75,6 +76,8 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
                         System.out.println(interruptedException.getMessage());
                     }
                 }
+
+                prefixUriMap.forEach(connection::setNamespace);
 
                 connection.commit();
 
@@ -264,5 +267,6 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
             return valueFactory.createBNode(subject);
         }
     }
+
 
 }

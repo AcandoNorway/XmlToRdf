@@ -74,6 +74,8 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
                 }
 
+                prefixUriMap.forEach(dataset.getDefaultModel()::setNsPrefix);
+
             }
         };
 
