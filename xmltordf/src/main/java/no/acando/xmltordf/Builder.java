@@ -78,7 +78,7 @@ public class Builder {
 
 
         /**
-         * @param enable auto detection of literal properties default true
+         * @param policy
          * @return abc
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
@@ -98,9 +98,6 @@ public class Builder {
             return (T) this;
         }
 
-        public enum SimpleTypePolicy{
-            compact, expand
-        }
 
         public T addTransformForAttributeValue(String elementName, String attributeName, StringTransform transform) {
             elementName = nullValueCheck(elementName);
@@ -288,10 +285,13 @@ public class Builder {
         }
 
         public Between<T> insertProperty(String newProperty) {
-            Advanced<Datatype, T> that = this;
+            Advanced<ResourceType, DataType, T> that = this;
             return new Between<T>() {
                 @Override
                 public T between(String parent, String child) {
+                    if (insertPropertyBetween == null) {
+                        insertPropertyBetween = new HashMapNoOverwrite<>();
+                    }
                     insertPropertyBetween.put(parent + seperator + child, newProperty);
                     return (T) that;
                 }
@@ -343,7 +343,9 @@ public class Builder {
 
         public BetweenWithWildcard<T> invertProperty(String property){
 
-            Advanced<Datatype, T> that = this;
+            if(invertProperty == null) invertProperty = new HashMapNoOverwrite<>();
+
+            Advanced<ResourceType, DataType, T> that = this;
 
             return new BetweenWithWildcard<T>(){
                 @Override
