@@ -298,6 +298,26 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                 continue;
             }
 
+            if (builder.overrideNamespace != null) {
+                uriAttr = builder.overrideNamespace;
+            }
+
+            if (builder.autoAddSuffixToNamespace != null) {
+                if (uriAttr != null && !uriAttr.isEmpty() && !(uriAttr.endsWith("/") || uriAttr.endsWith("#"))) {
+                    uriAttr += builder.autoAddSuffixToNamespace;
+                }
+            }
+
+            if (uriAttr == null || uriAttr.isEmpty()) {
+                if (builder.autoAttributeNamespace && uri != null && !uri.isEmpty()) {
+                    uriAttr = uri;
+                } else if (builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justAttributes || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
+                    uriAttr = builder.baseNamespace;
+                }
+            }
+
+
+
             valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
 
             if(builder.resolveAsQnameInAttributeValue && valueAttr.contains(":")){
@@ -320,24 +340,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                 }
             }
 
-            if (builder.overrideNamespace != null) {
-                uriAttr = builder.overrideNamespace;
-            }
 
-            if (builder.autoAddSuffixToNamespace != null) {
-                if (uriAttr != null && !uriAttr.isEmpty() && !(uriAttr.endsWith("/") || uriAttr.endsWith("#"))) {
-                    uriAttr += builder.autoAddSuffixToNamespace;
-                }
-            }
-
-            if (uriAttr == null || uriAttr.isEmpty()) {
-                if (builder.autoAttributeNamespace && uri != null && !uri.isEmpty()) {
-                    uriAttr = uri;
-                } else if (builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justAttributes || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
-                    uriAttr = builder.baseNamespace;
-                }
-
-            }
 
             element.properties.add(new Property(uriAttr, nameAttr, valueAttr));
 

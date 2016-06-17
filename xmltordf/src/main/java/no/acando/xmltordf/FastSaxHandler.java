@@ -92,7 +92,6 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             final String nameAttr = attributes.getLocalName(i);
             String valueAttr = attributes.getValue(i);
 
-            valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
 
 
             if (builder.overrideNamespace != null) {
@@ -102,6 +101,9 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             if (uriAttr == null || uriAttr.trim().isEmpty()) {
                 uriAttr = uri;
             }
+
+            valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
+
 
             out.println(createTripleLiteral(bnode, uriAttr + nameAttr, valueAttr));
 

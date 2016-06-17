@@ -23,8 +23,14 @@ import no.acando.xmltordf.Builder;
 import org.apache.commons.io.FileUtils;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.lang.reflect.Type;
@@ -86,53 +92,51 @@ public class JsonJavadocExampleRunner {
 			for (Example example : method.examples) {
 
 
-
-
-			printWriter.println("**XML example**\n```xml");
-			printWriter.println(example.xml);
-			printWriter.println("```\n");
-
-			for (Example.InnerExample innerExample : example.innerExamples) {
-				counter++;
-				String builder = classString
-						.replace("BUILDER", innerExample.exampleCommand.replace(";", ""))
-						.replace("COUNTER", "" + counter);
-
-
-
-				printWriter.println("### " + innerExample.exampleLabel);
-				printWriter.println("**Java code**\n```java");
-				printWriter.println(innerExample.exampleCommand);
+				printWriter.println("**XML example**\n```xml");
+				printWriter.println(formatXml(example.xml));
 				printWriter.println("```\n");
 
+				for (Example.InnerExample innerExample : example.innerExamples) {
+					counter++;
+					String builder = classString
+							.replace("BUILDER", innerExample.exampleCommand.replace(";", ""))
+							.replace("COUNTER", "" + counter);
 
-				try {
-					Class aClass = CompilerUtils.CACHED_COMPILER.loadFromJava(Builder.getAdvancedBuilderStream().getClass().getClassLoader(), "mypackage.Temp" + counter, builder);
 
-					String s = ((ExampleInterface) aClass.newInstance()).toString(example.xml);
-
-
-					Model defaultModel = ModelFactory.createDefaultModel();
-
-					defaultModel.read(new ByteArrayInputStream(s.getBytes()), "", "TTL");
-
-					defaultModel.setNsPrefix("ex", "http://example.org/");
-					defaultModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
-					StringWriter stringWriter = new StringWriter();
-					defaultModel.write(stringWriter, "TTL");
-
-					printWriter.println("**RDF output**\n```turtle");
-					printWriter.println(stringWriter.toString());
+					printWriter.println("### " + innerExample.exampleLabel);
+					printWriter.println("**Java code**\n```java");
+					printWriter.println(formatJava(innerExample.exampleCommand));
 					printWriter.println("```\n");
 
-				}catch (Exception e){
-					System.out.println(builder);
-					throw e;
+
+					try {
+						Class aClass = CompilerUtils.CACHED_COMPILER.loadFromJava(Builder.getAdvancedBuilderStream().getClass().getClassLoader(), "mypackage.Temp" + counter, builder);
+
+						String s = ((ExampleInterface) aClass.newInstance()).toString(example.xml);
+
+
+						Model defaultModel = ModelFactory.createDefaultModel();
+
+						defaultModel.read(new ByteArrayInputStream(s.getBytes()), "", "TTL");
+
+						defaultModel.setNsPrefix("ex", "http://example.org/");
+						defaultModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
+						StringWriter stringWriter = new StringWriter();
+						defaultModel.write(stringWriter, "TTL");
+
+						printWriter.println("**RDF output**\n```turtle");
+						printWriter.println(stringWriter.toString());
+						printWriter.println("```\n");
+
+					} catch (Exception e) {
+						System.out.println(builder);
+						throw e;
+					}
+
+					printWriter.println("---");
+
+
 				}
-
-
-
-			}
 			}
 
 
@@ -142,4 +146,47 @@ public class JsonJavadocExampleRunner {
 
 	}
 
+	private static String formatJava(String exampleCommand) {
+		String[] split = exampleCommand.split("\n");
+		split[0] = split[0].trim();
+		for (int i = 1; i < split.length; i++) {
+			split[i] = "  "+split[i];
+		}
+		return  String.join("\n", split);
+
+	}
+
+
+	public static String formatXml(String unformattedXml) {
+		try {
+			final Document document = parseXmlFile(unformattedXml);
+
+			OutputFormat format = new OutputFormat(document);
+			format.setLineWidth(65);
+			format.setIndenting(true);
+			format.setIndent(2);
+			Writer out = new StringWriter();
+			XMLSerializer serializer = new XMLSerializer(out, format);
+			serializer.serialize(document);
+
+			return out.toString().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "").trim();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static Document parseXmlFile(String in) {
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			InputSource is = new InputSource(new StringReader(in));
+			return db.parse(is);
+		} catch (ParserConfigurationException e) {
+			throw new RuntimeException(e);
+		} catch (SAXException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

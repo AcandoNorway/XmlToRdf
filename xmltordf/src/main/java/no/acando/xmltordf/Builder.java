@@ -131,18 +131,21 @@ public class Builder {
         /**
          * @param
          * @return
-         * @description
-         * @xml <people xmlns="http://example.org/">
-         * <name>John Doe</name>
-         * </people>
-         * @exampleLabel
+         * @description Run a function on the value of an attribute and use the returned string as the new value.
+	   * Take careful note of the namespaces. Unless specified, attributes inherit the namespace of their element.
+	   *
+         * @xml
+         * <person xmlns="http://example.org/" age="3" />
+         *
+         * @exampleLabel Multiply age by 10
          * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .addTransformationForAttributeValue("http://example.org/person", "http://example.org/age", v -> String.valueOf(Integer.parseInt(v)*10))
          * .build()
-         * @exampleLabel
+         * @exampleLabel Without any transformation
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
-        public T addTransformForAttributeValue(String elementName, String attributeName, StringTransform transform) {
+        public T addTransformationForAttributeValue(String elementName, String attributeName, StringTransform transform) {
             elementName = nullValueCheck(elementName);
             attributeName = nullValueCheck(attributeName);
 
@@ -156,20 +159,7 @@ public class Builder {
 
         }
 
-        /**
-         * @param
-         * @return
-         * @description
-         * @xml <people xmlns="http://example.org/">
-         * <name>John Doe</name>
-         * </people>
-         * @exampleLabel
-         * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .build()
-         * @exampleLabel
-         * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .build()
-         */
+
         String doTransformForAttribute(String element, String attribute, String value) {
 
             if (transformForAttributeValueMap == null) {
@@ -230,14 +220,22 @@ public class Builder {
         /**
          * @param
          * @return
-         * @description
-         * @xml <people xmlns="http://example.org/">
-         * <name>John Doe</name>
-         * </people>
-         * @exampleLabel
+         * @description Use an attribute on an element to generate an identifier for the RDF node.
+	   * Any single attribute can be used, and adding a namespace or a prefix to the ID is simple
+	   * as part of the transform.
+         * @xml <archive xmlns="http://example.org/">
+         * <record nr="0000001">
+	   *       <title>Important record</title>
+	   *       </record>
+	   * <record nr="0000002">
+	   *       <title>Other record</title>
+	   *       </record>
+         * </archive>
+         * @exampleLabel Use the record number (nr) as the node ID in the RDF.
          * @exampleCommand Builder.getAdvancedBuilderStream()
+	   * .addUseAttributeForId("http://example.org/record", "http://example.org/nr", v -> "http://acme.com/records/"+v)
          * .build()
-         * @exampleLabel
+         * @exampleLabel With default blank node
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
@@ -251,15 +249,19 @@ public class Builder {
         /**
          * @param
          * @return
-         * @description
-         * @xml <people xmlns="http://example.org/">
+         * @description Namespaces in RDF typically end in either `/` or `#` unlike in XML where a
+	   * namespace often has no specific suffix. By default a `#` is added to the namespace if
+	   * it doesn't already end in either `/` or `#`.
+         * @xml <people xmlns="http://example.org">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel
+         * @exampleLabel `#` suffix
          * @exampleCommand Builder.getAdvancedBuilderStream()
+	   * .autoAddSuffixToNamespace("#")
          * .build()
-         * @exampleLabel
+         * @exampleLabel Unaltered XML namespace
          * @exampleCommand Builder.getAdvancedBuilderStream()
+	   * .autoAddSuffixToNamespace(false)
          * .build()
          */
         public T autoAddSuffixToNamespace(String sign) {
@@ -267,20 +269,6 @@ public class Builder {
             return (T) this;
         }
 
-        /**
-         * @param
-         * @return
-         * @description
-         * @xml <people xmlns="http://example.org/">
-         * <name>John Doe</name>
-         * </people>
-         * @exampleLabel
-         * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .build()
-         * @exampleLabel
-         * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .build()
-         */
         public T autoAddSuffixToNamespace(boolean enabled) {
             if (!enabled) {
                 autoAddSuffixToNamespace = null;
