@@ -28,6 +28,7 @@ public class Element {
     public List<Element> hasChild = new ArrayList<>(10);
     public List<Property> properties = new ArrayList<>(3);
     long index = 0;
+    long elementIndex = 0;
     boolean shallow;
     boolean autoDetectedAsLiteralProperty;
 

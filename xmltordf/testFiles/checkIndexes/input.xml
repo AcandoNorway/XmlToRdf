@@ -1,14 +1,13 @@
 <A>
     <B>
+        <num>0</num>
+        <name>hello</name>
+        <C num="0"/>
+        <D num="0"/>
+        <C num="1"/>
+    </B>
+    <B>
         <num>1</num>
-        <name>hello1</name>
-    </B>
-    <B>
-        <num>2</num>
-        <name>hello2</name>
-    </B>
-    <B>
-        <num>3</num>
-        <name>hello3</name>
+        <name>hi</name>
     </B>
 </A>

@@ -121,6 +121,7 @@ public class JsonJavadocExampleRunner {
 
 						defaultModel.setNsPrefix("ex", "http://example.org/");
 						defaultModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
+						defaultModel.setNsPrefix("xsd", "http://www.w3.org/2001/XMLSchema#");
 						StringWriter stringWriter = new StringWriter();
 						defaultModel.write(stringWriter, "TTL");
 

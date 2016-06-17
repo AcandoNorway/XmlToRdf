@@ -61,7 +61,6 @@ public class GenerateDocs {
 				Example currentExample = null;
 				Method currentMethod = new Method();
 				currentMethod.name = method.name();
-				documentation.add(currentMethod);
 
 				Tag[] tags = method.tags();
 				for (Tag tag : tags) {
@@ -83,6 +82,10 @@ public class GenerateDocs {
 						currentExample.addExampleCommand(tag.text().trim());
 					}
 				}
+				if (!currentMethod.examples.isEmpty()) {
+					documentation.add(currentMethod);
+				}
+
 			}
 		}
 

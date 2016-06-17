@@ -17,10 +17,11 @@ limitations under the License.
 package no.acando.xmltordf;
 
 public class XmlToRdfVocabulary {
-    public static final String NS = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#";
+    static final String NS = "http://acandonorway.github.com/XmlToRdf/ontology.ttl#";
     static final String hasChild = NS + "hasChild";
     static final String hasValue = NS + "hasValue";
     static final String index = NS + "index";
     static final String EndOfFile = NS + "EndOfFile";
     static final String hasMixedContent = NS + "hasMixedContent";
+    static final String elementIndex = NS+"elementIndex";
 }

@@ -58,18 +58,17 @@ public class Builder {
         Map<String, StringTransform> transformForAttributeValueMap = null;
 
         /**
-         * @param
+         * @param @TODO
          * @return
-         * @description Override all namespaces in the xml with a new namespace
-         * @description
+         * @description Override all namespaces in the xml with a new namespace.
          * @xml <people xmlns="http://example.org/" xmlns:a="http://A.com/">
          * <name a:test="hello">John Doe</name>
          * </people>
-         * @exampleLabel
+         * @exampleLabel @TODO
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .overrideNamespace("http://otherNamespace.com/")
          * .build()
-         * @exampleLabel
+         * @exampleLabel @TODO
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
@@ -79,17 +78,17 @@ public class Builder {
         }
 
         /**
-         * @param
+         * @param @TODO
          * @return
          * @description Change the name of an element.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel
+         * @exampleLabel @TODO
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .renameElement("http://example.org/people", "http://example.org/PEOPLE")
          * .build()
-         * @exampleLabel
+         * @exampleLabel @TODO
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
@@ -104,7 +103,7 @@ public class Builder {
 
 
         /**
-         * @param policy
+         * @param  @TODO
          * @return
          * @description XML elements with only text inside and no attributes (known as Simple Type elements)
          * can be compacted to use the element name as the RDF predicate or be expanded to use the xmlToRdf:hasChild
@@ -112,10 +111,14 @@ public class Builder {
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel Auto detect literal properties enabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().simpleTypePolicy(SimpleTypePolicy.compact).build()
-         * @exampleLabel Auto detect literal properties disabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().simpleTypePolicy(SimpleTypePolicy.expand).build()
+         * @exampleLabel  @TODO
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+	   * .simpleTypePolicy(SimpleTypePolicy.compact)
+	   * .build()
+         * @exampleLabel  @TODO
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+	   * .simpleTypePolicy(SimpleTypePolicy.expand)
+	   * .build()
          */
         public T simpleTypePolicy(SimpleTypePolicy policy) {
             if(policy.equals(SimpleTypePolicy.compact)){
@@ -129,7 +132,7 @@ public class Builder {
 
 
         /**
-         * @param
+         * @param @TODO
          * @return
          * @description Run a function on the value of an attribute and use the returned string as the new value.
 	   * Take careful note of the namespaces. Unless specified, attributes inherit the namespace of their element.
@@ -189,25 +192,31 @@ public class Builder {
         String autoAddSuffixToNamespace = "#";
 
         /**
-         * @param
+         * @param @TODO
          * @return
-         * @description
+         * @description Add the index of the element as a predicate to the RDF. `xmlToRdf:index` is a
+	   * global element counter (depth-first) that keeps track of which absolute element this is. `xmlToRdf:elementIndex` is a
+	   * relative counter that keeps track of which index this element is for the given type relative to other elements
+	   * of that type in within the same parent.
          * @xml <people xmlns="http://example.org/">
          * <person>
-         *       <name>element-zero</name>
+         *       <name>person-zero : element-one</name>
          * </person>
          *  <person>
-         *       <name>element-one</name>
+         *       <name>person-one : element-three</name>
          * </person>
+	   * <ZEBRA>
+	   *       <name>ZEBRA-zero  : element-five</name>
+	   * </ZEBRA>
          *  <person>
-         *       <name>element-two</name>
+         *       <name>person-two  : element-seven</name>
          * </person>
          * </people>
-         * @exampleLabel
+         * @exampleLabel @TODO
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .addIndex(true)
          * .build()
-         * @exampleLabel
+         * @exampleLabel @TODO
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .addIndex(false)
          * .build()

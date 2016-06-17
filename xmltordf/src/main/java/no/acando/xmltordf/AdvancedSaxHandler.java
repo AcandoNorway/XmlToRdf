@@ -37,6 +37,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
 
     private long uriCounter = 0;
+    private long index = 0;
 
     public AdvancedSaxHandler(OutputStream out, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         if (out != null) {
@@ -141,6 +142,8 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
             if (builder.addIndex) {
                 out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.index, pop.index));
+                out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.elementIndex, pop.elementIndex));
+
             }
         } else {
             out.println(createTriple(pop.uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", pop.type));
@@ -191,6 +194,8 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
             if (builder.addIndex) {
                 out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.index, pop.index));
+                out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.elementIndex, pop.elementIndex));
+
             }
 
         }
@@ -244,6 +249,8 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         }
 
         Element element = new Element();
+        element.index = index++;
+
 
         if (builder.autoAddSuffixToNamespace != null) {
             if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
@@ -281,7 +288,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         if (!elementStack.isEmpty()) {
             parent = elementStack.peek();
-            element.index = parent.hasChild.size();
+           element.elementIndex =  parent.hasChild.stream().filter(e -> e.type.equals(element.type)).count();
             parent.hasChild.add(element);
             if (mixedContent) {
                 parent.addMixedContent(element);
