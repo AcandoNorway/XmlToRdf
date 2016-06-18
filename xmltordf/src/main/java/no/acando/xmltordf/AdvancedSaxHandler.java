@@ -263,13 +263,20 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         }
 
         if (builder.overrideNamespace != null) {
-            element.type = builder.overrideNamespace + localName;
-        } else {
-            element.type = uri + localName;
+            uri = builder.overrideNamespace;
         }
+        element.type = uri + localName;
 
         if (builder.mapForClasses != null && builder.mapForClasses.containsKey(uri + localName)) {
             element.type = builder.mapForClasses.get(uri + localName);
+        }else if(builder.mapForClassesTransform != null){
+            StringTransformTwoValue stringTransformTwoValue = builder.mapForClassesTransform.get(uri + localName);
+            if(stringTransformTwoValue == null){
+                stringTransformTwoValue = builder.mapForClassesTransform.get("");
+            }
+            if(stringTransformTwoValue != null){
+                element.type = stringTransformTwoValue.transform(uri,localName);
+            }
         }
 
         if (builder.uuidBasedIdInsteadOfBlankNodes) {

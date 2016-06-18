@@ -62,11 +62,11 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
         String ns = builder.overrideNamespace;
-        if (ns == null) {
-            ns = uri;
+        if (ns != null) {
+            uri = ns;
         }
 
-        String fullyQualifiedName = ns + qName;
+        String fullyQualifiedName = uri + qName;
 
         if (builder.mapForClasses != null && builder.mapForClasses.containsKey(uri + qName)) {
             fullyQualifiedName = builder.mapForClasses.get(uri + qName);

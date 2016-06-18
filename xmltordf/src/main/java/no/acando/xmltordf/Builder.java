@@ -56,19 +56,21 @@ public class Builder {
         Map<String, String> mapForClasses;
         boolean autoDetectLiteralProperties = true;
         Map<String, StringTransform> transformForAttributeValueMap = null;
+        Map<String, StringTransformTwoValue> mapForClassesTransform;
+
 
         /**
-         * @param @TODO
+         * @param namespace Override all namespaces with this namespace
          * @return
          * @description Override all namespaces in the xml with a new namespace.
          * @xml <people xmlns="http://example.org/" xmlns:a="http://A.com/">
          * <name a:test="hello">John Doe</name>
          * </people>
-         * @exampleLabel @TODO
+         * @exampleLabel Override all namespaces
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .overrideNamespace("http://otherNamespace.com/")
          * .build()
-         * @exampleLabel @TODO
+         * @exampleLabel Use namespaces provided in XML
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
@@ -78,32 +80,53 @@ public class Builder {
         }
 
         /**
-         * @param @TODO
+         * @param elementFrom The full URI of the element in the XML file
+         * @param to The new full URI
          * @return
          * @description Change the name of an element.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel @TODO
+         * @exampleLabel Rename "people" with "PEOPLE"
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .renameElement("http://example.org/people", "http://example.org/PEOPLE")
          * .build()
-         * @exampleLabel @TODO
-         * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .build()
          */
-        public T renameElement(String fullUriFrom, String fullUriTo) {
+        public T renameElement(String elementFrom, String to) {
 
             if (mapForClasses == null) {
                 mapForClasses = new HashMapNoOverwrite<>();
             }
-            mapForClasses.put(fullUriFrom, fullUriTo);
+            mapForClasses.put(elementFrom, to);
+            return (T) this;
+        }
+
+        /**
+         * @param elementFrom The full URI of the element in the XML file
+         * @param to The new full URI
+         * @return
+         * @description Change the name of an element.
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel Rename "people" with "PEOPLE"
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .renameElement("http://example.org/people", "http://example.org/PEOPLE")
+         * .build()
+         */
+        public T renameElement(String elementFrom, StringTransformTwoValue transform) {
+
+            if (mapForClassesTransform == null) {
+                mapForClassesTransform = new HashMapNoOverwrite<>();
+            }
+            elementFrom = nullValueCheck(elementFrom);
+            mapForClassesTransform.put(elementFrom, transform);
             return (T) this;
         }
 
 
         /**
-         * @param  @TODO
+         * @param  policy Either SimpleTypePolicy.compact or SimpleTypePolicy.expand
          * @return
          * @description XML elements with only text inside and no attributes (known as Simple Type elements)
          * can be compacted to use the element name as the RDF predicate or be expanded to use the xmlToRdf:hasChild
@@ -111,11 +134,11 @@ public class Builder {
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel  @TODO
+         * @exampleLabel  Compact
          * @exampleCommand Builder.getAdvancedBuilderStream()
 	   * .simpleTypePolicy(SimpleTypePolicy.compact)
 	   * .build()
-         * @exampleLabel  @TODO
+         * @exampleLabel  Expand
          * @exampleCommand Builder.getAdvancedBuilderStream()
 	   * .simpleTypePolicy(SimpleTypePolicy.expand)
 	   * .build()
@@ -132,7 +155,9 @@ public class Builder {
 
 
         /**
-         * @param @TODO
+         * @param elementName The element name (full URI)
+         * @param attributeName The attribute name (full URI)
+         * @param transform A function for transforming the value. Eg v -> v.toUpperCase()
          * @return
          * @description Run a function on the value of an attribute and use the returned string as the new value.
 	   * Take careful note of the namespaces. Unless specified, attributes inherit the namespace of their element.
