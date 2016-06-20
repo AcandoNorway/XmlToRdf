@@ -318,11 +318,31 @@ public class XmlToRdfTest {
 
 
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).renameElement("A", "http://hurra/A2").renameElement("B", "http://hurra/B2").build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).renameElement("A", "http://hurra/A2").renameElement("B", "http://hurra/B2").build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).renameElement("A", "http://hurra/A2").renameElement("B", "http://hurra/B2").build());
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .overrideNamespace(HTTP_TEST)
+            .simpleTypePolicy(SimpleTypePolicy.expand)
+            .renameElement(HTTP_TEST+"A", "http://hurra/A2")
+            .renameElement(HTTP_TEST+"B", "http://hurra/B2")
+            .build());
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .overrideNamespace(HTTP_TEST)
+            .simpleTypePolicy(SimpleTypePolicy.expand)
+            .renameElement(HTTP_TEST+"A", "http://hurra/A2")
+            .renameElement(HTTP_TEST+"B", "http://hurra/B2")
+            .build());
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .overrideNamespace(HTTP_TEST)
+            .simpleTypePolicy(SimpleTypePolicy.expand)
+            .renameElement(HTTP_TEST+"A", "http://hurra/A2")
+            .renameElement(HTTP_TEST+"B", "http://hurra/B2")
+            .build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).renameElement("A", "http://hurra/A2").renameElement("B", "http://hurra/B2").build());
+        testFast(Builder.getFastBuilder()
+            .overrideNamespace(HTTP_TEST)
+            .simpleTypePolicy(SimpleTypePolicy.expand)
+            .renameElement(HTTP_TEST+"A", "http://hurra/A2")
+            .renameElement(HTTP_TEST+"B", "http://hurra/B2")
+            .build());
 
     }
 
@@ -334,7 +354,23 @@ public class XmlToRdfTest {
             .overrideNamespace(HTTP_TEST)
             .simpleTypePolicy(SimpleTypePolicy.compact)
             .renameElement(HTTP_TEST+"A", "http://hurra/A2")
-            .renameElement("", (u,v) -> u+v.toLowerCase())
+            .renameElement(null, (u,v) -> u+v.toLowerCase())
+            .renameElement(HTTP_TEST+"name", (u,v)->u+v.toUpperCase())
+            .build());
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .overrideNamespace(HTTP_TEST)
+            .simpleTypePolicy(SimpleTypePolicy.compact)
+            .renameElement(HTTP_TEST+"A", "http://hurra/A2")
+            .renameElement(null, (u,v) -> u+v.toLowerCase())
+            .renameElement(HTTP_TEST+"name", (u,v)->u+v.toUpperCase())
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .overrideNamespace(HTTP_TEST)
+            .simpleTypePolicy(SimpleTypePolicy.compact)
+            .renameElement(HTTP_TEST+"A", "http://hurra/A2")
+            .renameElement(null, (u,v) -> u+v.toLowerCase())
             .renameElement(HTTP_TEST+"name", (u,v)->u+v.toUpperCase())
             .build());
 
@@ -510,17 +546,17 @@ public class XmlToRdfTest {
     public void attrValueTransform4() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .addTransformationForAttributeValue(ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+            .addTransformationForAttributeValue(HTTP_TEST+ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
-            .addTransformationForAttributeValue(ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+            .addTransformationForAttributeValue(HTTP_TEST+ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .addTransformationForAttributeValue(ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+            .addTransformationForAttributeValue(HTTP_TEST+ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
-            .addTransformationForAttributeValue(ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+            .addTransformationForAttributeValue(HTTP_TEST+ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
 
     }
@@ -533,20 +569,20 @@ public class XmlToRdfTest {
         final String dada = "dada";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .addTransformationForAttributeValue(ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+            .addTransformationForAttributeValue(HTTP_TEST+ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .addTransformationForAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
-            .addTransformationForAttributeValue(ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+            .addTransformationForAttributeValue(HTTP_TEST+ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .addTransformationForAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .addTransformationForAttributeValue(ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+            .addTransformationForAttributeValue(HTTP_TEST+ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .addTransformationForAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
-            .addTransformationForAttributeValue(ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+            .addTransformationForAttributeValue(HTTP_TEST+ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .addTransformationForAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
 
