@@ -257,7 +257,8 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         if (!elementStack.isEmpty()) {
             parent = elementStack.peek();
             if(builder.addIndex){
-                element.elementIndex =  parent.hasChild.stream().filter(e -> e.type.equals(element.type)).count();
+                element.elementIndex = parent.indexMap.plusPlus(element.type);
+//                element.elementIndex =  parent.hasChild.stream().filter(e -> e.type.equals(element.type)).count();
             }
             parent.hasChild.add(element);
             if (mixedContent) {

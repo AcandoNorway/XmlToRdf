@@ -31,6 +31,7 @@ public class Element {
     long elementIndex = 0;
     boolean shallow;
     boolean autoDetectedAsLiteralProperty;
+    CountingMap indexMap = new CountingMap();
 
 
     public List<Object> mixedContent = new ArrayList<>();
