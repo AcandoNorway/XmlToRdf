@@ -1,0 +1,7 @@
+[ a       <http://example.com/A> ;
+  <http://acandonorway.github.com/ontology.ttl#hasChild>
+          [ a                          <http://example.com/B> ;
+            <http://example.com/name>  "heaao" ;
+            <http://example.com/num>   "1"
+          ]
+] .

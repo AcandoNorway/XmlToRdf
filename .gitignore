@@ -7,3 +7,7 @@ actualFast.n3
 actualObject.jsonld
 actualSesame.jsonld
 actualFast.ttl
+dependency-reduced-pom.xml
+*.iml
+javadoc.json
+javadoc.md

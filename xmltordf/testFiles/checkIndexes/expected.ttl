@@ -1,0 +1,35 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+[ a                      <http://test/A> ;
+  xmlToRdf:elementIndex  "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+  xmlToRdf:hasChild      [ a                      <http://test/B> ;
+                           xmlToRdf:elementIndex  "1"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                           xmlToRdf:index         "7"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                           <http://test/name>     "hi" ;
+                           <http://test/num>      "1"
+                         ] ;
+  xmlToRdf:hasChild      [ a                      <http://test/B> ;
+                           xmlToRdf:elementIndex  "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                           xmlToRdf:hasChild      [ a                      <http://test/C> ;
+                                                    xmlToRdf:elementIndex  "1"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                                                    xmlToRdf:index         "6"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                                                    <http://test/num>      "1"
+                                                  ] ;
+                           xmlToRdf:hasChild      [ a                      <http://test/D> ;
+                                                    xmlToRdf:elementIndex  "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                                                    xmlToRdf:index         "5"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                                                    <http://test/num>      "0"
+                                                  ] ;
+                           xmlToRdf:hasChild      [ a                      <http://test/C> ;
+                                                    xmlToRdf:elementIndex  "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                                                    xmlToRdf:index         "4"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                                                    <http://test/num>      "0"
+                                                  ] ;
+                           xmlToRdf:index         "1"^^<http://www.w3.org/2001/XMLSchema#long> ;
+                           <http://test/name>     "hello" ;
+                           <http://test/num>      "0"
+                         ] ;
+  xmlToRdf:index         "0"^^<http://www.w3.org/2001/XMLSchema#long>
+] .
