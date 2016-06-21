@@ -223,22 +223,16 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
     //TODO: this method is enormous, consider breaking it down
     @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+    public void startElement(String namespace, String localName, String qName, Attributes attributes) throws SAXException {
 
-        boolean mixedContent = false;
-        if (elementStack.size() > 0) {
-            Element peek = elementStack.peek();
-            if (peek.getHasValue() != null) {
-                mixedContent = true;
-            }
-        }
+        boolean mixedContent =  detectMixedContent();
 
         if(builder.xsiTypeSupport && attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null){
             String type = attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type");
 
             if(type.contains(":")){
                 String[] split = type.split(":");
-                uri = prefixUriMap.get(split[0]);
+                namespace = prefixUriMap.get(split[0]);
                 localName = split[1];
             }else{
                 localName = type;
@@ -250,33 +244,88 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         element.index = index++;
 
 
-        if (builder.autoAddSuffixToNamespace != null) {
-            if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
-                uri += builder.autoAddSuffixToNamespace;
+        namespace = calculateNamespace(namespace);
+
+        element.type = namespace + localName;
+
+        renameElement(namespace, localName, element);
+
+        calculateNodeId(namespace, element);
+
+        Element parent = null;
+
+        if (!elementStack.isEmpty()) {
+            parent = elementStack.peek();
+            if(builder.addIndex){
+                element.elementIndex =  parent.hasChild.stream().filter(e -> e.type.equals(element.type)).count();
+            }
+            parent.hasChild.add(element);
+            if (mixedContent) {
+                parent.addMixedContent(element);
             }
         }
 
-        if ((uri == null || uri.isEmpty()) && builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justElements || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
-            uri = builder.baseNamespace;
-        }
+        handleAttributes(namespace, attributes, element);
 
+        element.parent = parent;
+
+        builder.doComplexTransformElementAtStartOfElement(element);
+
+
+        elementStack.push(element);
+
+    }
+
+    private void handleAttributes(String elementNamespace, Attributes attributes, Element element) {
+        int length = attributes.getLength();
+        for (int i = 0; i < length; i++) {
+            String uriAttr = attributes.getURI(i);
+            String nameAttr = attributes.getLocalName(i);
+            String valueAttr = attributes.getValue(i);
+
+            if(builder.xsiTypeSupport && uriAttr.equals("http://www.w3.org/2001/XMLSchema-instance") && nameAttr.equals("type")){
+                continue;
+            }
+
+            uriAttr = calculateNamespaceForAttribute(elementNamespace, uriAttr);
+
+            valueAttr = builder.doTransformForAttribute(element.type, uriAttr + nameAttr, valueAttr);
+
+            if(builder.resolveAsQnameInAttributeValue && valueAttr.contains(":")){
+                String[] split = valueAttr.split(":");
+                split[0] = prefixUriMap.get(split[0]);
+                valueAttr = String.join("", split);
+            }
+
+            builder.useAttributedForId(element.type, uriAttr+nameAttr, valueAttr, element);
+
+            element.properties.add(new Property(uriAttr, nameAttr, valueAttr));
+
+        }
+    }
+
+    private String calculateNamespaceForAttribute(String elementNamespace, String uriAttr) {
         if (builder.overrideNamespace != null) {
-            uri = builder.overrideNamespace;
+            uriAttr = builder.overrideNamespace;
         }
-        element.type = uri + localName;
 
-        if (builder.mapForClasses != null && builder.mapForClasses.containsKey(uri + localName)) {
-            element.type = builder.mapForClasses.get(uri + localName);
-        }else if(builder.mapForClassesTransform != null){
-            StringTransformTwoValue stringTransformTwoValue = builder.mapForClassesTransform.get(uri + localName);
-            if(stringTransformTwoValue == null){
-                stringTransformTwoValue = builder.mapForClassesTransform.get("");
-            }
-            if(stringTransformTwoValue != null){
-                element.type = stringTransformTwoValue.transform(uri,localName);
+        if (builder.autoAddSuffixToNamespace != null) {
+            if (uriAttr != null && !uriAttr.isEmpty() && !(uriAttr.endsWith("/") || uriAttr.endsWith("#"))) {
+                uriAttr += builder.autoAddSuffixToNamespace;
             }
         }
 
+        if (uriAttr == null || uriAttr.isEmpty()) {
+            if (builder.autoAttributeNamespace && elementNamespace != null && !elementNamespace.isEmpty()) {
+                uriAttr = elementNamespace;
+            } else if (builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justAttributes || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
+                uriAttr = builder.baseNamespace;
+            }
+        }
+        return uriAttr;
+    }
+
+    private void calculateNodeId(String uri, Element element) {
         if (builder.uuidBasedIdInsteadOfBlankNodes) {
             String tempUri = uri;
             if (builder.overrideNamespace != null) {
@@ -288,83 +337,49 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             element.uri = Common.BLANK_NODE_PREFIX + uriCounter++;
 
         }
+    }
 
-        Element parent = null;
+    private void renameElement(String uri, String localName, Element element) {
+        if (builder.renameElementMap != null && builder.renameElementMap.containsKey(uri + localName)) {
+            element.type = builder.renameElementMap.get(uri + localName);
+        }else if(builder.renameElementFunctionMap != null){
+            StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
+            if(stringTransformTwoValue == null){
+                stringTransformTwoValue = builder.renameElementFunctionMap.get("");
+            }
+            if(stringTransformTwoValue != null){
+                element.type = stringTransformTwoValue.transform(uri,localName);
+            }
+        }
+    }
 
-        if (!elementStack.isEmpty()) {
-            parent = elementStack.peek();
-           element.elementIndex =  parent.hasChild.stream().filter(e -> e.type.equals(element.type)).count();
-            parent.hasChild.add(element);
-            if (mixedContent) {
-                parent.addMixedContent(element);
+    private String calculateNamespace(String uri) {
+        if (builder.overrideNamespace != null) {
+            return builder.overrideNamespace;
+        }
+
+        if (builder.autoAddSuffixToNamespace != null) {
+            if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
+                uri += builder.autoAddSuffixToNamespace;
             }
         }
 
-        int length = attributes.getLength();
-        for (int i = 0; i < length; i++) {
-            String uriAttr = attributes.getURI(i);
-            String nameAttr = attributes.getLocalName(i);
-            String valueAttr = attributes.getValue(i);
-
-            if(builder.xsiTypeSupport && uriAttr.equals("http://www.w3.org/2001/XMLSchema-instance") && nameAttr.equals("type")){
-                continue;
-            }
-
-            if (builder.overrideNamespace != null) {
-                uriAttr = builder.overrideNamespace;
-            }
-
-            if (builder.autoAddSuffixToNamespace != null) {
-                if (uriAttr != null && !uriAttr.isEmpty() && !(uriAttr.endsWith("/") || uriAttr.endsWith("#"))) {
-                    uriAttr += builder.autoAddSuffixToNamespace;
-                }
-            }
-
-            if (uriAttr == null || uriAttr.isEmpty()) {
-                if (builder.autoAttributeNamespace && uri != null && !uri.isEmpty()) {
-                    uriAttr = uri;
-                } else if (builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justAttributes || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
-                    uriAttr = builder.baseNamespace;
-                }
-            }
-
-
-
-            valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
-
-            if(builder.resolveAsQnameInAttributeValue && valueAttr.contains(":")){
-                String[] split = valueAttr.split(":");
-                split[0] = prefixUriMap.get(split[0]);
-                valueAttr = String.join("", split);
-            }
-
-            if (builder.useAttributedForIdMap != null) {
-                StringTransform stringTransform = null;
-                if (builder.useAttributedForIdMap.containsKey(uri + localName + seperator + uriAttr + nameAttr)) {
-                    stringTransform = builder.useAttributedForIdMap.get(uri + localName + seperator + uriAttr + nameAttr);
-                } else if (builder.useAttributedForIdMap.containsKey(seperator + uriAttr + nameAttr)) {
-                    stringTransform = builder.useAttributedForIdMap.get(seperator + uriAttr + nameAttr);
-                }
-
-                if (stringTransform != null) {
-
-                    element.uri = stringTransform.transform(valueAttr);
-                }
-            }
-
-
-
-            element.properties.add(new Property(uriAttr, nameAttr, valueAttr));
-
+        if ((uri == null || uri.isEmpty()) && builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justElements || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
+            uri = builder.baseNamespace;
         }
 
-        element.parent = parent;
+        return uri;
+    }
 
-        builder.doComplexTransformElementAtStartOfElement(element);
+    private boolean detectMixedContent() {
 
-
-        elementStack.push(element);
-
+        if (elementStack.size() > 0) {
+            Element peek = elementStack.peek();
+            if (peek.getHasValue() != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public boolean isBlankNode(String node) {

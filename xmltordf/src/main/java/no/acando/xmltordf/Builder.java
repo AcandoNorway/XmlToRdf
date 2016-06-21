@@ -52,10 +52,10 @@ public class Builder {
     static class Default<T extends Default<T>> {
 
         String overrideNamespace;
-        Map<String, String> mapForClasses;
+        Map<String, String> renameElementMap;
         boolean autoDetectLiteralProperties = true;
         HashMapNoOverwriteWithDefaultTwoLevels<String, String, StringTransform> transformForAttributeValueMap = null;
-        Map<String, StringTransformTwoValue> mapForClassesTransform;
+        Map<String, StringTransformTwoValue> renameElementFunctionMap;
 
 
         /**
@@ -93,10 +93,10 @@ public class Builder {
          */
         public T renameElement(String elementFrom, String to) {
 
-            if (mapForClasses == null) {
-                mapForClasses = new HashMapNoOverwrite<>();
+            if (renameElementMap == null) {
+                renameElementMap = new HashMapNoOverwrite<>();
             }
-            mapForClasses.put(elementFrom, to);
+            renameElementMap.put(elementFrom, to);
             return (T) this;
         }
 
@@ -115,11 +115,11 @@ public class Builder {
          */
         public T renameElement(String elementFrom, StringTransformTwoValue transform) {
 
-            if (mapForClassesTransform == null) {
-                mapForClassesTransform = new HashMapNoOverwriteWithDefault<>();
+            if (renameElementFunctionMap == null) {
+                renameElementFunctionMap = new HashMapNoOverwriteWithDefault<>();
             }
 
-            mapForClassesTransform.put(elementFrom, transform);
+            renameElementFunctionMap.put(elementFrom, transform);
             return (T) this;
         }
 
@@ -200,7 +200,7 @@ public class Builder {
     static private class DefaultWithAddIndex<T extends DefaultWithAddIndex<T>> extends Default<T> {
         boolean addIndex;
 
-        Map<String, StringTransform> useAttributedForIdMap = new HashMapNoOverwrite<>();
+        HashMapNoOverwriteWithDefaultTwoLevels <String, String, StringTransform> useAttributedForIdMap;
         String autoAddSuffixToNamespace = "#";
 
         /**
@@ -263,10 +263,24 @@ public class Builder {
          * .build()
          */
         public T addUseAttributeForId(String elementName, String attributeName, StringTransform stringTransform) {
-            elementName = nullValueCheck(elementName);
-            useAttributedForIdMap.put(elementName + seperator + attributeName, stringTransform);
+            if(useAttributedForIdMap == null){
+                useAttributedForIdMap = new HashMapNoOverwriteWithDefaultTwoLevels<>();
+
+            }
+            useAttributedForIdMap.put(elementName , attributeName, stringTransform);
 
             return (T) this;
+        }
+
+
+         void useAttributedForId(String type, String s, String value, Element element) {
+                if(useAttributedForIdMap != null){
+
+                    StringTransform stringTransform = useAttributedForIdMap.get(type, s);
+                    if(stringTransform != null){
+                        element.uri = stringTransform.transform(value);
+                    }
+                }
         }
 
         /**
@@ -628,6 +642,8 @@ public class Builder {
             };
 
         }
+
+
 
         public interface BetweenWithWildcard<TT> {
 

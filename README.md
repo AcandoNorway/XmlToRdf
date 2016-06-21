@@ -1054,7 +1054,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:e071deb5-7ccc-4563-a6b0-2b938291a373
+ex:4fd99a7d-e144-4a61-bfe2-fe4829bcbb53
         a        ex:people ;
         ex:name  "John Doe" .
 
