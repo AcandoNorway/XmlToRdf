@@ -1,0 +1,6 @@
+<A xmlns="http://example.org/">
+    <B>
+        <num>1</num>
+        <name>hello</name>
+    </B>
+</A>

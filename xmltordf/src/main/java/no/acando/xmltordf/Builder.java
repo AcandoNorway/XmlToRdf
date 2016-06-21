@@ -61,7 +61,7 @@ public class Builder {
         /**
          * @param namespace Override all namespaces with this namespace
          * @return
-         * @description Override all namespaces in the xml with a new namespace.
+         * @description Override all namespaces in the XML with a new namespace.
          * @xml <people xmlns="http://example.org/" xmlns:a="http://A.com/">
          * <name a:test="hello">John Doe</name>
          * </people>
@@ -86,7 +86,7 @@ public class Builder {
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel Rename "people" with "PEOPLE"
+         * @exampleLabel Rename "people" to "PEOPLE"
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .renameElement("http://example.org/people", "http://example.org/PEOPLE")
          * .build()
@@ -203,7 +203,7 @@ public class Builder {
         String autoAddSuffixToNamespace = "#";
 
         /**
-         * @param @TODO
+         * @param enabled true for enabled
          * @return
          * @description Add the index of the element as a predicate to the RDF. `xmlToRdf:index` is a
          * global element counter (depth-first) that keeps track of which absolute element this is. `xmlToRdf:elementIndex` is a
@@ -223,11 +223,11 @@ public class Builder {
          * <name>person-two  : element-seven</name>
          * </person>
          * </people>
-         * @exampleLabel @TODO
+         * @exampleLabel Add index
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .addIndex(true)
          * .build()
-         * @exampleLabel @TODO
+         * @exampleLabel No index
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .addIndex(false)
          * .build()
@@ -238,7 +238,9 @@ public class Builder {
         }
 
         /**
-         * @param
+         * @param elementName     Full URI of element name
+         * @param attributeName   Full URI og attribute name
+         * @param stringTransform Function for transforming the string value
          * @return
          * @description Use an attribute on an element to generate an identifier for the RDF node.
          * Any single attribute can be used, and adding a namespace or a prefix to the ID is simple
@@ -259,15 +261,15 @@ public class Builder {
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
-        public T addUseAttributeForId(String elementName, String attributeName, StringTransform p2) {
+        public T addUseAttributeForId(String elementName, String attributeName, StringTransform stringTransform) {
             elementName = nullValueCheck(elementName);
-            useAttributedForIdMap.put(elementName + seperator + attributeName, p2);
+            useAttributedForIdMap.put(elementName + seperator + attributeName, stringTransform);
 
             return (T) this;
         }
 
         /**
-         * @param
+         * @param sign the sign (eg. "/") to suffix the namespace with
          * @return
          * @description Namespaces in RDF typically end in either `/` or `#` unlike in XML where a
          * namespace often has no specific suffix. By default a `#` is added to the namespace if
@@ -306,14 +308,14 @@ public class Builder {
     }
 
     static public class Advanced<ResourceType, DataType, T extends Advanced<ResourceType, DataType, T>> extends DefaultWithAddIndex<T> {
-        boolean autoConvertShallowChildrenToProperties;
+        boolean convertComplexElementsWithOnlyAttributesToPredicates;
         String baseNamespace;
         AppliesTo baseNamespaceAppliesTo;
 
         boolean autoAttributeNamespace = true;
-        boolean autoConvertShallowChildrenWithAutoDetectLiteralProperties;
+        boolean convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate;
         boolean autoTypeLiterals;
-        boolean uuidBasedIdInsteadOfBlankNodes = false;
+        boolean uuidBasedIdInsteadOfBlankNodes;
 
         private Map<String, ParentChild> invertPredicate = null;
         private HashMapNoOverwriteWithDefaultTwoLevels<String, String, String> insertPredicateBetween = null;
@@ -322,19 +324,25 @@ public class Builder {
         boolean resolveAsQnameInAttributeValue;
         boolean xsiTypeSupport;
 
+        private Map<String, ComplexClassTransform> complexElementTransformAtEndOfElement = null;
+        private Map<String, ComplexClassTransform> complexElementTransformAtStartOfElement = null;
+
+
         /**
-         * @param
+         * @param elementName Full URI of element name
+         * @param from        Original text inside element
+         * @param to          New resource
          * @return
-         * @description
+         * @description Map the text inside an element to a URI.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * <maritalStatus>married</maritalStatus>
          * </people>
-         * @exampleLabel
+         * @exampleLabel Map `married` to a URI
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .mapTextInElementToUri("http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
          * .build()
-         * @exampleLabel
+         * @exampleLabel No mapping
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
@@ -355,52 +363,52 @@ public class Builder {
 
 
         /**
-         * @param b
-         * @return abc
-         * @description Converts elements that only have attributes to a predicate with the element name and a node with the attributes.
-         * @description
+         * @param enabled true for enabled
+         * @return
+         * @description Use element name as predicate instead of the rdf:type on complex elements that only contain attributes.
          * @xml <people xmlns="http://example.org/">
          * <person name="John Doe" age="89"  />
          * </people>
-         * @exampleLabel autoConvertShallowChildrenToProperties enabled
+         * @exampleLabel convertComplexElementsWithOnlyAttributesToPredicates enabled
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .autoConvertShallowChildrenToProperties(true)
+         * .convertComplexElementsWithOnlyAttributesToPredicates(true)
          * .build()
-         * @exampleLabel autoConvertShallowChildrenToProperties disabled
+         * @exampleLabel convertComplexElementsWithOnlyAttributesToPredicates disabled
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .autoConvertShallowChildrenToProperties(false)
+         * .convertComplexElementsWithOnlyAttributesToPredicates(false)
          * .build()
          */
-        public T autoConvertShallowChildrenToProperties(boolean b) {
-            autoConvertShallowChildrenToProperties = b;
+        public T convertComplexElementsWithOnlyAttributesToPredicates(boolean enabled) {
+            convertComplexElementsWithOnlyAttributesToPredicates = enabled;
             return (T) this;
         }
 
         /**
-         * @param
+         * @param enabled true for enabled *default: true*
          * @return
          * @description Uses the namespace for the element as the namespace for any attributes that lack namespaces. Default: true.
          * @xml <people xmlns="http://example.org/">
          * <name test="yay">John Doe</name>
          * </people>
-         * @exampleLabel
+         * @exampleLabel autoAttributeNamespace enabled
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .setBaseNamespace("http://none/", Builder.AppliesTo.bothElementsAndAttributes)
          * .autoAttributeNamespace(true)
          * .build()
-         * @exampleLabel
+         * @exampleLabel autoAttributeNamespace disabled
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .setBaseNamespace("http://none/", Builder.AppliesTo.bothElementsAndAttributes)
          * .autoAttributeNamespace(false)
          * .build()
          */
-        public T autoAttributeNamespace(boolean b) {
-            autoAttributeNamespace = b;
+        public T autoAttributeNamespace(boolean enabled) {
+            autoAttributeNamespace = enabled;
             return (T) this;
         }
 
         /**
-         * @param
+         * @param namespace The namespace
+         * @param which     Should the namespace apply to element, attributes or both
          * @return
          * @description Sets a namespace for elements and attributes that lack their own namespace. This is recommended to use
          * in order to make sure everything has a namespace in your final RDF.
@@ -408,12 +416,12 @@ public class Builder {
          * <name other:age="1">John Doe</name>
          * <other:name age="2">Unknown</other:name>
          * </people>
-         * @exampleLabel
+         * @exampleLabel Use example.org with elements and attributes
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .autoAttributeNamespace(false)
          * .setBaseNamespace("http://example.org/", Builder.AppliesTo.bothElementsAndAttributes)
          * .build()
-         * @exampleLabel
+         * @exampleLabel Use empty namespace
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
@@ -424,79 +432,127 @@ public class Builder {
         }
 
         /**
-         * @param b
-         * @return abc
-         * @description Converts elements ?
-         * @xml <people xmlns="http://example.org/">
-         * <person name="John Doe" age="89" >
-         * <maritalStatus>unknown</maritalStatus>
-         * </person>
-         * </people>
-         * @exampleLabel autoConvertShallowChildrenWithAutoDetectLiteralProperties enabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenWithAutoDetectLiteralProperties(true).build()
-         * @exampleLabel autoConvertShallowChildrenWithAutoDetectLiteralProperties disabled
-         * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenWithAutoDetectLiteralProperties(false).build()
-         */
-        public T autoConvertShallowChildrenWithAutoDetectLiteralProperties(boolean b) {
-            autoConvertShallowChildrenWithAutoDetectLiteralProperties = b;
-            return (T) this;
-        }
-
-        /**
-         * @param
+         * @param enabled true for enabled
          * @return
-         * @description
-         * @xml <people xmlns="http://example.org/">
-         * <name>John Doe</name>
-         * </people>
-         * @exampleLabel
-         * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .build()
-         * @exampleLabel
-         * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .build()
-         */
-        public T autoTypeLiterals(boolean autoTypeLiterals) {
-            this.autoTypeLiterals = autoTypeLiterals;
-            return (T) this;
-        }
-
-
-        /**
-         * @param predicate
-         * @return abc
-         * @description Uses the specified predicate between the parent and the child
+         * @description Use the element name as the predicate rather than the rdf:type of elements that are complex type, but
+         * only contain simple type elements and/or attributes
          * @xml <people xmlns="http://example.org/">
          * <person name="John Doe" age="89" >
          * <maritalStatus>unknown</maritalStatus>
          * </person>
          * </people>
-         * @exampleLabel
+         * @exampleLabel Use `person` as the predicate
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+         * .build()
+         * @exampleLabel Use `person` as the rdf:type
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
+         * .build()
+         */
+        public T convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(boolean enabled) {
+            convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate = enabled;
+            return (T) this;
+        }
+
+        /**
+         * @param enabled true for enabled
+         * @return
+         * @description Not implemented fully
+         * @xml <people xmlns="http://example.org/">
+         * <person idNumber="1234" married="true" weight="80.5">
+         * <name>John Doe</name>
+         * <age>99</age>
+         * <dateOfBirth>1900-01-01</dateOfBirth>
+         * <dateAndTimeOfBirth>1900-01-01T00:00:01+01:00</dateAndTimeOfBirth>
+         * </person>
+         * </people>
+         * @exampleLabel Automatically detect literal types
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .autoTypeLiterals(true)
+         * .build()
+         * @exampleLabel Use untyped literals
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .autoTypeLiterals(false)
+         * .build()
+         */
+        public T autoTypeLiterals(boolean enabled) {
+            this.autoTypeLiterals = enabled;
+            return (T) this;
+        }
+
+
+        /**
+         * @param predicate The string value of the predicate to insert between a give parent and child.
+         * @return
+         * @description Uses the specified predicate between the parent and the child. Order of application:
+         * - between("parent", "child")
+         * - betweenSpecificParentAndAnyChild("parent")
+         * - betweenAnyParentAndSpecificChild("child")
+         * - betweenAny()
+         * @xml <people xmlns="http://example.org/">
+         * <person name="John Doe" age="89" >
+         * <maritalStatus>unknown</maritalStatus>
+         * </person>
+         * </people>
+         * @exampleLabel Insert hasPerson predicate
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .insertPredicate("http://example.org/hasPerson").between("http://example.org/people", "http://example.org/person")
          * .build()
-         * @exampleLabel
+         * @exampleLabel Use default hasChild perdicate
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
-        public Between<T> insertPredicate(String predicate) {
+        public BetweenWithWildcard<T> insertPredicate(String predicate) {
+
+            if (insertPredicateBetween == null) {
+                insertPredicateBetween = new HashMapNoOverwriteWithDefaultTwoLevels<>();
+            }
+
             Advanced<ResourceType, DataType, T> that = this;
-            return new Between<T>() {
+            return new BetweenWithWildcard<T>() {
                 @Override
                 public T between(String parent, String child) {
-                    if (insertPredicateBetween == null) {
-                        insertPredicateBetween = new HashMapNoOverwriteWithDefaultTwoLevels<>();
+                    if (parent == null || child == null) {
+                        throw new IllegalArgumentException("parent or child can not be null, use betweenAny() or betweenAnyParentAndSpecificChild(child) or betweenSpecificParentAndAnyChild(parent)");
                     }
+
                     insertPredicateBetween.put(parent, child, predicate);
+                    return (T) that;
+                }
+
+                @Override
+                public T betweenAny() {
+                    insertPredicateBetween.put(null, null, predicate);
+
+                    return (T) that;
+                }
+
+                @Override
+                public T betweenAnyParentAndSpecificChild(String child) {
+                    if (child == null) {
+                        throw new IllegalArgumentException("child can not be null, use betweenAny()");
+                    }
+
+                    insertPredicateBetween.put(null, child, predicate);
+
+                    return (T) that;
+                }
+
+                @Override
+                public T betweenSpecificParentAndAnyChild(String parent) {
+                    if (parent == null) {
+                        throw new IllegalArgumentException("parent can not be null, use betweenAny()");
+                    }
+
+                    insertPredicateBetween.put(parent, null, predicate);
+
                     return (T) that;
                 }
             };
 
         }
 
-        public interface Between<TT> {
-            TT between(String parent, String child);
-        }
 
         String getInsertPredicateBetweenOrDefaultPredicate(String parent, String child, String defaultPredicate) {
             if (insertPredicateBetween == null) {
@@ -509,19 +565,20 @@ public class Builder {
 
 
         /**
-         * @param predicate
-         * @return abc
+         * @param predicate The fully URI of the predicate to be inverted.
+         * @return
          * @description Inverts an inserted predicate between two elements, so that the inherit parent -> child relationship is reversed.
+         * Remember to insert a predicate before trying to invert it.
          * @xml <person xmlns="http://example.org/"  name="John Doe">
          * <dog name="Woof"  >
          * </dog>
          * </person>
-         * @exampleLabel invertPredicate
+         * @exampleLabel Insert and invert `ownedBy`
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .insertPredicate("http://example.org/ownedBy").between("http://example.org/person", "http://example.org/dog")
          * .invertPredicate("http://example.org/ownedBy").betweenAny()
          * .build()
-         * @exampleLabel invertPredicate
+         * @exampleLabel Just insert `ownedBy`
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .insertPredicate("http://example.org/ownedBy").between("http://example.org/person", "http://example.org/dog")
          * .build()
@@ -537,6 +594,9 @@ public class Builder {
             return new BetweenWithWildcard<T>() {
                 @Override
                 public T between(String parent, String child) {
+                    if (parent == null || child == null) {
+                        throw new IllegalArgumentException("parent or child can not be null, use betweenAny() or betweenAnyParentAndSpecificChild(child) or betweenSpecificParentAndAnyChild(parent)");
+                    }
                     invertPredicate.put(predicate, new ParentChild(parent, child));
                     return (T) that;
                 }
@@ -548,13 +608,19 @@ public class Builder {
                 }
 
                 @Override
-                public T fromAnyParentToChild(String child) {
+                public T betweenAnyParentAndSpecificChild(String child) {
+                    if (child == null) {
+                        throw new IllegalArgumentException("child can not be null, use betweenAny()");
+                    }
                     invertPredicate.put(predicate, new ParentChild(null, child));
                     return (T) that;
                 }
 
                 @Override
-                public T fromParentToAnyChild(String parent) {
+                public T betweenSpecificParentAndAnyChild(String parent) {
+                    if (parent == null) {
+                        throw new IllegalArgumentException("parent can not be null, use betweenAny()");
+                    }
                     invertPredicate.put(predicate, new ParentChild(parent, null));
                     return (T) that;
                 }
@@ -568,9 +634,9 @@ public class Builder {
 
             TT betweenAny();
 
-            TT fromAnyParentToChild(String child);
+            TT betweenAnyParentAndSpecificChild(String child);
 
-            TT fromParentToAnyChild(String parent);
+            TT betweenSpecificParentAndAnyChild(String parent);
         }
 
         boolean checkInvertPredicate(String predicate, String parent, String child) {
@@ -588,7 +654,7 @@ public class Builder {
         }
 
         /**
-         * @param
+         * @param enabled true for enabled
          * @return
          * @description By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
          * Blank nodes are locally unique, while UUIDs are globally unique. UUIDs take time to generate, depending on your system, and will make the conversion
@@ -596,11 +662,11 @@ public class Builder {
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel
+         * @exampleLabel Use UUIDs
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .uuidBasedIdInsteadOfBlankNodes(true)
          * .build()
-         * @exampleLabel
+         * @exampleLabel Use locally unique blank node
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .uuidBasedIdInsteadOfBlankNodes(false)
          * .build()
@@ -611,7 +677,8 @@ public class Builder {
         }
 
         /**
-         * @param
+         * @param element Full URI of element
+         * @param datatype Datatype to use. A string when using getAdvancedBuilderStream(), RDFDatatype for Jena and IRI for Sesame.
          * @return
          * @description Specify the datatype on a Simple Type element. Use a string with AdvancedBuilderStream as the datatype,
          * and the respective Sesame or Jena types with AdvancedBuilderSesame and AdvancedBuilderJena.
@@ -619,19 +686,19 @@ public class Builder {
          * <name>John Doe</name>
          * <age>1</age>
          * </people>
-         * @exampleLabel
+         * @exampleLabel Make `age` an integer
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .setDatatype("http://example.org/age", "http://www.w3.org/2001/XMLSchema#integer")
          * .build()
-         * @exampleLabel
+         * @exampleLabel Leave untyped
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
-        public T setDatatype(String fullUriForElement, DataType datatype) {
+        public T setDatatype(String element, DataType datatype) {
             if (dataTypeOnElement == null) {
                 dataTypeOnElement = new HashMapNoOverwrite<>();
             }
-            dataTypeOnElement.put(fullUriForElement, datatype);
+            dataTypeOnElement.put(element, datatype);
             return (T) this;
         }
 
@@ -658,48 +725,117 @@ public class Builder {
 
         }
 
-        private Map<String, ComplexClassTransform> complexTransformForClassAtElementEnd = new HashMapNoOverwrite<>();
-
         /**
-         * @param
+         * @param element Full URI of element
+         * @param transform Function that can transform an Element
          * @return
-         * @description
-         * @xml <people xmlns="http://example.org/">
-         * <name>John Doe</name>
-         * </people>
+         * @description Do any transformation on an element will full access to information about its attributes and children.
+         * The transformation is applied when the convertor hits the end element tag.
+         * @xml <person xmlns="http://example.org/" >
+         * <person><name>John Doe</name></person>
+         * <person><name>Other person</name></person>
+         * </person>
          * @exampleLabel
          * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .addComplexElementTransformAtEndOfElement("http://example.org/name", element -> element.type = element.type.toUpperCase())
+         * .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> {
+         *     if(element.hasChild.size() > 1){
+         *         element.type = "http://example.org/people";
+         *     }
+         * })
          * .build()
-         * @exampleLabel
+         * @exampleLabel No transforms
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
-        public T addComplexTransformForClassAtElementEnd(String className, ComplexClassTransform transform) {
+        public T addComplexElementTransformAtEndOfElement(String element, ComplexClassTransform transform) {
 
-            complexTransformForClassAtElementEnd.put(className, transform);
+            if (complexElementTransformAtEndOfElement == null) {
+                complexElementTransformAtEndOfElement = new HashMapNoOverwrite<>();
+            }
+
+            complexElementTransformAtEndOfElement.put(element, transform);
 
             return (T) this;
         }
 
-        void doComplexTransformForClassAtElementEnd(Element element) {
-            ComplexClassTransform complexClassTransform = complexTransformForClassAtElementEnd.get(element.type);
+        void doComplexTransformElementAtEndOfElement(Element element) {
+            if(complexElementTransformAtEndOfElement == null) return;
+            ComplexClassTransform complexClassTransform = complexElementTransformAtEndOfElement.get(element.type);
+            if (complexClassTransform != null) {
+                complexClassTransform.transform(element);
+            }
+        }
+
+
+        /**
+         * @param element Full URI of element
+         * @param transform Function that can transform an Element
+         * @return
+         * @description Do any transformation on an element will full access to information about its attributes but not about it's children.
+         * The transformation is applied when the convertor finishes processing the attributes at the start of a tag.
+         *
+         * Take careful note, as shown in the examples, that transforming an element at the start is simpler to reason about that at the
+         * end when you are using options such as insertPredicate. In the seconds java example the transform is run at the end of the element,
+         * after the insertPredicate() method has run.
+         *
+         * ```xml
+         * <people> <!-- start element transform runs now -->
+         *     <person> <!-- start element transform runs now -->
+         *         <name>John Doe</name>
+         *     </person> <!-- end element transform followed by insertPredicate runs now -->
+         * </people> <!-- end element transform runs now -->
+         * ```
+         *
+         * @xml <people xmlns="http://example.org/">
+         *              <person>
+         *                  <name>John Doe</name>
+         *              </person>
+         * </people>
+         * @exampleLabel All transforms run before insertPredicate
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .addComplexElementTransformAtStartOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
+         * .addComplexElementTransformAtStartOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
+        *  .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
+         * .build()
+         * @exampleLabel Transform on `<people>` runs after insertPredicate
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .addComplexElementTransformAtEndOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
+         * .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
+         *  .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
+         * .build()
+         */
+        public T addComplexElementTransformAtStartOfElement(String element, ComplexClassTransform transform) {
+
+            if(complexElementTransformAtStartOfElement == null){
+                complexElementTransformAtStartOfElement  = new HashMapNoOverwrite<>();
+            }
+
+            complexElementTransformAtStartOfElement.put(element, transform);
+
+            return (T) this;
+        }
+
+        void doComplexTransformElementAtStartOfElement(Element element) {
+            if(complexElementTransformAtStartOfElement == null) return;
+            ComplexClassTransform complexClassTransform = complexElementTransformAtStartOfElement.get(element.type);
             if (complexClassTransform != null) {
                 complexClassTransform.transform(element);
             }
         }
 
         /**
-         * @param
+         * @param enabled true for enabled
          * @return
          * @description Will resolve a qname inside an attribute by expanding it to a full URI as a string.
          * @xml <people xmlns="http://example.org/" xmlns:test="http://test.com/">
          * <name age="test:old">John Doe</name>
          * </people>
-         * @exampleLabel
+         * @exampleLabel Resolve all qnames
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .resolveAsQnameInAttributeValue(true)
          * .build()
-         * @exampleLabel
+         * @exampleLabel Do not resolve qnames
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .resolveAsQnameInAttributeValue(false)
          * .build()
@@ -710,16 +846,22 @@ public class Builder {
         }
 
         /**
-         * @param
+         * @param enabled true for enabled
          * @return
-         * @description
-         * @xml <people xmlns="http://example.org/">
-         * <name>John Doe</name>
-         * </people>
-         * @exampleLabel
+         * @description Detects and uses the value in xsi:type attributes as the rdf:type.
+         * @xml <animals xmlns="http://example.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dbpedia="http://dbpedia.org/resource/">
+         * <human xsi:type="man">
+         *     <name >John Doe</name>
+         * </human>
+         * <bird xsi:type="dbpedia:Barn_swallow">
+         *      <name>Big swallow</name>
+         * </bird>
+         * </animals>
+         * @exampleLabel Detect and use xsi:type references
          * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .xsiTypeSupport(true)
          * .build()
-         * @exampleLabel
+         * @exampleLabel Ignore xsi:type references
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
@@ -734,18 +876,10 @@ public class Builder {
         int buffer = 1000;
 
         /**
-         * @param
+         * @param size size of buffer *default: 1000*
          * @return
-         * @description
-         * @xml <people xmlns="http://example.org/">
-         * <name>John Doe</name>
-         * </people>
-         * @exampleLabel
-         * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .build()
-         * @exampleLabel
-         * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .build()
+         * @description Set the size of the buffer used to write RDF statements into a Jena Dataset or Sesame Repository.
+         * Adjusting the buffer size may affect performance.
          */
         public T setBuffer(int size) {
             this.buffer = size;
@@ -798,7 +932,7 @@ public class Builder {
         }
 
         void put(Key1 key1, Key2 key2, Value value) {
-            HashMapNoOverwriteWithDefault<Key2, Value> firstLevel = internalMap.get(key1);
+            HashMapNoOverwriteWithDefault<Key2, Value> firstLevel = internalMap.getWithoutDefault(key1);
             if (firstLevel == null) {
                 firstLevel = new HashMapNoOverwriteWithDefault<>();
                 internalMap.put(key1, firstLevel);
@@ -852,6 +986,13 @@ public class Builder {
                 return super.put(key, value);
             }
 
+        }
+
+        public Value getWithoutDefault(Key key1) {
+            if (key1 == null) {
+                return defaultValue;
+            }
+            return super.get(key1);
         }
     }
 

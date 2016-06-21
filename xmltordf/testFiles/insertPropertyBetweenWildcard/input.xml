@@ -1,0 +1,13 @@
+<A xmlns="http://example.org/">
+
+    <C>
+        <num>1</num>
+        <D>
+            <num>1</num>
+        </D>
+        <B>
+            <num>1</num>
+        </B>
+    </C>
+
+</A>

@@ -82,13 +82,13 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         Element pop = elementStack.pop();
 
-        builder.doComplexTransformForClassAtElementEnd(pop);
+        builder.doComplexTransformElementAtEndOfElement(pop);
 
-        if (builder.autoConvertShallowChildrenToProperties && pop.hasChild.isEmpty() && pop.parent != null) {
+        if (builder.convertComplexElementsWithOnlyAttributesToPredicates && pop.hasChild.isEmpty() && pop.parent != null) {
             pop.shallow = true;
         }
 
-        if (builder.autoConvertShallowChildrenWithAutoDetectLiteralProperties && !pop.shallow) {
+        if (builder.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate && !pop.shallow) {
             if (pop.hasChild.stream().filter((element -> !element.autoDetectedAsLiteralProperty)).count() == 0) {
                 pop.shallow = true;
             }
@@ -359,6 +359,9 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         }
 
         element.parent = parent;
+
+        builder.doComplexTransformElementAtStartOfElement(element);
+
 
         elementStack.push(element);
 

@@ -16,6 +16,9 @@ limitations under the License.
 
 package no.acando.xmltordf.doclet;
 
+import com.github.mustachejava.DefaultMustacheFactory;
+import com.github.mustachejava.Mustache;
+import com.github.mustachejava.MustacheFactory;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import net.openhft.compiler.CompilerUtils;
@@ -69,15 +72,15 @@ public class JsonJavadocExampleRunner {
 	public static void main(String[] args) throws ClassNotFoundException, IOException, IllegalAccessException, InstantiationException, ParserConfigurationException, SAXException {
 
 		String javadoc = "xmltordf/documentation/javadoc";
-		File file1 = new File(javadoc + ".json");
-		String json = FileUtils.readFileToString(file1);
+		String json = FileUtils.readFileToString(new File(javadoc + ".json"));
 		Type listType = new TypeToken<ArrayList<Method>>() {
 		}.getType();
 		List<Method> list = new Gson().fromJson(json, listType);
 
 		int counter = 0;
 
-		PrintWriter printWriter = new PrintWriter(new File(javadoc + ".md"));
+		String javadocMarkdown = javadoc + ".md";
+		PrintWriter printWriter = new PrintWriter(new File(javadocMarkdown));
 
 
 		for (Method method : list) {
@@ -99,7 +102,7 @@ public class JsonJavadocExampleRunner {
 				for (Example.InnerExample innerExample : example.innerExamples) {
 					counter++;
 					String builder = classString
-							.replace("BUILDER", innerExample.exampleCommand.replace(";", ""))
+							.replace("BUILDER", innerExample.exampleCommand)
 							.replace("COUNTER", "" + counter);
 
 
@@ -143,6 +146,17 @@ public class JsonJavadocExampleRunner {
 
 		}
 		printWriter.close();
+
+
+		String javadocMarkdownString = FileUtils.readFileToString(new File(javadocMarkdown));
+
+		MustacheFactory mf = new DefaultMustacheFactory();
+		Mustache mustache = mf.compile(new InputStreamReader(new FileInputStream("templates/README_TEMPLATE.md")), "");
+		StringWriter stringWriter = new StringWriter();
+		mustache.execute(stringWriter, new Object(){
+			String javadocs = javadocMarkdownString;
+		}).flush();
+		FileUtils.write(new File("README.md"), stringWriter.toString());
 
 
 	}
