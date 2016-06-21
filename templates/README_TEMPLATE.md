@@ -8,10 +8,10 @@ Java library to convert any XML file to RDF.
 
 | Method | File size | Time |
 |--------|---|---|
-|Fast convert | 100 MB | 2.027 seconds |
-|Object convert | 100 MB |  2.980 seconds |
-|Jena convert | 100 MB |  9.980 seconds |
-|Sesame convert | 100 MB |  9.597 seconds |
+|Fast convert | 100 MB | 1.836 seconds |
+|Advanced convert | 100 MB |  2.711 seconds |
+|Jena convert | 100 MB |  9.744 seconds |
+|Sesame convert | 100 MB |  9.811 seconds |
 
 
 Benchmark information

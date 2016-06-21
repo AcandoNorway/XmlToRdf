@@ -8,10 +8,10 @@ Java library to convert any XML file to RDF.
 
 | Method | File size | Time |
 |--------|---|---|
-|Fast convert | 100 MB | 2.027 seconds |
-|Object convert | 100 MB |  2.980 seconds |
-|Jena convert | 100 MB |  9.980 seconds |
-|Sesame convert | 100 MB |  9.597 seconds |
+|Fast convert | 100 MB | 1.836 seconds |
+|Advanced convert | 100 MB |  2.711 seconds |
+|Jena convert | 100 MB |  9.744 seconds |
+|Sesame convert | 100 MB |  9.811 seconds |
 
 
 Benchmark information
@@ -421,10 +421,6 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
@@ -434,6 +430,10 @@ Builder.getAdvancedBuilderStream()
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 ```
 
@@ -1054,7 +1054,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:4fd99a7d-e144-4a61-bfe2-fe4829bcbb53
+ex:b57a3d30-ab93-451d-8be9-89df0388339d
         a        ex:people ;
         ex:name  "John Doe" .
 
