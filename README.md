@@ -56,6 +56,80 @@ And then you need to use that directory as a local repository in your project:
 </repositories>
 ```
 
+# Example
+
+```java
+
+import no.acando.xmltordf.Builder;
+import org.xml.sax.SAXException;
+
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.*;
+
+public class Convert {
+
+    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
+        BufferedInputStream in = new BufferedInputStream(new FileInputStream("data.xml"));
+        BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream("data.ttl"));
+
+        Builder.getAdvancedBuilderStream().build().convertToStream(in, out);
+
+    }
+
+}
+
+```
+
+
+With the following XML file:
+
+```xml
+<data xmlns="http://example.org">
+    <item>
+        <name>Hello</name>
+    </item>
+    <item>
+        <name>Hello</name>
+    </item>
+</data>
+```
+
+
+You should get the equivalent (though not as pretty) output as follows:
+
+```turtle
+@prefix :      <http://example.org#> .
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+
+[ a                  :data ;
+  xmlToRdf:hasChild  [ a       :item ;
+                       :name   "Hello"
+                     ] ;
+  xmlToRdf:hasChild  [ a       :item ;
+                       :name   "Hello"
+                     ]
+] .
+
+```
+
+If you want to keep working with the RDF data you can choose between Jena or Sesame.
+Both of these methods are somewhat slower than using direct to stream, however they are faster
+ than first outputting to stream and then parsing back in again.
+
+ For Jena you can do as follows:
+
+ ```java
+BufferedInputStream in = new BufferedInputStream(new FileInputStream("data.xml"));
+Dataset dataset = Builder.getAdvancedBuilderJena().build().convertToDataset(in);
+ ```
+
+ And for Sesame you can do like this:
+
+ ```java
+BufferedInputStream in = new BufferedInputStream(new FileInputStream("data.xml"));
+Repository repository = Builder.getAdvancedBuilderSesame().build().convertToRepository(in);
+ ```
+
 
 # Java docs
 
@@ -421,6 +495,10 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
+
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
@@ -430,10 +508,6 @@ Builder.getAdvancedBuilderStream()
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
-
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
 
 ```
 
@@ -1054,7 +1128,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:b57a3d30-ab93-451d-8be9-89df0388339d
+ex:2e28614a-8750-4a1d-a539-c84cc5f962e4
         a        ex:people ;
         ex:name  "John Doe" .
 
