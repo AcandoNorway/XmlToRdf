@@ -374,10 +374,14 @@ public class XmlToRdfTest {
             .renameElement(HTTP_TEST+"name", (u,v)->u+v.toUpperCase())
             .build());
 
-//        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).renameElement("A", "http://hurra/A2").renameElement("B", "http://hurra/B2").build());
-//        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).renameElement("A", "http://hurra/A2").renameElement("B", "http://hurra/B2").build());
-//
-//        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).renameElement("A", "http://hurra/A2").renameElement("B", "http://hurra/B2").build());
+        testFast(Builder.getFastBuilder()
+            .overrideNamespace(HTTP_TEST)
+            .simpleTypePolicy(SimpleTypePolicy.compact)
+            .renameElement(HTTP_TEST+"A", "http://hurra/A2")
+            .renameElement(null, (u,v) -> u+v.toLowerCase())
+            .renameElement(HTTP_TEST+"name", (u,v)->u+v.toUpperCase())
+            .build());
+
 
     }
 
@@ -657,7 +661,7 @@ public class XmlToRdfTest {
 
         final String hasB = "http://a/hasB";
         final String a = "http://a/A";
-        String aB = "http://a/B";
+        final String aB = "http://a/B";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .autoConvertShallowChildrenToProperties(true)

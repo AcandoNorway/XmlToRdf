@@ -16,7 +16,6 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import com.sun.org.apache.regexp.internal.RE;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.Node;
 import org.openrdf.model.IRI;
@@ -55,7 +54,7 @@ public class Builder {
         String overrideNamespace;
         Map<String, String> mapForClasses;
         boolean autoDetectLiteralProperties = true;
-        Map<String, StringTransform> transformForAttributeValueMap = null;
+        HashMapNoOverwriteWithDefaultTwoLevels<String, String, StringTransform> transformForAttributeValueMap = null;
         Map<String, StringTransformTwoValue> mapForClassesTransform;
 
 
@@ -81,7 +80,7 @@ public class Builder {
 
         /**
          * @param elementFrom The full URI of the element in the XML file
-         * @param to The new full URI
+         * @param to          The new full URI
          * @return
          * @description Change the name of an element.
          * @xml <people xmlns="http://example.org/">
@@ -103,7 +102,7 @@ public class Builder {
 
         /**
          * @param elementFrom The full URI of the element in the XML file
-         * @param to The new full URI
+         * @param transform
          * @return
          * @description Change the name of an element.
          * @xml <people xmlns="http://example.org/">
@@ -117,16 +116,15 @@ public class Builder {
         public T renameElement(String elementFrom, StringTransformTwoValue transform) {
 
             if (mapForClassesTransform == null) {
-                mapForClassesTransform = new HashMapNoOverwrite<>();
+                mapForClassesTransform = new HashMapNoOverwriteWithDefault<>();
             }
-            elementFrom = nullValueCheck(elementFrom);
             mapForClassesTransform.put(elementFrom, transform);
             return (T) this;
         }
 
 
         /**
-         * @param  policy Either SimpleTypePolicy.compact or SimpleTypePolicy.expand
+         * @param policy Either SimpleTypePolicy.compact or SimpleTypePolicy.expand
          * @return
          * @description XML elements with only text inside and no attributes (known as Simple Type elements)
          * can be compacted to use the element name as the RDF predicate or be expanded to use the xmlToRdf:hasChild
@@ -134,19 +132,19 @@ public class Builder {
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel  Compact
+         * @exampleLabel Compact
          * @exampleCommand Builder.getAdvancedBuilderStream()
-	   * .simpleTypePolicy(SimpleTypePolicy.compact)
-	   * .build()
-         * @exampleLabel  Expand
+         * .simpleTypePolicy(SimpleTypePolicy.compact)
+         * .build()
+         * @exampleLabel Expand
          * @exampleCommand Builder.getAdvancedBuilderStream()
-	   * .simpleTypePolicy(SimpleTypePolicy.expand)
-	   * .build()
+         * .simpleTypePolicy(SimpleTypePolicy.expand)
+         * .build()
          */
         public T simpleTypePolicy(SimpleTypePolicy policy) {
-            if(policy.equals(SimpleTypePolicy.compact)){
+            if (policy.equals(SimpleTypePolicy.compact)) {
                 autoDetectLiteralProperties = true;
-            }else{
+            } else {
                 autoDetectLiteralProperties = false;
             }
 
@@ -155,16 +153,13 @@ public class Builder {
 
 
         /**
-         * @param elementName The element name (full URI)
+         * @param elementName   The element name (full URI)
          * @param attributeName The attribute name (full URI)
-         * @param transform A function for transforming the value. Eg v -> v.toUpperCase()
+         * @param transform     A function for transforming the value. Eg v -> v.toUpperCase()
          * @return
          * @description Run a function on the value of an attribute and use the returned string as the new value.
-	   * Take careful note of the namespaces. Unless specified, attributes inherit the namespace of their element.
-	   *
-         * @xml
-         * <person xmlns="http://example.org/" age="3" />
-         *
+         * Take careful note of the namespaces. Unless specified, attributes inherit the namespace of their element.
+         * @xml <person xmlns="http://example.org/" age="3" />
          * @exampleLabel Multiply age by 10
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .addTransformationForAttributeValue("http://example.org/person", "http://example.org/age", v -> String.valueOf(Integer.parseInt(v)*10))
@@ -174,14 +169,12 @@ public class Builder {
          * .build()
          */
         public T addTransformationForAttributeValue(String elementName, String attributeName, StringTransform transform) {
-            elementName = nullValueCheck(elementName);
-            attributeName = nullValueCheck(attributeName);
 
             if (transformForAttributeValueMap == null) {
-                transformForAttributeValueMap = new HashMapNoOverwrite<>();
+                transformForAttributeValueMap = new HashMapNoOverwriteWithDefaultTwoLevels<>();
             }
 
-            transformForAttributeValueMap.put(elementName + seperator + attributeName, transform);
+            transformForAttributeValueMap.put(elementName, attributeName, transform);
 
             return (T) this;
 
@@ -190,19 +183,12 @@ public class Builder {
 
         String doTransformForAttribute(String element, String attribute, String value) {
 
-            if (transformForAttributeValueMap == null) {
-                return value;
-            }
+            if (transformForAttributeValueMap != null) {
+                StringTransform stringTransform = transformForAttributeValueMap.get(element, attribute);
+                if (stringTransform != null) {
+                    return stringTransform.transform(value);
+                }
 
-
-            if (transformForAttributeValueMap.containsKey(element + seperator + attribute)) {
-                return transformForAttributeValueMap.get(element + seperator + attribute).transform(value);
-            } else if (transformForAttributeValueMap.containsKey(element + seperator)) {
-                return transformForAttributeValueMap.get(element + seperator).transform(value);
-            } else if (transformForAttributeValueMap.containsKey(seperator + attribute)) {
-                return transformForAttributeValueMap.get(seperator + attribute).transform(value);
-            } else if (transformForAttributeValueMap.containsKey(seperator)) {
-                return transformForAttributeValueMap.get(seperator).transform(value);
             }
 
             return value;
@@ -220,21 +206,21 @@ public class Builder {
          * @param @TODO
          * @return
          * @description Add the index of the element as a predicate to the RDF. `xmlToRdf:index` is a
-	   * global element counter (depth-first) that keeps track of which absolute element this is. `xmlToRdf:elementIndex` is a
-	   * relative counter that keeps track of which index this element is for the given type relative to other elements
-	   * of that type in within the same parent.
+         * global element counter (depth-first) that keeps track of which absolute element this is. `xmlToRdf:elementIndex` is a
+         * relative counter that keeps track of which index this element is for the given type relative to other elements
+         * of that type in within the same parent.
          * @xml <people xmlns="http://example.org/">
          * <person>
-         *       <name>person-zero : element-one</name>
+         * <name>person-zero : element-one</name>
          * </person>
-         *  <person>
-         *       <name>person-one : element-three</name>
+         * <person>
+         * <name>person-one : element-three</name>
          * </person>
-	   * <ZEBRA>
-	   *       <name>ZEBRA-zero  : element-five</name>
-	   * </ZEBRA>
-         *  <person>
-         *       <name>person-two  : element-seven</name>
+         * <ZEBRA>
+         * <name>ZEBRA-zero  : element-five</name>
+         * </ZEBRA>
+         * <person>
+         * <name>person-two  : element-seven</name>
          * </person>
          * </people>
          * @exampleLabel @TODO
@@ -255,19 +241,19 @@ public class Builder {
          * @param
          * @return
          * @description Use an attribute on an element to generate an identifier for the RDF node.
-	   * Any single attribute can be used, and adding a namespace or a prefix to the ID is simple
-	   * as part of the transform.
+         * Any single attribute can be used, and adding a namespace or a prefix to the ID is simple
+         * as part of the transform.
          * @xml <archive xmlns="http://example.org/">
          * <record nr="0000001">
-	   *       <title>Important record</title>
-	   *       </record>
-	   * <record nr="0000002">
-	   *       <title>Other record</title>
-	   *       </record>
+         * <title>Important record</title>
+         * </record>
+         * <record nr="0000002">
+         * <title>Other record</title>
+         * </record>
          * </archive>
          * @exampleLabel Use the record number (nr) as the node ID in the RDF.
          * @exampleCommand Builder.getAdvancedBuilderStream()
-	   * .addUseAttributeForId("http://example.org/record", "http://example.org/nr", v -> "http://acme.com/records/"+v)
+         * .addUseAttributeForId("http://example.org/record", "http://example.org/nr", v -> "http://acme.com/records/"+v)
          * .build()
          * @exampleLabel With default blank node
          * @exampleCommand Builder.getAdvancedBuilderStream()
@@ -284,18 +270,18 @@ public class Builder {
          * @param
          * @return
          * @description Namespaces in RDF typically end in either `/` or `#` unlike in XML where a
-	   * namespace often has no specific suffix. By default a `#` is added to the namespace if
-	   * it doesn't already end in either `/` or `#`.
+         * namespace often has no specific suffix. By default a `#` is added to the namespace if
+         * it doesn't already end in either `/` or `#`.
          * @xml <people xmlns="http://example.org">
          * <name>John Doe</name>
          * </people>
          * @exampleLabel `#` suffix
          * @exampleCommand Builder.getAdvancedBuilderStream()
-	   * .autoAddSuffixToNamespace("#")
+         * .autoAddSuffixToNamespace("#")
          * .build()
          * @exampleLabel Unaltered XML namespace
          * @exampleCommand Builder.getAdvancedBuilderStream()
-	   * .autoAddSuffixToNamespace(false)
+         * .autoAddSuffixToNamespace(false)
          * .build()
          */
         public T autoAddSuffixToNamespace(String sign) {
@@ -330,7 +316,7 @@ public class Builder {
         boolean uuidBasedIdInsteadOfBlankNodes = false;
 
         private Map<String, ParentChild> invertPredicate = null;
-        private Map<String, String> insertPredicateBetween = null;
+        private HashMapNoOverwriteWithDefaultTwoLevels<String, String, String> insertPredicateBetween = null;
         Map<String, DataType> dataTypeOnElement = null;
         Map<String, Map<String, ResourceType>> literalMap = null;
         boolean resolveAsQnameInAttributeValue;
@@ -441,13 +427,12 @@ public class Builder {
          * @param b
          * @return abc
          * @description Converts elements ?
-         * @xml
-	   * <people xmlns="http://example.org/">
-	   * 		<person name="John Doe" age="89" >
-         * 		      <maritalStatus>unknown</maritalStatus>
-	   *       </person>
-	   * </people>
-	   * @exampleLabel autoConvertShallowChildrenWithAutoDetectLiteralProperties enabled
+         * @xml <people xmlns="http://example.org/">
+         * <person name="John Doe" age="89" >
+         * <maritalStatus>unknown</maritalStatus>
+         * </person>
+         * </people>
+         * @exampleLabel autoConvertShallowChildrenWithAutoDetectLiteralProperties enabled
          * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenWithAutoDetectLiteralProperties(true).build()
          * @exampleLabel autoConvertShallowChildrenWithAutoDetectLiteralProperties disabled
          * @exampleCommand Builder.getAdvancedBuilderStream().autoConvertShallowChildrenWithAutoDetectLiteralProperties(false).build()
@@ -481,11 +466,10 @@ public class Builder {
          * @param predicate
          * @return abc
          * @description Uses the specified predicate between the parent and the child
-         * @xml
-         * <people xmlns="http://example.org/">
-         * 		<person name="John Doe" age="89" >
-         * 		      <maritalStatus>unknown</maritalStatus>
-         *       </person>
+         * @xml <people xmlns="http://example.org/">
+         * <person name="John Doe" age="89" >
+         * <maritalStatus>unknown</maritalStatus>
+         * </person>
          * </people>
          * @exampleLabel
          * @exampleCommand Builder.getAdvancedBuilderStream()
@@ -501,24 +485,26 @@ public class Builder {
                 @Override
                 public T between(String parent, String child) {
                     if (insertPredicateBetween == null) {
-                        insertPredicateBetween = new HashMapNoOverwrite<>();
+                        insertPredicateBetween = new HashMapNoOverwriteWithDefaultTwoLevels<>();
                     }
-                    insertPredicateBetween.put(parent + seperator + child, predicate);
+                    insertPredicateBetween.put(parent, child, predicate);
                     return (T) that;
                 }
             };
 
         }
 
-        public interface Between<TT>{
+        public interface Between<TT> {
             TT between(String parent, String child);
         }
 
-        String getInsertPredicateBetween(String parent, String child) {
+        String getInsertPredicateBetweenOrDefaultPredicate(String parent, String child, String defaultPredicate) {
             if (insertPredicateBetween == null) {
-                insertPredicateBetween = new HashMapNoOverwrite<>();
+                return defaultPredicate;
             }
-            return insertPredicateBetween.get(parent + seperator + child);
+            String s = insertPredicateBetween.get(parent, child);
+
+            return s != null ? s : defaultPredicate;
         }
 
 
@@ -526,30 +512,29 @@ public class Builder {
          * @param predicate
          * @return abc
          * @description Inverts an inserted predicate between two elements, so that the inherit parent -> child relationship is reversed.
-         * @xml
-         * <person xmlns="http://example.org/"  name="John Doe">
-         * 		<dog name="Woof"  >
-         *       </dog>
+         * @xml <person xmlns="http://example.org/"  name="John Doe">
+         * <dog name="Woof"  >
+         * </dog>
          * </person>
          * @exampleLabel invertPredicate
-         * @exampleCommand
-         * Builder.getAdvancedBuilderStream()
-         *      .insertPredicate("http://example.org/ownedBy").between("http://example.org/person", "http://example.org/dog")
-         *      .invertPredicate("http://example.org/ownedBy").betweenAny()
-         *  .build()
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .insertPredicate("http://example.org/ownedBy").between("http://example.org/person", "http://example.org/dog")
+         * .invertPredicate("http://example.org/ownedBy").betweenAny()
+         * .build()
          * @exampleLabel invertPredicate
-         * @exampleCommand
-         * Builder.getAdvancedBuilderStream()
-         *      .insertPredicate("http://example.org/ownedBy").between("http://example.org/person", "http://example.org/dog")
-         *      .build()
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .insertPredicate("http://example.org/ownedBy").between("http://example.org/person", "http://example.org/dog")
+         * .build()
          */
-        public BetweenWithWildcard<T> invertPredicate(String predicate){
+        public BetweenWithWildcard<T> invertPredicate(String predicate) {
 
-            if(invertPredicate == null) invertPredicate = new HashMapNoOverwrite<>();
+            if (invertPredicate == null) {
+                invertPredicate = new HashMapNoOverwrite<>();
+            }
 
             Advanced<ResourceType, DataType, T> that = this;
 
-            return new BetweenWithWildcard<T>(){
+            return new BetweenWithWildcard<T>() {
                 @Override
                 public T between(String parent, String child) {
                     invertPredicate.put(predicate, new ParentChild(parent, child));
@@ -577,11 +562,14 @@ public class Builder {
 
         }
 
-        public interface BetweenWithWildcard<TT>{
+        public interface BetweenWithWildcard<TT> {
 
             TT between(String parent, String child);
+
             TT betweenAny();
+
             TT fromAnyParentToChild(String child);
+
             TT fromParentToAnyChild(String parent);
         }
 
@@ -792,6 +780,78 @@ public class Builder {
                 throw new RuntimeException("Attempted to overwrite key: '" + key.toString() + "' with value: '" + value.toString() + "'");
             }
             return super.put(key, value);
+        }
+    }
+
+    private static class HashMapNoOverwriteWithDefaultTwoLevels<Key1, Key2, Value> {
+
+        HashMapNoOverwriteWithDefault<Key1, HashMapNoOverwriteWithDefault<Key2, Value>> internalMap = new HashMapNoOverwriteWithDefault<>();
+
+        Value get(Key1 key1, Key2 key2) {
+            HashMapNoOverwriteWithDefault<Key2, Value> firstLevel = internalMap.get(key1);
+
+            if (firstLevel != null) {
+                return firstLevel.get(key2);
+            }
+
+            return null;
+        }
+
+        void put(Key1 key1, Key2 key2, Value value) {
+            HashMapNoOverwriteWithDefault<Key2, Value> firstLevel = internalMap.get(key1);
+            if (firstLevel == null) {
+                firstLevel = new HashMapNoOverwriteWithDefault<>();
+                internalMap.put(key1, firstLevel);
+            }
+
+            firstLevel.put(key2, value);
+
+        }
+
+        boolean containsKey(Key1 key1, Key2 key2) {
+            return get(key1, key2) != null;
+        }
+
+    }
+
+    private static class HashMapNoOverwriteWithDefault<Key, Value> extends HashMapNoOverwrite<Key, Value> {
+
+        Value defaultValue;
+
+        @Override
+        public boolean containsKey(Object key) {
+
+            if (key == null) {
+                return defaultValue != null;
+            }
+            return super.containsKey(key);
+        }
+
+        @Override
+        public Value get(Object key) {
+            if (key == null) {
+                return defaultValue;
+            }
+
+            Value value = super.get(key);
+
+            return value != null ? value : defaultValue;
+        }
+
+        @Override
+        public Value put(Key key, Value value) {
+            if (key == null) {
+                if (defaultValue == null) {
+                    defaultValue = value;
+                } else {
+                    throw new RuntimeException("Attempted to overwrite defaultValue with value: '" + value.toString() + "'");
+                }
+
+                return defaultValue;
+            } else {
+                return super.put(key, value);
+            }
+
         }
     }
 

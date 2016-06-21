@@ -148,10 +148,8 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         } else {
             out.println(createTriple(pop.uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", pop.type));
             if (pop.parent != null) {
-                String prop = builder.getInsertPredicateBetween(pop.parent.type, pop.type);
-                if (prop == null) {
-                    prop = hasChild;
-                }
+                String prop = builder.getInsertPredicateBetweenOrDefaultPredicate(pop.parent.type, pop.type, hasChild);
+
                 if (builder.checkInvertPredicate(prop, pop.parent.type, pop.type)) {
                     out.println(createTriple(pop.uri, prop, pop.parent.uri));
 

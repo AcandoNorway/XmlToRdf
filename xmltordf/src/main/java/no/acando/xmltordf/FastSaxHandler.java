@@ -68,9 +68,19 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         String fullyQualifiedName = uri + qName;
 
-        if (builder.mapForClasses != null && builder.mapForClasses.containsKey(uri + qName)) {
-            fullyQualifiedName = builder.mapForClasses.get(uri + qName);
+
+        if (builder.mapForClasses != null && builder.mapForClasses.containsKey(uri + localName)) {
+            fullyQualifiedName = builder.mapForClasses.get(uri + localName);
+        }else if(builder.mapForClassesTransform != null){
+            StringTransformTwoValue stringTransformTwoValue = builder.mapForClassesTransform.get(uri + localName);
+            if(stringTransformTwoValue == null){
+                stringTransformTwoValue = builder.mapForClassesTransform.get("");
+            }
+            if(stringTransformTwoValue != null){
+                fullyQualifiedName = stringTransformTwoValue.transform(uri,localName);
+            }
         }
+
 
         final String bnode = "_:index" + index++;
 
