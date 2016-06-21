@@ -152,7 +152,7 @@ Builder.getAdvancedBuilderStream()
 ---
 ## renameElement
 
-Change the name of an element.
+Change the name on the fly using a function. Eg. for capitalizing element names.
 
 **XML example**
 ```xml
@@ -161,11 +161,11 @@ Change the name of an element.
 </people>
 ```
 
-### Rename "people" with "PEOPLE"
+### Capitalize all element names
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .renameElement("http://example.org/people", "http://example.org/PEOPLE")
+   .renameElement(null, (namespace, name) ->  namespace + name.substring(0, 1).toUpperCase() + name.substring(1))
    .build()
 ```
 
@@ -175,8 +175,8 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a        ex:PEOPLE ;
-  ex:name  "John Doe"
+[ a        ex:People ;
+  ex:Name  "John Doe"
 ] .
 
 ```
@@ -421,14 +421,14 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
+
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
         ex:title  "Other record" .
-
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
 
 <http://acme.com/records/0000001>
         a         ex:record ;
@@ -1054,7 +1054,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:397eaf90-14fc-4cd2-a519-7eeb618c3aab
+ex:e071deb5-7ccc-4563-a6b0-2b938291a373
         a        ex:people ;
         ex:name  "John Doe" .
 

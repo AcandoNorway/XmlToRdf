@@ -102,15 +102,15 @@ public class Builder {
 
         /**
          * @param elementFrom The full URI of the element in the XML file
-         * @param transform
+         * @param transform a function that takes the namespace and element name as attributes and returns a new string.
          * @return
-         * @description Change the name of an element.
+         * @description Change the name on the fly using a function. Eg. for capitalizing element names.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel Rename "people" with "PEOPLE"
+         * @exampleLabel Capitalize all element names
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .renameElement("http://example.org/people", "http://example.org/PEOPLE")
+         * .renameElement(null, (namespace, name) ->  namespace + name.substring(0, 1).toUpperCase() + name.substring(1))
          * .build()
          */
         public T renameElement(String elementFrom, StringTransformTwoValue transform) {
@@ -118,6 +118,7 @@ public class Builder {
             if (mapForClassesTransform == null) {
                 mapForClassesTransform = new HashMapNoOverwriteWithDefault<>();
             }
+
             mapForClassesTransform.put(elementFrom, transform);
             return (T) this;
         }
