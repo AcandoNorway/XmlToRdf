@@ -942,7 +942,11 @@ public class Builder {
             HashMapNoOverwriteWithDefault<Key2, Value> firstLevel = internalMap.get(key1);
 
             if (firstLevel != null) {
-                return firstLevel.get(key2);
+                Value value = firstLevel.get(key2);
+                if(value == null){
+                    return internalMap.defaultValue.get(key2);
+                }
+                return value;
             }
 
             return null;

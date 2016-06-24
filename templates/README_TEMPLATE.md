@@ -14,6 +14,18 @@ Java library to convert any XML file to RDF.
 |Sesame convert | 100 MB |  9.811 seconds |
 
 
+### Memory usage
+
+| Method | File size | Memory requirement |
+|--------|---|---|
+|Fast convert | 100 MB | Min: 3 MB; Comfort: 20 MB |
+|Advanced convert | 100 MB |  Min: 15 MB; Comfort 50MB |
+|Jena convert | 100 MB |  Min: 1600 MB; Comfort  |
+|Sesame convert | 100 MB |  9.811 seconds |
+
+Min: Minimum required memory
+Comfort: Amount of memory required to get close to benchmark speeds
+
 Benchmark information
  - *JDK*: JDK 1.8.0_65, VM 25.65-b01
  - *Machine*: Macbook Pro 15" Mid 2015
@@ -29,7 +41,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.0.1</version>
+    <version>1.4.1</version>
 </dependency>
 ```
 
@@ -39,8 +51,8 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=target/xmltordf-1.1.0.jar \
-    -DpomFile=pom.xml \
+    -Dfile=xmltordf/target/xmltordf-1.4.1.jar \
+    -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
 ```

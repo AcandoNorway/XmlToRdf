@@ -14,6 +14,18 @@ Java library to convert any XML file to RDF.
 |Sesame convert | 100 MB |  9.811 seconds |
 
 
+### Memory usage
+
+| Method | File size | Memory requirement |
+|--------|---|---|
+|Fast convert | 100 MB | Min: 3 MB; Comfort: 20 MB |
+|Advanced convert | 100 MB |  Min: 15 MB; Comfort 50MB |
+|Jena convert | 100 MB |  Min: 1600 MB; Comfort  |
+|Sesame convert | 100 MB |  9.811 seconds |
+
+Min: Minimum required memory
+Comfort: Amount of memory required to get close to benchmark speeds
+
 Benchmark information
  - *JDK*: JDK 1.8.0_65, VM 25.65-b01
  - *Machine*: Macbook Pro 15" Mid 2015
@@ -39,8 +51,8 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=target/xmltordf-1.1.0.jar \
-    -DpomFile=pom.xml \
+    -Dfile=xmltordf/target/xmltordf-1.4.0.jar \
+    -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
 ```
@@ -495,10 +507,6 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
@@ -508,6 +516,10 @@ Builder.getAdvancedBuilderStream()
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 ```
 
@@ -1128,7 +1140,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:2e28614a-8750-4a1d-a539-c84cc5f962e4
+ex:2d7fd0f2-ebc5-4a16-ab2b-e0264e46cc30
         a        ex:people ;
         ex:name  "John Doe" .
 

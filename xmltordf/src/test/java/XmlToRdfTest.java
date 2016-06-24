@@ -139,6 +139,19 @@ public class XmlToRdfTest {
 
     }
 
+    @Test
+    public void insertPredicateMatchingDefault() throws ParserConfigurationException, SAXException, IOException {
+        String xmlNameSpace = Arkiv.NS;
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .autoAddSuffixToNamespace("/")
+            .renameElement(xmlNameSpace + "arkiv", Arkiv.Arkiv.toString())
+            .renameElement(xmlNameSpace + "arkivskaper", Arkiv.Arkivskaper.toString())
+            .insertPredicate(Arkiv.arkivskaper.toString()).betweenAnyParentAndSpecificChild(Arkiv.Arkivskaper.toString())
+            .insertPredicate(Arkiv.parent.toString()).between(Arkiv.Arkiv.toString(), Arkiv.Arkiv.toString())
+            .build());
+    }
+
     //TODO: actually create test data
     @Ignore
     @Test
@@ -971,27 +984,30 @@ public class XmlToRdfTest {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
-                if(element.hasChild.size() == 0){
+                if (element.hasChild.size() == 0) {
                     element.type = "http://example.org/HELLO";
 
-                }            })
+                }
+            })
             .build());
 
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
-                if(element.hasChild.size() == 0){
+                if (element.hasChild.size() == 0) {
                     element.type = "http://example.org/HELLO";
 
-                }            })
+                }
+            })
             .build());
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
-                if(element.hasChild.size() == 0){
+                if (element.hasChild.size() == 0) {
                     element.type = "http://example.org/HELLO";
 
-                }            })
+                }
+            })
             .build());
 
     }

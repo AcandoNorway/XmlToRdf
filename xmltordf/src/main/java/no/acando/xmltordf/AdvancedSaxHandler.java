@@ -148,6 +148,9 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         } else {
             out.println(createTriple(pop.uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", pop.type));
             if (pop.parent != null) {
+                if(pop.type.equals("http://www.arkivverket.no/standarder/noark5/arkivstruktur/Arkivskaper")){
+                    System.out.println();
+                }
                 String prop = builder.getInsertPredicateBetweenOrDefaultPredicate(pop.parent.type, pop.type, hasChild);
 
                 if (builder.checkInvertPredicate(prop, pop.parent.type, pop.type)) {
