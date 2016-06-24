@@ -41,7 +41,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.0.1</version>
+    <version>1.4.1</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.0.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.1.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -512,14 +512,14 @@ Builder.getAdvancedBuilderStream()
         ex:nr     "0000002" ;
         ex:title  "Other record" .
 
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
+
 <http://acme.com/records/0000001>
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
-
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
 
 ```
 
@@ -1140,7 +1140,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:2d7fd0f2-ebc5-4a16-ab2b-e0264e46cc30
+ex:5d954218-c539-4e81-97ec-c75d00826e23
         a        ex:people ;
         ex:name  "John Doe" .
 
