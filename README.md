@@ -145,7 +145,7 @@ Repository repository = Builder.getAdvancedBuilderSesame().build().convertToRepo
 
 # Java docs
 
-## overrideNamespace
+## overrideNamespace(String namespace)
 
 Override all namespaces in the XML with a new namespace.
 
@@ -204,7 +204,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## renameElement
+## renameElement(String elementFrom, String to)
 
 Change the name of an element.
 
@@ -236,7 +236,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## renameElement
+## renameElement(String elementFrom, StringTransformTwoValue transform)
 
 Change the name on the fly using a function. Eg. for capitalizing element names.
 
@@ -268,7 +268,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## simpleTypePolicy
+## simpleTypePolicy(SimpleTypePolicy policy)
 
 XML elements with only text inside and no attributes (known as Simple Type elements)
  can be compacted to use the element name as the RDF predicate or be expanded to use the xmlToRdf:hasChild
@@ -325,7 +325,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## addTransformationForAttributeValue
+## addTransformationForAttributeValue(String elementName, String attributeName, StringTransform transform)
 
 Run a function on the value of an attribute and use the returned string as the new value.
  Take careful note of the namespaces. Unless specified, attributes inherit the namespace of their element.
@@ -376,7 +376,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## addIndex
+## addIndex(boolean enabled)
 
 Add the index of the element as a predicate to the RDF. `xmlToRdf:index` is a
  global element counter (depth-first) that keeps track of which absolute element this is. `xmlToRdf:elementIndex` is a
@@ -475,7 +475,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## addUseAttributeForId
+## addUseAttributeForId(String elementName, String attributeName, StringTransform stringTransform)
 
 Use an attribute on an element to generate an identifier for the RDF node.
  Any single attribute can be used, and adding a namespace or a prefix to the ID is simple
@@ -551,7 +551,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## autoAddSuffixToNamespace
+## autoAddSuffixToNamespace(String sign)
 
 Namespaces in RDF typically end in either `/` or `#` unlike in XML where a
  namespace often has no specific suffix. By default a `#` is added to the namespace if
@@ -606,7 +606,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## mapTextInElementToUri
+## mapTextInElementToUri(String elementName, String from, Object to)
 
 Map the text inside an element to a URI.
 
@@ -661,7 +661,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## convertComplexElementsWithOnlyAttributesToPredicates
+## convertComplexElementsWithOnlyAttributesToPredicates(boolean enabled)
 
 Use element name as predicate instead of the rdf:type on complex elements that only contain attributes.
 
@@ -719,7 +719,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## autoAttributeNamespace
+## autoAttributeNamespace(boolean enabled)
 
 Uses the namespace for the element as the namespace for any attributes that lack namespaces. Default: true.
 
@@ -780,7 +780,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## setBaseNamespace
+## setBaseNamespace(String namespace, Builder.AppliesTo which)
 
 Sets a namespace for elements and attributes that lack their own namespace. This is recommended to use
  in order to make sure everything has a namespace in your final RDF.
@@ -849,7 +849,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate
+## convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(boolean enabled)
 
 Use the element name as the predicate rather than the rdf:type of elements that are complex type, but
  only contain simple type elements and/or attributes
@@ -912,7 +912,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## autoTypeLiterals
+## autoTypeLiterals(boolean enabled)
 
 Not implemented fully
 
@@ -986,7 +986,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## insertPredicate
+## insertPredicate(String predicate)
 
 Uses the specified predicate between the parent and the child. Order of application:
  - between("parent", "child")
@@ -1052,7 +1052,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## invertPredicate
+## invertPredicate(String predicate)
 
 Inverts an inserted predicate between two elements, so that the inherit parent -> child relationship is reversed.
  Remember to insert a predicate before trying to invert it.
@@ -1113,7 +1113,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## uuidBasedIdInsteadOfBlankNodes
+## uuidBasedIdInsteadOfBlankNodes(boolean enabled)
 
 By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
  Blank nodes are locally unique, while UUIDs are globally unique. UUIDs take time to generate, depending on your system, and will make the conversion
@@ -1140,7 +1140,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:5d954218-c539-4e81-97ec-c75d00826e23
+ex:275cf361-6962-4db7-98fc-a0ab274520e7
         a        ex:people ;
         ex:name  "John Doe" .
 
@@ -1168,7 +1168,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## setDatatype
+## setDatatype(String element, Object datatype)
 
 Specify the datatype on a Simple Type element. Use a string with AdvancedBuilderStream as the datatype,
  and the respective Sesame or Jena types with AdvancedBuilderSesame and AdvancedBuilderJena.
@@ -1224,7 +1224,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## addComplexElementTransformAtEndOfElement
+## addComplexElementTransformAtEndOfElement(String element, ComplexClassTransform transform)
 
 Do any transformation on an element will full access to information about its attributes and children.
  The transformation is applied when the convertor hits the end element tag.
@@ -1297,7 +1297,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## addComplexElementTransformAtStartOfElement
+## addComplexElementTransformAtStartOfElement(String element, ComplexClassTransform transform)
 
 Do any transformation on an element will full access to information about its attributes but not about it's children.
  The transformation is applied when the convertor finishes processing the attributes at the start of a tag.
@@ -1373,7 +1373,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## resolveAsQnameInAttributeValue
+## resolveAsQnameInAttributeValue(boolean enabled)
 
 Will resolve a qname inside an attribute by expanding it to a full URI as a string.
 
@@ -1432,7 +1432,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## xsiTypeSupport
+## xsiTypeSupport(boolean enabled)
 
 Detects and uses the value in xsi:type attributes as the rdf:type.
 

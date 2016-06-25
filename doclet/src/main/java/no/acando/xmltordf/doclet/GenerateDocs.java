@@ -29,12 +29,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 
 public class GenerateDocs {
-
-	static ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
 
 
 	public static boolean start(RootDoc root) throws FileNotFoundException, ScriptException, ClassNotFoundException, IllegalAccessException, InstantiationException {
@@ -60,8 +60,12 @@ public class GenerateDocs {
 			for (MethodDoc method : methods) {
 				Example currentExample = null;
 				Method currentMethod = new Method();
-				currentMethod.name = method.name();
-
+				Optional<String> reduce = Arrays.stream(method.parameters()).map(p -> p.typeName() +" "+p.name()).reduce((p1, p2) -> p1 + ", " + p2);
+				String sig = "()";
+				if(reduce.isPresent()){
+					sig = "("+reduce.get()+")";
+				}
+				currentMethod.name = method.name() + sig;
 				Tag[] tags = method.tags();
 				for (Tag tag : tags) {
 
