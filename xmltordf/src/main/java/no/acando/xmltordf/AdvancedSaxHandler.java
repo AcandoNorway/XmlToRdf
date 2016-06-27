@@ -24,7 +24,6 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.*;
 
-import static no.acando.xmltordf.Common.seperator;
 import static no.acando.xmltordf.XmlToRdfVocabulary.hasChild;
 import static no.acando.xmltordf.XmlToRdfVocabulary.hasValue;
 
@@ -97,13 +96,21 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         builder.doComplexTransformElementAtEndOfElement(pop);
 
-        if (builder.convertComplexElementsWithOnlyAttributesToPredicates && pop.hasChild.isEmpty() && pop.parent != null) {
-            pop.shallow = true;
+        if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(pop.type)) {
+
+            pop.hasChild.stream()
+                    .forEach(child -> out.println(createTriple(pop.parent.uri, pop.type, child.uri)));
+
+            return;
         }
 
-        if (builder.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate && !pop.shallow) {
-            if (pop.hasChild.stream().filter((element -> !element.autoDetectedAsLiteralProperty)).count() == 0) {
+        if (pop.parent != null && !pop.parent.useElementAsPredicate) {
+            if (builder.convertComplexElementsWithOnlyAttributesToPredicates && pop.hasChild.isEmpty()) {
                 pop.shallow = true;
+            } else if (builder.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate) {
+                if (pop.hasChild.stream().filter((element -> !element.autoDetectedAsLiteralProperty)).count() == 0) {
+                    pop.shallow = true;
+                }
             }
         }
 
@@ -160,8 +167,8 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
         } else {
             out.println(createTriple(pop.uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", pop.type));
-            if (pop.parent != null) {
-                if(pop.type.equals("http://www.arkivverket.no/standarder/noark5/arkivstruktur/Arkivskaper")){
+            if (pop.parent != null && !pop.parent.useElementAsPredicate) {
+                if (pop.type.equals("http://www.arkivverket.no/standarder/noark5/arkivstruktur/Arkivskaper")) {
                     System.out.println();
                 }
                 String prop = builder.getInsertPredicateBetweenOrDefaultPredicate(pop.parent.type, pop.type, hasChild);
@@ -248,10 +255,10 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         boolean mixedContent =  detectMixedContent();
 
-        if(builder.xsiTypeSupport && attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null){
+        if (builder.xsiTypeSupport && attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
             String type = attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type");
 
-            if(type.contains(":")){
+            if (type.contains(":")) {
                 String[] split = type.split(":");
                 namespace = prefixUriMap.get(split[0]);
                 localName = split[1];
@@ -260,6 +267,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
 
         }
+
 
         Element element = new Element();
         element.index = index++;
@@ -283,7 +291,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         if (!elementStack.isEmpty()) {
             parent = elementStack.peek();
-            if(builder.addIndex){
+            if (builder.addIndex) {
                 element.elementIndex = parent.indexMap.plusPlus(element.type);
 //                element.elementIndex =  parent.hasChild.stream().filter(e -> e.type.equals(element.type)).count();
             }
@@ -296,6 +304,10 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         handleAttributes(namespace, attributes, element);
 
         element.parent = parent;
+
+        if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(element.type)) {
+            element.useElementAsPredicate = true;
+        }
 
         builder.doComplexTransformElementAtStartOfElement(element);
 
@@ -311,7 +323,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             String nameAttr = attributes.getLocalName(i);
             String valueAttr = attributes.getValue(i);
 
-            if(builder.xsiTypeSupport && uriAttr.equals("http://www.w3.org/2001/XMLSchema-instance") && nameAttr.equals("type")){
+            if (builder.xsiTypeSupport && uriAttr.equals("http://www.w3.org/2001/XMLSchema-instance") && nameAttr.equals("type")) {
                 continue;
             }
 
@@ -319,13 +331,13 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
             valueAttr = builder.doTransformForAttribute(element.type, uriAttr + nameAttr, valueAttr);
 
-            if(builder.resolveAsQnameInAttributeValue && valueAttr.contains(":")){
+            if (builder.resolveAsQnameInAttributeValue && valueAttr.contains(":")) {
                 String[] split = valueAttr.split(":");
                 split[0] = prefixUriMap.get(split[0]);
                 valueAttr = String.join("", split);
             }
 
-            builder.useAttributedForId(element.type, uriAttr+nameAttr, valueAttr, element);
+            builder.useAttributedForId(element.type, uriAttr + nameAttr, valueAttr, element);
 
             element.properties.add(new Property(uriAttr, nameAttr, valueAttr));
 
@@ -370,13 +382,13 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     private void renameElement(String uri, String localName, Element element) {
         if (builder.renameElementMap != null && builder.renameElementMap.containsKey(uri + localName)) {
             element.type = builder.renameElementMap.get(uri + localName);
-        }else if(builder.renameElementFunctionMap != null){
+        } else if (builder.renameElementFunctionMap != null) {
             StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
-            if(stringTransformTwoValue == null){
+            if (stringTransformTwoValue == null) {
                 stringTransformTwoValue = builder.renameElementFunctionMap.get("");
             }
-            if(stringTransformTwoValue != null){
-                element.type = stringTransformTwoValue.transform(uri,localName);
+            if (stringTransformTwoValue != null) {
+                element.type = stringTransformTwoValue.transform(uri, localName);
             }
         }
     }
@@ -410,7 +422,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         return false;
     }
 
-    public boolean isBlankNode(String node) {
+    boolean isBlankNode(String node) {
         return node.startsWith(Common.BLANK_NODE_PREFIX);
     }
 

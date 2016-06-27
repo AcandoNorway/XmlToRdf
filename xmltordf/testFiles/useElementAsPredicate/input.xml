@@ -1,0 +1,9 @@
+<result xmlns="http://example.org/">
+    <entries>
+        <entry>
+            <nkode1>84.130</nkode1>
+            <ansatte_dato>22.08.2015</ansatte_dato>
+            <organisasjonsform>ORGL</organisasjonsform>
+        </entry>
+    </entries>
+</result>

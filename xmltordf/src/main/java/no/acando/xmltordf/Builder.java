@@ -341,6 +341,7 @@ public class Builder {
 
         private Map<String, ComplexClassTransform> complexElementTransformAtEndOfElement = null;
         private Map<String, ComplexClassTransform> complexElementTransformAtStartOfElement = null;
+        Map<String, String> useElementAsPredicateMap = null;
 
         Map<String, String> skipElementMap = null;
 
@@ -673,6 +674,16 @@ public class Builder {
             return (T) this;
         }
 
+
+        public T useElementAsPredicate(String elementName) {
+            if(useElementAsPredicateMap == null){
+                useElementAsPredicateMap = new HashMap<>();
+            }
+
+            useElementAsPredicateMap.put(elementName, elementName);
+
+            return (T) this;
+        }
 
         public interface BetweenWithWildcard<TT> {
 
