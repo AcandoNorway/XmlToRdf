@@ -1061,6 +1061,23 @@ public class XmlToRdfTest {
 
     }
 
+    @Test
+    public void skipElement() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .skipElement("http://example.org/B")
+            .build());
+
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .skipElement("http://example.org/B")
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .skipElement("http://example.org/B")
+            .build());
+    }
+
     private void testAdvancedJena(XmlToRdfAdvancedJena build) throws IOException, ParserConfigurationException, SAXException {
         TestFiles testFiles = getTestFiles();
 

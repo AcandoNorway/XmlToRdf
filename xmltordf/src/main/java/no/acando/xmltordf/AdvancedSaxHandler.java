@@ -39,6 +39,9 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     private long uriCounter = 0;
     private long index = 0;
 
+    private Element skipElementUntil = null;
+    static final Element skippableElement = new Element();
+
     public AdvancedSaxHandler(OutputStream out, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         if (out != null) {
             this.out = new PrintStream(out);
@@ -78,9 +81,19 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
     //TODO: this method is enormous, consider breaking it down
     @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
+    public void endElement(String namespace, String localName, String qName) throws SAXException {
 
         Element pop = elementStack.pop();
+
+        if (pop == skippableElement) {
+            return;
+        }
+        else if (skipElementUntil != null) {
+            if (pop == skipElementUntil) {
+                skipElementUntil = null;
+                return;
+            }
+        }
 
         builder.doComplexTransformElementAtEndOfElement(pop);
 
@@ -228,6 +241,11 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     @Override
     public void startElement(String namespace, String localName, String qName, Attributes attributes) throws SAXException {
 
+        if (skipElementUntil != null) {
+            elementStack.push(skippableElement);
+            return;
+        }
+
         boolean mixedContent =  detectMixedContent();
 
         if(builder.xsiTypeSupport && attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null){
@@ -237,7 +255,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                 String[] split = type.split(":");
                 namespace = prefixUriMap.get(split[0]);
                 localName = split[1];
-            }else{
+            } else {
                 localName = type;
             }
 
@@ -250,6 +268,12 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         namespace = calculateNamespace(namespace);
 
         element.type = namespace + localName;
+
+        if (builder.skipElementMap != null && builder.skipElementMap.containsKey(element.type)) {
+            skipElementUntil = element;
+            elementStack.push(element);
+            return;
+        }
 
         renameElement(namespace, localName, element);
 

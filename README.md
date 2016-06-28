@@ -41,7 +41,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.1</version>
+    <version>1.4.2</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.1.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.2.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -835,12 +835,12 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  <file:///Users/havardottestad/Documents/Java/xmlToRdf2/people> ;
+[ a                  <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/people> ;
   xmlToRdf:hasChild  [ a                       <http://other.org/name> ;
                        xmlToRdf:hasValue       "Unknown" ;
                        <http://other.org/age>  "2"
                      ] ;
-  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Java/xmlToRdf2/name> ;
+  xmlToRdf:hasChild  [ a                       <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/name> ;
                        xmlToRdf:hasValue       "John Doe" ;
                        <http://other.org/age>  "1"
                      ]
@@ -1113,6 +1113,60 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
+## skipElement(String elementName)
+
+Skip and element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
+
+**XML example**
+```xml
+<people xmlns="http://example.org/">
+  <person>
+    <name>John Doe</name>
+  </person>
+</people>
+```
+
+### Skip `person` with subtree.
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .skipElement("http://example.org/person")
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a       ex:people ] .
+
+```
+
+---
+### Without skipping any elements
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                  ex:people ;
+  xmlToRdf:hasChild  [ a        ex:person ;
+                       ex:name  "John Doe"
+                     ]
+] .
+
+```
+
+---
 ## uuidBasedIdInsteadOfBlankNodes(boolean enabled)
 
 By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
@@ -1140,7 +1194,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:275cf361-6962-4db7-98fc-a0ab274520e7
+ex:ee604da9-3a02-4eea-b4ad-2c075367904c
         a        ex:people ;
         ex:name  "John Doe" .
 

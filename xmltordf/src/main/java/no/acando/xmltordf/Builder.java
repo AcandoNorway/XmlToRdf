@@ -342,6 +342,8 @@ public class Builder {
         private Map<String, ComplexClassTransform> complexElementTransformAtEndOfElement = null;
         private Map<String, ComplexClassTransform> complexElementTransformAtStartOfElement = null;
 
+        Map<String, String> skipElementMap = null;
+
 
         /**
          * @param elementName Full URI of element name
@@ -643,6 +645,33 @@ public class Builder {
 
         }
 
+        /**
+         * @param elementName The fully URI of the element.
+         * @return
+         * @description Skip and element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
+         * @xml <people xmlns="http://example.org/">
+         * <person>
+         *     <name>John Doe</name>
+         * </person>
+         * </people>
+         * @exampleLabel Skip `person` with subtree.
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .skipElement("http://example.org/person")
+         * .build()
+         * @exampleLabel Without skipping any elements
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
+        public T skipElement(String elementName) {
+
+            if (skipElementMap == null) {
+                skipElementMap = new HashMap<>();
+            }
+
+            skipElementMap.put(elementName, elementName);
+
+            return (T) this;
+        }
 
 
         public interface BetweenWithWildcard<TT> {
