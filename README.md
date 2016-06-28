@@ -41,7 +41,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.2</version>
+    <version>1.4.3</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.2.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.3.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -507,14 +507,14 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
+
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
         ex:title  "Other record" .
-
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
 
 <http://acme.com/records/0000001>
         a         ex:record ;
@@ -835,12 +835,12 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/people> ;
+[ a                  <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/people> ;
   xmlToRdf:hasChild  [ a                       <http://other.org/name> ;
                        xmlToRdf:hasValue       "Unknown" ;
                        <http://other.org/age>  "2"
                      ] ;
-  xmlToRdf:hasChild  [ a                       <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/name> ;
+  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/name> ;
                        xmlToRdf:hasValue       "John Doe" ;
                        <http://other.org/age>  "1"
                      ]
@@ -1167,6 +1167,93 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
+## useElementAsPredicate(String elementName)
+
+Create a predicate between the parent and the children elements of an element instead of a node. The element name is used as the
+ predicate URI. Elements used as predicates should be complex elements without any attributes (the converter will skip any attributes). It is also
+ recommended to only use elements as predicates where the child elements are all complex.
+
+**XML example**
+```xml
+<people xmlns="http://example.org/">
+  <person>
+    <name>John Doe</name>
+    <friends>
+      <friend>
+        <name>Jane Doe</name>
+      </friend>
+      <friend>
+        <name>John Smith</name>
+      </friend>
+      <numberOfFriends>2</numberOfFriends>
+    </friends>
+  </person>
+</people>
+```
+
+### Use `friends` as a predicate between `person` and `friend`
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .useElementAsPredicate("http://example.org/friends")
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                  ex:people ;
+  xmlToRdf:hasChild  [ a           ex:person ;
+                       ex:friends  [ a                  ex:numberOfFriends ;
+                                     xmlToRdf:hasValue  "2"
+                                   ] ;
+                       ex:friends  [ a        ex:friend ;
+                                     ex:name  "John Smith"
+                                   ] ;
+                       ex:friends  [ a        ex:friend ;
+                                     ex:name  "Jane Doe"
+                                   ] ;
+                       ex:name     "John Doe"
+                     ]
+] .
+
+```
+
+---
+### `friends` becomes a blank node by default
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                  ex:people ;
+  xmlToRdf:hasChild  [ a                  ex:person ;
+                       xmlToRdf:hasChild  [ a                   ex:friends ;
+                                            xmlToRdf:hasChild   [ a        ex:friend ;
+                                                                  ex:name  "John Smith"
+                                                                ] ;
+                                            xmlToRdf:hasChild   [ a        ex:friend ;
+                                                                  ex:name  "Jane Doe"
+                                                                ] ;
+                                            ex:numberOfFriends  "2"
+                                          ] ;
+                       ex:name            "John Doe"
+                     ]
+] .
+
+```
+
+---
 ## uuidBasedIdInsteadOfBlankNodes(boolean enabled)
 
 By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
@@ -1194,7 +1281,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:ee604da9-3a02-4eea-b4ad-2c075367904c
+ex:2f998bf8-932d-4270-a222-7ffece27b510
         a        ex:people ;
         ex:name  "John Doe" .
 

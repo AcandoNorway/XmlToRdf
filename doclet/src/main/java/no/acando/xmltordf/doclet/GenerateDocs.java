@@ -22,8 +22,6 @@ import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.Tag;
 
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -37,69 +35,69 @@ import java.util.Optional;
 public class GenerateDocs {
 
 
-	public static boolean start(RootDoc root) throws FileNotFoundException, ScriptException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+    public static boolean start(RootDoc root) throws FileNotFoundException, ScriptException, ClassNotFoundException, IllegalAccessException, InstantiationException {
 
 
-		File file = new File("javadoc.json");
-		PrintWriter printWriter = new PrintWriter(file);
+        File file = new File("javadoc.json");
+        PrintWriter printWriter = new PrintWriter(file);
 
-		ClassDoc builder = root.classNamed("no.acando.xmltordf.Builder");
-		if (builder == null) {
-			return true;
-		}
+        ClassDoc builder = root.classNamed("no.acando.xmltordf.Builder");
+        if (builder == null) {
+            return true;
+        }
 
-		ClassDoc[] classDocs = builder.innerClasses(false);
+        ClassDoc[] classDocs = builder.innerClasses(false);
 
-		List<Method> documentation = new ArrayList<>();
+        List<Method> documentation = new ArrayList<>();
 
-		for (ClassDoc classDoc : classDocs) {
+        for (ClassDoc classDoc : classDocs) {
 
-			MethodDoc[] methods = classDoc.methods();
-
-
-			for (MethodDoc method : methods) {
-				Example currentExample = null;
-				Method currentMethod = new Method();
-				Optional<String> reduce = Arrays.stream(method.parameters()).map(p -> p.typeName() +" "+p.name()).reduce((p1, p2) -> p1 + ", " + p2);
-				String sig = "()";
-				if(reduce.isPresent()){
-					sig = "("+reduce.get()+")";
-				}
-				currentMethod.name = method.name() + sig;
-				Tag[] tags = method.tags();
-				for (Tag tag : tags) {
-
-					if (tag.name().equals("@description")) {
-						currentMethod.description = tag.text().trim();
-					}
-
-					if (tag.name().equals("@xml")) {
-						currentExample = new Example();
-						currentMethod.addExample(currentExample);
-						currentExample.xml = tag.text().trim();
-					}
-
-					if (tag.name().equals("@exampleLabel")) {
-						currentExample.addExampleLabel(tag.text().trim());
-					}
-					if (tag.name().equals("@exampleCommand")) {
-						currentExample.addExampleCommand(tag.text().trim());
-					}
-				}
-				if (!currentMethod.examples.isEmpty()) {
-					documentation.add(currentMethod);
-				}
-
-			}
-		}
+            MethodDoc[] methods = classDoc.methods();
 
 
-		printWriter.println(new GsonBuilder().setPrettyPrinting().create().toJson(documentation));
-		printWriter.close();
-		System.out.println("done");
+            for (MethodDoc method : methods) {
+                Example currentExample = null;
+                Method currentMethod = new Method();
+                Optional<String> reduce = Arrays.stream(method.parameters()).map(p -> p.typeName() + " " + p.name()).reduce((p1, p2) -> p1 + ", " + p2);
+                String sig = "()";
+                if (reduce.isPresent()) {
+                    sig = "(" + reduce.get() + ")";
+                }
+                currentMethod.name = method.name() + sig;
+                Tag[] tags = method.tags();
+                for (Tag tag : tags) {
 
-		return true;
-	}
+                    if (tag.name().equals("@description")) {
+                        currentMethod.description = tag.text().trim();
+                    }
+
+                    if (tag.name().equals("@xml")) {
+                        currentExample = new Example();
+                        currentMethod.addExample(currentExample);
+                        currentExample.xml = tag.text().trim();
+                    }
+
+                    if (tag.name().equals("@exampleLabel")) {
+                        currentExample.addExampleLabel(tag.text().trim());
+                    }
+                    if (tag.name().equals("@exampleCommand")) {
+                        currentExample.addExampleCommand(tag.text().trim());
+                    }
+                }
+                if (!currentMethod.examples.isEmpty()) {
+                    documentation.add(currentMethod);
+                }
+
+            }
+        }
+
+
+        printWriter.println(new GsonBuilder().setPrettyPrinting().create().toJson(documentation));
+        printWriter.close();
+        System.out.println("done");
+
+        return true;
+    }
 
 
 }
