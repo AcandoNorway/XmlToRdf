@@ -112,6 +112,13 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                     pop.shallow = true;
                 }
             }
+
+            if(pop.shallow){
+                if(builder.getInsertPredicateBetweenOrDefaultPredicate(pop.parent.type, pop.type, hasChild) != hasChild){
+                    pop.shallow = false;
+                }
+
+            }
         }
 
         if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.properties.isEmpty() && pop.parent != null && pop.parent.mixedContent.isEmpty() && !pop.parent.useElementAsPredicate) {
