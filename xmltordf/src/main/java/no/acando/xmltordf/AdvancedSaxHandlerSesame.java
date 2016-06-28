@@ -102,14 +102,10 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         Resource subjectNode = getResource(subject);
         Resource objectNode = getResource(object);
 
-        try {
-            queue.put(valueFactory.createStatement(subjectNode, predicateNode, objectNode));
-        } catch (InterruptedException interruptedException) {
-            //TODO: handle or throw this
-            interruptedException.printStackTrace();
-        }
+        putTripleOnQueue(subjectNode, predicateNode, objectNode);
 
-        return null;
+
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
@@ -118,20 +114,15 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
 
-        try {
-            queue.put(valueFactory.createStatement(subjectNode, predicateNode, objectNode));
-        } catch (InterruptedException interruptedException) {
-            //TODO: handle or throw this
-            interruptedException.printStackTrace();
-        }
+        putTripleOnQueue(subjectNode, predicateNode, objectNode);
 
-        return null;
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
     public String createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
         if (objectLiteral == null) {
-            return null;
+            return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
         }
 
         IRI predicateNode = valueFactory.createIRI(predicate);
@@ -139,19 +130,14 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
         Literal literal = valueFactory.createLiteral(objectLiteral, datatype);
 
-        try {
-            queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));
-        } catch (InterruptedException interruptedException) {
-            //TODO: handle or throw this
-            interruptedException.printStackTrace();
-        }
+        putTripleOnQueue(subjectNode, predicateNode, literal);
 
-        return null;
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
     }
 
     public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
         if (objectLiteral == null) {
-            return null;
+            return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
         }
 
         IRI predicateNode = valueFactory.createIRI(predicate);
@@ -186,14 +172,10 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         }
 
 
-        try {
-            queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));
-        } catch (InterruptedException e) {
-            //TODO: handle or throw this
-            e.printStackTrace();
-        }
+        putTripleOnQueue(subjectNode, predicateNode, literal);
 
-        return null;
+
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
@@ -204,14 +186,11 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
         Literal literal = valueFactory.createLiteral(objectLong);
 
-        try {
-            queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));
-        } catch (InterruptedException e) {
-            //TODO: handle or throw this
-            e.printStackTrace();
-        }
 
-        return null;
+        putTripleOnQueue(subjectNode, predicateNode, literal);
+
+
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
@@ -243,22 +222,18 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
         Model mixedContentModel = RDFCollections.asRDF(collect, head, new LinkedHashModel());
 
-        try {
-            queue.put(valueFactory.createStatement(subjectNode, predicateNode, head));
-        } catch (InterruptedException interruptedException) {
-            //TODO: handle or throw this
-            interruptedException.printStackTrace();
-        }
+        putTripleOnQueue(subjectNode, predicateNode, head);
+
         mixedContentModel.forEach(statement -> {
             try {
                 queue.put(statement);
             } catch (InterruptedException interruptedException) {
-                //TODO: handle or throw this
-                interruptedException.printStackTrace();
+                throw new RuntimeException(interruptedException);
+
             }
         });
 
-        return null;
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
     }
 
     @Override
@@ -269,13 +244,13 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         try {
             queue.put(EndOfFileStatement);
         } catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
+            throw new RuntimeException(interruptedException);
         }
 
         try {
             repoThread.join();
         } catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
+            throw new RuntimeException(interruptedException);
         }
     }
 
@@ -284,6 +259,17 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
             return valueFactory.createIRI(subject);
         } else {
             return valueFactory.createBNode(subject);
+        }
+    }
+
+
+    private void putTripleOnQueue(Resource subject, IRI predicate, Value object) {
+        try {
+            Statement statement = valueFactory.createStatement(subject, predicate, object);
+            queue.put(statement);
+        } catch (InterruptedException interruptedException) {
+            throw new RuntimeException(interruptedException);
+
         }
     }
 

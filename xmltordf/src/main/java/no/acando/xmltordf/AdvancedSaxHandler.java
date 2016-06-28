@@ -86,8 +86,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         if (pop == skippableElement) {
             return;
-        }
-        else if (skipElementUntil != null) {
+        } else if (skipElementUntil != null) {
             if (pop == skipElementUntil) {
                 skipElementUntil = null;
                 return;
@@ -101,7 +100,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(pop.type)) {
 
             pop.hasChild.stream()
-                    .forEach(child -> out.println(createTriple(pop.parent.uri, pop.type, child.uri)));
+                .forEach(child -> out.println(createTriple(pop.parent.uri, pop.type, child.uri)));
 
             return;
         }
@@ -115,8 +114,8 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                 }
             }
 
-            if(pop.shallow){
-                if(builder.getInsertPredicateBetweenOrDefaultPredicate(pop.parent.type, pop.type, hasChild) != hasChild){
+            if (pop.shallow) {
+                if (builder.getInsertPredicateBetweenOrDefaultPredicate(pop.parent.type, pop.type, hasChild) != hasChild) {
                     pop.shallow = false;
                 }
 
@@ -163,10 +162,18 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
                     }
                 }
             }
-            pop.properties.stream().forEach((property) -> {
-                if (property.value != null) {
+            pop.properties.stream().filter(property -> property != null).forEach((property) -> {
+
+                ResourceType uriForTextInAttribute = builder.getUriForTextInAttribute(pop.type, property.uriAttr + property.qname, property.value);
+                if (uriForTextInAttribute != null) {
+                    out.println(createTriple(pop.uri, property.uriAttr + property.qname, uriForTextInAttribute));
+
+                } else {
                     out.println(createTripleLiteral(pop.uri, property.uriAttr + property.qname, property.value));
+
                 }
+
+
             });
 
             if (builder.addIndex) {
@@ -217,7 +224,14 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
             pop.properties.stream().forEach((property) -> {
                 if (property.value != null) {
-                    out.println(createTripleLiteral(pop.uri, property.uriAttr + property.qname, property.value));
+                    ResourceType uriForTextInAttribute = builder.getUriForTextInAttribute(pop.type, property.uriAttr + property.qname, property.value);
+                    if (uriForTextInAttribute != null) {
+                        out.println(createTriple(pop.uri, property.uriAttr + property.qname, uriForTextInAttribute));
+
+                    } else {
+                        out.println(createTripleLiteral(pop.uri, property.uriAttr + property.qname, property.value));
+
+                    }
                 }
             });
 

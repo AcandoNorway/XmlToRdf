@@ -1136,6 +1136,21 @@ public class XmlToRdfTest {
             .skipElement("http://example.org/B")
             .build());
     }
+    @Test
+    public void mapAttributeTextToResource() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", SimpleValueFactory.getInstance().createIRI("http://http://example.org/c"))
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", NodeFactory.createURI("http://http://example.org/c"))
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", "http://http://example.org/c")
+            .build());
+    }
 
 
     @Test
@@ -1178,7 +1193,6 @@ public class XmlToRdfTest {
         Model actualModelJena = build.convertToDataset(new FileInputStream(testFiles.xml)).getDefaultModel();
 
         Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
-
 
 
         if (!expectedModel.isIsomorphicWith(actualModelJena)) {

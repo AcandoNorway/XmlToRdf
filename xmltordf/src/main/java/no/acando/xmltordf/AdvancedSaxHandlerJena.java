@@ -19,19 +19,15 @@ package no.acando.xmltordf;
 import org.apache.jena.atlas.io.NullOutputStream;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
-import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.impl.GraphWithPerform;
-import org.apache.jena.graph.impl.LiteralLabelFactory;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.sparql.util.DateTimeStruct;
 import org.apache.jena.vocabulary.XSD;
 import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.XMLSchema;
 import org.xml.sax.SAXException;
 
 import java.time.LocalDate;
@@ -93,7 +89,6 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
     }
 
 
-    //TODO: this always returns null, what up?
     public String createTriple(String subject, String predicate, String object) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
@@ -103,31 +98,29 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         subjectNode = getNode(subject);
         objectNode = getNode(object);
 
-        addTripleToQueue(predicateNode, subjectNode, objectNode);
+        addTripleToQueue(subjectNode, predicateNode, objectNode);
 
-        return null;
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
 
-    //TODO: this always returns null, what up?
     public String createTriple(String subject, String predicate, Node objectNode) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
 
         subjectNode = getNode(subject);
-        addTripleToQueue(predicateNode, subjectNode, objectNode);
+        addTripleToQueue(subjectNode, predicateNode, objectNode);
 
-        return null;
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
 
-    //TODO: this always returns null, what up?
     public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
         if (objectLiteral == null) {
-            return null;
+            return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
         }
 
         Node predicateNode = NodeFactory.createURI(predicate);
@@ -146,14 +139,14 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
                     Double.parseDouble(objectLiteral);
                     literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdecimal);
                 } catch (NumberFormatException e2) {
-                    try{
+                    try {
                         LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
                         literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdateTime);
-                    }catch (DateTimeParseException e3){
-                        try{
+                    } catch (DateTimeParseException e3) {
+                        try {
                             LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
                             literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdate);
-                        }catch (DateTimeParseException e4){
+                        } catch (DateTimeParseException e4) {
                             literal = NodeFactory.createLiteral(objectLiteral, null, false);
                         }
                     }
@@ -164,16 +157,16 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         }
 
 
-        addTripleToQueue(predicateNode, subjectNode, literal);
+        addTripleToQueue(subjectNode, predicateNode, literal);
 
-        return null;
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
-    //TODO: this always returns null, what up?
+
     public String createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
         if (objectLiteral == null) {
-            return null;
+            return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
         }
 
         Node predicateNode = NodeFactory.createURI(predicate);
@@ -183,13 +176,13 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
         Node literal = NodeFactory.createLiteral(objectLiteral, datatype);
 
-        addTripleToQueue(predicateNode, subjectNode, literal);
+        addTripleToQueue(subjectNode, predicateNode, literal);
 
-        return null;
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
-    //TODO: this always returns null, what up?
+
     public String createTripleLiteral(String subject, String predicate, long objectLong) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
@@ -198,9 +191,9 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         subjectNode = getNode(subject);
         Node literal = NodeFactory.createLiteral(objectLong + "", XSDDatatype.XSDlong);
 
-        addTripleToQueue(predicateNode, subjectNode, literal);
+        addTripleToQueue(subjectNode, predicateNode, literal);
 
-        return null;
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
@@ -242,22 +235,13 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
                 if (head[0] == null) {
                     head[0] = blankNode;
-                    try {
-                        queue.put(new Triple(head[0], RDF_FIRST, value));
-                    } catch (InterruptedException e) {
-                        //TODO: handle or throw up the stack
-                        e.printStackTrace();
-                    }
+
+                    addTripleToQueue(head[0], RDF_FIRST, value);
 
                 } else {
-                    try {
-                        queue.put(new Triple(temporaryNode[0], RDF_REST, blankNode));
-                        queue.put(new Triple(blankNode, RDF_FIRST, value));
 
-                    } catch (InterruptedException e) {
-                        //TODO: handle or throw up the stack
-                        e.printStackTrace();
-                    }
+                    addTripleToQueue(temporaryNode[0], RDF_REST, blankNode);
+                    addTripleToQueue(blankNode, RDF_FIRST, value);
 
                 }
 
@@ -265,25 +249,20 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
             });
 
-        try {
-            queue.put(new Triple(temporaryNode[0], RDF_REST, RDF_NIL));
-            queue.put(new Triple(subjectNode, predicateNode, head[0]));
 
-        } catch (InterruptedException e) {
-            //TODO: handle or throw up the stack
-            e.printStackTrace();
-        }
+        addTripleToQueue(temporaryNode[0], RDF_REST, RDF_NIL);
+        addTripleToQueue(subjectNode, predicateNode, head[0]);
 
-        return null;
+
+        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
     }
 
-    private void addTripleToQueue(Node predicateNode, Node subjectNode, Node objectNode) {
+    private void addTripleToQueue(Node subjectNode, Node predicateNode, Node objectNode) {
         Triple triple = new Triple(subjectNode, predicateNode, objectNode);
         try {
             queue.put(triple);
         } catch (InterruptedException e) {
-            //TODO: handle this or throw it up the stack
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

@@ -23,8 +23,6 @@ import org.openrdf.model.IRI;
 import java.util.HashMap;
 import java.util.Map;
 
-import static no.acando.xmltordf.Common.seperator;
-
 public class Builder {
 
     //TODO: consider abstracting some of this out to their own class files
@@ -102,7 +100,7 @@ public class Builder {
 
         /**
          * @param elementFrom The full URI of the element in the XML file
-         * @param transform a function that takes the namespace and element name as attributes and returns a new string.
+         * @param transform   a function that takes the namespace and element name as attributes and returns a new string.
          * @return
          * @description Change the name on the fly using a function. Eg. for capitalizing element names.
          * @xml <people xmlns="http://example.org/">
@@ -200,7 +198,7 @@ public class Builder {
     static private class DefaultWithAddIndex<T extends DefaultWithAddIndex<T>> extends Default<T> {
         boolean addIndex;
 
-        HashMapNoOverwriteWithDefaultTwoLevels <String, String, StringTransform> useAttributedForIdMap;
+        HashMapNoOverwriteWithDefaultTwoLevels<String, String, StringTransform> useAttributedForIdMap;
         String autoAddSuffixToNamespace = "#";
 
         /**
@@ -263,24 +261,24 @@ public class Builder {
          * .build()
          */
         public T addUseAttributeForId(String elementName, String attributeName, StringTransform stringTransform) {
-            if(useAttributedForIdMap == null){
+            if (useAttributedForIdMap == null) {
                 useAttributedForIdMap = new HashMapNoOverwriteWithDefaultTwoLevels<>();
 
             }
-            useAttributedForIdMap.put(elementName , attributeName, stringTransform);
+            useAttributedForIdMap.put(elementName, attributeName, stringTransform);
 
             return (T) this;
         }
 
 
-         void useAttributedForId(String type, String s, String value, Element element) {
-                if(useAttributedForIdMap != null){
+        void useAttributedForId(String type, String s, String value, Element element) {
+            if (useAttributedForIdMap != null) {
 
-                    StringTransform stringTransform = useAttributedForIdMap.get(type, s);
-                    if(stringTransform != null){
-                        element.uri = stringTransform.transform(value);
-                    }
+                StringTransform stringTransform = useAttributedForIdMap.get(type, s);
+                if (stringTransform != null) {
+                    element.uri = stringTransform.transform(value);
                 }
+            }
         }
 
         /**
@@ -336,6 +334,8 @@ public class Builder {
         private HashMapNoOverwriteWithDefaultTwoLevels<String, String, String> insertPredicateBetween = null;
         Map<String, DataType> dataTypeOnElement = null;
         Map<String, Map<String, ResourceType>> literalMap = null;
+        private HashMapNoOverwriteWithDefaultTwoLevels<String, String, HashMapNoOverwrite<String, ResourceType>> elementAttributeTextToUriMap = null;
+
         boolean resolveAsQnameInAttributeValue;
         boolean xsiTypeSupport;
 
@@ -378,6 +378,32 @@ public class Builder {
 
 
             return (T) this;
+        }
+
+        public T mapTextInAttributeToUri(String elementName, String attributeName, String from, ResourceType to) {
+
+                ;
+            if (elementAttributeTextToUriMap == null) {
+                elementAttributeTextToUriMap = new HashMapNoOverwriteWithDefaultTwoLevels<>();
+            }
+
+            if (!elementAttributeTextToUriMap.containsKey(elementName, attributeName)) {
+                elementAttributeTextToUriMap.put(elementName, attributeName, new HashMapNoOverwrite<String, ResourceType>());
+            }
+
+            elementAttributeTextToUriMap.get(elementName, attributeName).put(from, to);
+
+            return (T) this;
+        }
+
+        ResourceType getUriForTextInAttribute(String elementName, String attributeName, String text) {
+            if (elementAttributeTextToUriMap == null) {
+                return null;
+            }
+
+            HashMapNoOverwrite<String, ResourceType> innerMap = elementAttributeTextToUriMap.get(elementName, attributeName);
+
+            return innerMap != null ? innerMap.get(text) : null;
         }
 
 
@@ -653,7 +679,7 @@ public class Builder {
          * @description Skip and element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
          * @xml <people xmlns="http://example.org/">
          * <person>
-         *     <name>John Doe</name>
+         * <name>John Doe</name>
          * </person>
          * </people>
          * @exampleLabel Skip `person` with subtree.
@@ -683,16 +709,16 @@ public class Builder {
          * recommended to only use elements as predicates where the child elements are all complex.
          * @xml <people xmlns="http://example.org/">
          * <person>
-         *     <name>John Doe</name>
-         *     <friends>
-         *         <friend>
-         *             <name>Jane Doe</name>
-         *         </friend>
-        *           <friend>
-         *             <name>John Smith</name>
-         *         </friend>
-         *         <numberOfFriends>2</numberOfFriends>
-         *     </friends>
+         * <name>John Doe</name>
+         * <friends>
+         * <friend>
+         * <name>Jane Doe</name>
+         * </friend>
+         * <friend>
+         * <name>John Smith</name>
+         * </friend>
+         * <numberOfFriends>2</numberOfFriends>
+         * </friends>
          * </person>
          * </people>
          * @exampleLabel Use `friends` as a predicate between `person` and `friend`
@@ -704,7 +730,7 @@ public class Builder {
          * .build()
          */
         public T useElementAsPredicate(String elementName) {
-            if(useElementAsPredicateMap == null){
+            if (useElementAsPredicateMap == null) {
                 useElementAsPredicateMap = new HashMap<>();
             }
 
@@ -724,6 +750,8 @@ public class Builder {
 
             return (T) this;
         }
+
+
 
         public interface BetweenWithWildcard<TT> {
 
@@ -774,7 +802,7 @@ public class Builder {
         }
 
         /**
-         * @param element Full URI of element
+         * @param element  Full URI of element
          * @param datatype Datatype to use. A string when using getAdvancedBuilderStream(), RDFDatatype for Jena and IRI for Sesame.
          * @return
          * @description Specify the datatype on a Simple Type element. Use a string with AdvancedBuilderStream as the datatype,
@@ -823,7 +851,7 @@ public class Builder {
         }
 
         /**
-         * @param element Full URI of element
+         * @param element   Full URI of element
          * @param transform Function that can transform an Element
          * @return
          * @description Do any transformation on an element will full access to information about its attributes and children.
@@ -836,9 +864,9 @@ public class Builder {
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .addComplexElementTransformAtEndOfElement("http://example.org/name", element -> element.type = element.type.toUpperCase())
          * .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> {
-         *     if(element.hasChild.size() > 1){
-         *         element.type = "http://example.org/people";
-         *     }
+         * if(element.hasChild.size() > 1){
+         * element.type = "http://example.org/people";
+         * }
          * })
          * .build()
          * @exampleLabel No transforms
@@ -857,7 +885,9 @@ public class Builder {
         }
 
         void doComplexTransformElementAtEndOfElement(Element element) {
-            if(complexElementTransformAtEndOfElement == null) return;
+            if (complexElementTransformAtEndOfElement == null) {
+                return;
+            }
             ComplexClassTransform complexClassTransform = complexElementTransformAtEndOfElement.get(element.type);
             if (complexClassTransform != null) {
                 complexClassTransform.transform(element);
@@ -866,46 +896,45 @@ public class Builder {
 
 
         /**
-         * @param element Full URI of element
+         * @param element   Full URI of element
          * @param transform Function that can transform an Element
          * @return
          * @description Do any transformation on an element will full access to information about its attributes but not about it's children.
          * The transformation is applied when the convertor finishes processing the attributes at the start of a tag.
-         *
+         * <p>
          * Take careful note, as shown in the examples, that transforming an element at the start is simpler to reason about that at the
          * end when you are using options such as insertPredicate. In the seconds java example the transform is run at the end of the element,
          * after the insertPredicate() method has run.
-         *
+         * <p>
          * ```xml
          * <people> <!-- start element transform runs now -->
-         *     <person> <!-- start element transform runs now -->
-         *         <name>John Doe</name>
-         *     </person> <!-- end element transform followed by insertPredicate runs now -->
+         * <person> <!-- start element transform runs now -->
+         * <name>John Doe</name>
+         * </person> <!-- end element transform followed by insertPredicate runs now -->
          * </people> <!-- end element transform runs now -->
          * ```
-         *
          * @xml <people xmlns="http://example.org/">
-         *              <person>
-         *                  <name>John Doe</name>
-         *              </person>
+         * <person>
+         * <name>John Doe</name>
+         * </person>
          * </people>
          * @exampleLabel All transforms run before insertPredicate
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .addComplexElementTransformAtStartOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
          * .addComplexElementTransformAtStartOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
-        *  .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
+         * .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
          * .build()
          * @exampleLabel Transform on `<people>` runs after insertPredicate
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .addComplexElementTransformAtEndOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
          * .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
-         *  .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
+         * .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
          * .build()
          */
         public T addComplexElementTransformAtStartOfElement(String element, ComplexClassTransform transform) {
 
-            if(complexElementTransformAtStartOfElement == null){
-                complexElementTransformAtStartOfElement  = new HashMapNoOverwrite<>();
+            if (complexElementTransformAtStartOfElement == null) {
+                complexElementTransformAtStartOfElement = new HashMapNoOverwrite<>();
             }
 
             complexElementTransformAtStartOfElement.put(element, transform);
@@ -914,7 +943,9 @@ public class Builder {
         }
 
         void doComplexTransformElementAtStartOfElement(Element element) {
-            if(complexElementTransformAtStartOfElement == null) return;
+            if (complexElementTransformAtStartOfElement == null) {
+                return;
+            }
             ComplexClassTransform complexClassTransform = complexElementTransformAtStartOfElement.get(element.type);
             if (complexClassTransform != null) {
                 complexClassTransform.transform(element);
@@ -948,10 +979,10 @@ public class Builder {
          * @description Detects and uses the value in xsi:type attributes as the rdf:type.
          * @xml <animals xmlns="http://example.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dbpedia="http://dbpedia.org/resource/">
          * <human xsi:type="man">
-         *     <name >John Doe</name>
+         * <name >John Doe</name>
          * </human>
          * <bird xsi:type="dbpedia:Barn_swallow">
-         *      <name>Big swallow</name>
+         * <name>Big swallow</name>
          * </bird>
          * </animals>
          * @exampleLabel Detect and use xsi:type references
@@ -1023,7 +1054,7 @@ public class Builder {
 
             if (firstLevel != null) {
                 Value value = firstLevel.get(key2);
-                if(value == null){
+                if (value == null) {
                     return internalMap.defaultValue.get(key2);
                 }
                 return value;
