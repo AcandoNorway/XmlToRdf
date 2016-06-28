@@ -157,7 +157,7 @@ public class XmlToRdfTest {
         testAdvancedSesame(
             Builder.getAdvancedBuilderSesame()
                 .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-                .convertComplexElementsWithOnlyAttributesToPredicates(true)
+                .convertComplexElementsWithOnlyAttributesToPredicate(true)
                 .useElementAsPredicate("http://example.org/friends")
                 .build()
         );
@@ -165,7 +165,7 @@ public class XmlToRdfTest {
         testAdvancedJena(
             Builder.getAdvancedBuilderJena()
                 .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-                .convertComplexElementsWithOnlyAttributesToPredicates(true)
+                .convertComplexElementsWithOnlyAttributesToPredicate(true)
                 .useElementAsPredicate("http://example.org/friends")
                 .build()
         );
@@ -173,7 +173,7 @@ public class XmlToRdfTest {
         testAdvancedStream(
             Builder.getAdvancedBuilderStream()
                 .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-                .convertComplexElementsWithOnlyAttributesToPredicates(true)
+                .convertComplexElementsWithOnlyAttributesToPredicate(true)
                 .useElementAsPredicate("http://example.org/friends")
                 .build()
         );
@@ -640,21 +640,21 @@ public class XmlToRdfTest {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .simpleTypePolicy(SimpleTypePolicy.expand)
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .addTransformationForAttributeValue(null, RDF_NODE_ID,
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
             .addUseAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
             .build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .simpleTypePolicy(SimpleTypePolicy.expand)
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .addTransformationForAttributeValue(null, RDF_NODE_ID,
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
             .addUseAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
             .build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .simpleTypePolicy(SimpleTypePolicy.expand)
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .addTransformationForAttributeValue(null, RDF_NODE_ID,
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
             .addUseAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
@@ -665,30 +665,30 @@ public class XmlToRdfTest {
     public void skosFromLexaurus() throws Exception {
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .addUseAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
-            .convertComplexElementsWithOnlyAttributesToPredicates(true).build());
+            .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .addUseAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
-            .convertComplexElementsWithOnlyAttributesToPredicates(true).build());
+            .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .addUseAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
-            .convertComplexElementsWithOnlyAttributesToPredicates(true).build());
+            .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
     }
 
     @Test
     public void convertShallowElementsToPropertiesWithAutoDetectLiteralProperties() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
@@ -703,17 +703,17 @@ public class XmlToRdfTest {
         final String aB = "http://a/B";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate(hasB).between(a, aB)
             .build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate(hasB).between(a, aB)
             .build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate(hasB).between(a, aB)
             .build());
@@ -739,12 +739,12 @@ public class XmlToRdfTest {
 
 
 //        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-//            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+//            .convertComplexElementsWithOnlyAttributesToPredicate(true)
 //            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
 //            .insertPredicate(hasB).between(a, aB)
 //            .build());
 //        testAdvancedJena(Builder.getAdvancedBuilderJena()
-//            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+//            .convertComplexElementsWithOnlyAttributesToPredicate(true)
 //            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
 //            .insertPredicate(hasB).between(a, aB)
 //            .build());
@@ -760,25 +760,37 @@ public class XmlToRdfTest {
 
     }
 
+
+    @Test()
+    public void insertPropertyBetweenWithShallow() throws Exception {
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
+            .insertPredicate("http://example.org/hasB").between("http://example.org/A", "http://example.org/B")
+            .build()
+        );
+    }
+
     @Test
     public void invertPropertyBetween() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
             .invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
             .invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
             .invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
@@ -810,21 +822,21 @@ public class XmlToRdfTest {
     public void specifyDatatype() throws Exception {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER)
             .setDatatype("http://a/date", XMLSchema.DATE)
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XSDDatatype.XSDinteger)
             .setDatatype("http://a/date", XSDDatatype.XSDdate)
             .build());
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER.toString())
             .setDatatype("http://a/date", XMLSchema.DATE.toString())
@@ -837,7 +849,7 @@ public class XmlToRdfTest {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
-            .convertComplexElementsWithOnlyAttributesToPredicates(false)
+            .convertComplexElementsWithOnlyAttributesToPredicate(false)
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER)
@@ -846,7 +858,7 @@ public class XmlToRdfTest {
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
-            .convertComplexElementsWithOnlyAttributesToPredicates(false)
+            .convertComplexElementsWithOnlyAttributesToPredicate(false)
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XSDDatatype.XSDinteger)
@@ -855,7 +867,7 @@ public class XmlToRdfTest {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
-            .convertComplexElementsWithOnlyAttributesToPredicates(false)
+            .convertComplexElementsWithOnlyAttributesToPredicate(false)
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER.toString())
@@ -894,21 +906,21 @@ public class XmlToRdfTest {
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .mapTextInElementToUri(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .build());
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .mapTextInElementToUri(HTTP_A_NAME, HELLO, HTTP_TEST)
-            .convertComplexElementsWithOnlyAttributesToPredicates(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .build());
 
     }

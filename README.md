@@ -41,7 +41,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.3</version>
+    <version>1.4.4</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.3.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.4.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -507,14 +507,14 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
         ex:title  "Other record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 <http://acme.com/records/0000001>
         a         ex:record ;
@@ -661,7 +661,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## convertComplexElementsWithOnlyAttributesToPredicates(boolean enabled)
+## convertComplexElementsWithOnlyAttributesToPredicate(boolean enabled)
 
 Use element name as predicate instead of the rdf:type on complex elements that only contain attributes.
 
@@ -672,11 +672,11 @@ Use element name as predicate instead of the rdf:type on complex elements that o
 </people>
 ```
 
-### convertComplexElementsWithOnlyAttributesToPredicates enabled
+### convertComplexElementsWithOnlyAttributesToPredicate enabled
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .convertComplexElementsWithOnlyAttributesToPredicates(true)
+   .convertComplexElementsWithOnlyAttributesToPredicate(true)
    .build()
 ```
 
@@ -695,11 +695,11 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-### convertComplexElementsWithOnlyAttributesToPredicates disabled
+### convertComplexElementsWithOnlyAttributesToPredicate disabled
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .convertComplexElementsWithOnlyAttributesToPredicates(false)
+   .convertComplexElementsWithOnlyAttributesToPredicate(false)
    .build()
 ```
 
@@ -1281,7 +1281,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:2f998bf8-932d-4270-a222-7ffece27b510
+ex:3bdc8dcf-e6ac-4728-8fae-1f7ac712ebf6
         a        ex:people ;
         ex:name  "John Doe" .
 

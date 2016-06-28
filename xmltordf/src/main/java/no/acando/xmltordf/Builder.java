@@ -387,16 +387,16 @@ public class Builder {
          * @xml <people xmlns="http://example.org/">
          * <person name="John Doe" age="89"  />
          * </people>
-         * @exampleLabel convertComplexElementsWithOnlyAttributesToPredicates enabled
+         * @exampleLabel convertComplexElementsWithOnlyAttributesToPredicate enabled
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .convertComplexElementsWithOnlyAttributesToPredicates(true)
+         * .convertComplexElementsWithOnlyAttributesToPredicate(true)
          * .build()
-         * @exampleLabel convertComplexElementsWithOnlyAttributesToPredicates disabled
+         * @exampleLabel convertComplexElementsWithOnlyAttributesToPredicate disabled
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .convertComplexElementsWithOnlyAttributesToPredicates(false)
+         * .convertComplexElementsWithOnlyAttributesToPredicate(false)
          * .build()
          */
-        public T convertComplexElementsWithOnlyAttributesToPredicates(boolean enabled) {
+        public T convertComplexElementsWithOnlyAttributesToPredicate(boolean enabled) {
             convertComplexElementsWithOnlyAttributesToPredicates = enabled;
             return (T) this;
         }
