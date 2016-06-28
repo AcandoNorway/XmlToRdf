@@ -141,14 +141,14 @@ public class XmlToRdfTest {
 
     @Test
     public void insertPredicateMatchingDefault() throws ParserConfigurationException, SAXException, IOException {
-        String xmlNameSpace = Arkiv.NS;
+        String xmlNameSpace = "http://www.arkivverket.no/standarder/noark5/arkivstruktur/";
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .autoAddSuffixToNamespace("/")
-            .renameElement(xmlNameSpace + "arkiv", Arkiv.Arkiv.toString())
-            .renameElement(xmlNameSpace + "arkivskaper", Arkiv.Arkivskaper.toString())
-            .insertPredicate(Arkiv.arkivskaper.toString()).betweenAnyParentAndSpecificChild(Arkiv.Arkivskaper.toString())
-            .insertPredicate(Arkiv.parent.toString()).between(Arkiv.Arkiv.toString(), Arkiv.Arkiv.toString())
+            .renameElement(xmlNameSpace + "arkiv", xmlNameSpace + "Arkiv")
+            .renameElement(xmlNameSpace + "arkivskaper", xmlNameSpace + "Arkivskaper")
+            .insertPredicate(xmlNameSpace + "arkivskaper").betweenAnyParentAndSpecificChild(xmlNameSpace + "Arkivskaper")
+            .insertPredicate(xmlNameSpace + "parent").between(xmlNameSpace + "Arkiv", xmlNameSpace + "Arkiv")
             .build());
     }
 
