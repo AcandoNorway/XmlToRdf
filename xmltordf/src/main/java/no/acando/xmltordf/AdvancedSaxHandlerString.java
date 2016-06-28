@@ -81,33 +81,24 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
             try {
                 Integer.parseInt(objectLiteral);
                 datatype = "^^<"+XSD+"integer>";
-
             } catch (NumberFormatException e) {
                 try {
                     Double.parseDouble(objectLiteral);
                     datatype = "^^<"+XSD+"decimal>";
-
                 } catch (NumberFormatException e2) {
                     try {
-
                         LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
                         datatype = "^^<"+XSD+"dateTime>";
-
                     } catch (DateTimeParseException e3) {
                         try {
-
                             LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
                             datatype = "^^<"+XSD+"date>";
-
                         } catch (DateTimeParseException e4) {
                             //this catch block should be empty!
                         }
                     }
-
-
                 }
             }
-
         }
 
         if (!isBlankNode(subject)) {

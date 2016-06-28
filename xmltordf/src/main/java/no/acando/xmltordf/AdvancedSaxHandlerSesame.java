@@ -162,40 +162,24 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
             try {
                 Integer.parseInt(objectLiteral);
                 literal = valueFactory.createLiteral(objectLiteral, XMLSchema.INTEGER);
-
             } catch (NumberFormatException e) {
                 try {
                     Double.parseDouble(objectLiteral);
                     literal = valueFactory.createLiteral(objectLiteral, XMLSchema.DECIMAL);
-
-
                 } catch (NumberFormatException e2) {
-
                     try {
-
                         LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
-
-
                         literal = valueFactory.createLiteral(objectLiteral, XMLSchema.DATETIME);
-
                     } catch (DateTimeParseException e3) {
                         try {
-
                             LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
-
-
                             literal = valueFactory.createLiteral(objectLiteral, XMLSchema.DATE);
-
                         } catch (DateTimeParseException e4) {
                             literal = valueFactory.createLiteral(objectLiteral);
-
                         }
                     }
-
-
                 }
             }
-
         } else {
             literal = valueFactory.createLiteral(objectLiteral);
 

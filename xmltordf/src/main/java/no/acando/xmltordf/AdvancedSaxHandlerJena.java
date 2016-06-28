@@ -145,35 +145,20 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
                 try {
                     Double.parseDouble(objectLiteral);
                     literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdecimal);
-
-
                 } catch (NumberFormatException e2) {
-
                     try{
-
                         LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
-
-
                         literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdateTime);
-
                     }catch (DateTimeParseException e3){
                         try{
-
                             LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
-
-
                             literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdate);
-
                         }catch (DateTimeParseException e4){
                             literal = NodeFactory.createLiteral(objectLiteral, null, false);
-
                         }
                     }
-
-
                 }
             }
-
         } else {
             literal = NodeFactory.createLiteral(objectLiteral, null, false);
         }
