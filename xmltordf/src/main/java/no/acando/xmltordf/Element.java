@@ -36,6 +36,7 @@ public class Element {
 
     public List<Object> mixedContent = new ArrayList<>();
     public StringBuilder tempMixedContentString = new StringBuilder("");
+    public boolean useElementAsPredicate;
 
 
     public void appendValue(char[] ch, int start, int length) {

@@ -1,0 +1,14 @@
+<people xmlns="http://example.org/">
+    <person>
+        <name>John Doe</name>
+        <friends>
+            <friend>
+                <name>Jane Doe</name>
+            </friend>
+            <friend>
+                <name>John Smith</name>
+            </friend>
+            <numberOfFriends>2</numberOfFriends>
+        </friends>
+    </person>
+</people>

@@ -152,6 +152,33 @@ public class XmlToRdfTest {
             .build());
     }
 
+    @Test
+    public void useElementAsPredicate() throws ParserConfigurationException, SAXException, IOException {
+        testAdvancedSesame(
+            Builder.getAdvancedBuilderSesame()
+                .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+                .convertComplexElementsWithOnlyAttributesToPredicates(true)
+                .useElementAsPredicate("http://example.org/friends")
+                .build()
+        );
+
+        testAdvancedJena(
+            Builder.getAdvancedBuilderJena()
+                .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+                .convertComplexElementsWithOnlyAttributesToPredicates(true)
+                .useElementAsPredicate("http://example.org/friends")
+                .build()
+        );
+
+        testAdvancedStream(
+            Builder.getAdvancedBuilderStream()
+                .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+                .convertComplexElementsWithOnlyAttributesToPredicates(true)
+                .useElementAsPredicate("http://example.org/friends")
+                .build()
+        );
+    }
+
     //TODO: actually create test data
     @Ignore
     @Test
