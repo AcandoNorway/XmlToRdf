@@ -21,13 +21,17 @@ import org.openrdf.model.*;
 import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.SimpleValueFactory;
 import org.openrdf.model.util.RDFCollections;
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
 import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.memory.MemoryStore;
 import org.xml.sax.SAXException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
@@ -78,6 +82,7 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
                 }
 
                 prefixUriMap.forEach(connection::setNamespace);
+                connection.setNamespace("xsd", XMLSchema.NAMESPACE);
 
                 connection.commit();
 
@@ -151,21 +156,51 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
+        Literal literal = null;
 
-        Literal literal = valueFactory.createLiteral(objectLiteral);
-
-        //@TODO finish implementing autoTypeLiterals
         if (builder.autoTypeLiterals) {
             try {
-                literal = valueFactory.createLiteral(Integer.parseInt(objectLiteral));
-            } catch (Exception e) {
+                Integer.parseInt(objectLiteral);
+                literal = valueFactory.createLiteral(objectLiteral, XMLSchema.INTEGER);
+
+            } catch (NumberFormatException e) {
                 try {
-                    literal = valueFactory.createLiteral(Long.parseLong(objectLiteral));
-                } catch (Exception ee) {
+                    Double.parseDouble(objectLiteral);
+                    literal = valueFactory.createLiteral(objectLiteral, XMLSchema.DECIMAL);
+
+
+                } catch (NumberFormatException e2) {
+
+                    try {
+
+                        LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
+
+
+                        literal = valueFactory.createLiteral(objectLiteral, XMLSchema.DATETIME);
+
+                    } catch (DateTimeParseException e3) {
+                        try {
+
+                            LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
+
+
+                            literal = valueFactory.createLiteral(objectLiteral, XMLSchema.DATE);
+
+                        } catch (DateTimeParseException e4) {
+                            literal = valueFactory.createLiteral(objectLiteral);
+
+                        }
+                    }
+
+
                 }
             }
 
+        } else {
+            literal = valueFactory.createLiteral(objectLiteral);
+
         }
+
 
         try {
             queue.put(valueFactory.createStatement(subjectNode, predicateNode, literal));

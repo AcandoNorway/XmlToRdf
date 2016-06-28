@@ -16,16 +16,24 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 
 public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
     private final PrintStream out;
+
+    final static String XSD = "http://www.w3.org/2001/XMLSchema#";
+
 
     public AdvancedSaxHandlerString(OutputStream out, Builder.AdvancedStream builder) {
         super(out, builder);
@@ -67,10 +75,45 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
             .replace("\\", "\\\\")
             .replace("\"", "\\\"");
 
+        String datatype = "";
+
+        if (builder.autoTypeLiterals) {
+            try {
+                Integer.parseInt(objectLiteral);
+                datatype = "^^<"+XSD+"integer>";
+
+            } catch (NumberFormatException e) {
+                try {
+                    Double.parseDouble(objectLiteral);
+                    datatype = "^^<"+XSD+"decimal>";
+
+                } catch (NumberFormatException e2) {
+                    try {
+
+                        LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
+                        datatype = "^^<"+XSD+"dateTime>";
+
+                    } catch (DateTimeParseException e3) {
+                        try {
+
+                            LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
+                            datatype = "^^<"+XSD+"date>";
+
+                        } catch (DateTimeParseException e4) {
+                            //this catch block should be empty!
+                        }
+                    }
+
+
+                }
+            }
+
+        }
+
         if (!isBlankNode(subject)) {
-            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
+            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\""+datatype+" .";
         } else {
-            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\" .";
+            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\""+datatype+" .";
         }
 
     }

@@ -1,0 +1,14 @@
+<A xmlns="http://example.org/">
+
+    <int>1</int>
+    <double>1.1</double>
+
+    <date>2011-01-01</date>
+    <date>2011-01-01+01:00</date>
+    <date>2011-01-01Z</date>
+
+    <dateTime>2011-01-01T00:01</dateTime>
+    <dateTime>2011-01-01T00:01Z</dateTime>
+    <dateTime>2011-01-01T00:01+01:00</dateTime>
+
+</A>

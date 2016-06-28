@@ -799,6 +799,26 @@ public class XmlToRdfTest {
     }
 
     @Test
+    public void autoTypedLiterals() throws Exception {
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .autoTypeLiterals(true)
+
+            .build());
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .autoTypeLiterals(true)
+
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .autoTypeLiterals(true)
+
+            .build());
+
+    }
+
+    @Test
     public void longLiteral() throws ParserConfigurationException, SAXException, IOException {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
@@ -1158,6 +1178,8 @@ public class XmlToRdfTest {
         Model actualModelJena = build.convertToDataset(new FileInputStream(testFiles.xml)).getDefaultModel();
 
         Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
+
+
 
         if (!expectedModel.isIsomorphicWith(actualModelJena)) {
             try {

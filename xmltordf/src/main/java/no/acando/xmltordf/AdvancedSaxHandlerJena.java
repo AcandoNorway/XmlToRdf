@@ -19,16 +19,25 @@ package no.acando.xmltordf;
 import org.apache.jena.atlas.io.NullOutputStream;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
+import org.apache.jena.datatypes.xsd.XSDDateTime;
 import org.apache.jena.graph.Graph;
 import org.apache.jena.graph.Node;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.impl.GraphWithPerform;
+import org.apache.jena.graph.impl.LiteralLabelFactory;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
+import org.apache.jena.sparql.util.DateTimeStruct;
+import org.apache.jena.vocabulary.XSD;
 import org.openrdf.model.vocabulary.RDF;
+import org.openrdf.model.vocabulary.XMLSchema;
 import org.xml.sax.SAXException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
@@ -75,6 +84,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
                 }
 
                 prefixUriMap.forEach(dataset.getDefaultModel()::setNsPrefix);
+                dataset.getDefaultModel().setNsPrefix("xsd", XSD.NS);
 
             }
         };
@@ -125,7 +135,49 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
         subjectNode = getNode(subject);
 
-        Node literal = NodeFactory.createLiteral(objectLiteral, null, false);
+        Node literal = null;
+        if (builder.autoTypeLiterals) {
+
+            try {
+                Integer.parseInt(objectLiteral);
+                literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDinteger);
+            } catch (NumberFormatException e) {
+                try {
+                    Double.parseDouble(objectLiteral);
+                    literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdecimal);
+
+
+                } catch (NumberFormatException e2) {
+
+                    try{
+
+                        LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
+
+
+                        literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdateTime);
+
+                    }catch (DateTimeParseException e3){
+                        try{
+
+                            LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
+
+
+                            literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdate);
+
+                        }catch (DateTimeParseException e4){
+                            literal = NodeFactory.createLiteral(objectLiteral, null, false);
+
+                        }
+                    }
+
+
+                }
+            }
+
+        } else {
+            literal = NodeFactory.createLiteral(objectLiteral, null, false);
+        }
+
 
         addTripleToQueue(predicateNode, subjectNode, literal);
 
