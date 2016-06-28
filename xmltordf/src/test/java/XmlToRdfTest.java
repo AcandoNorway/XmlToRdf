@@ -158,7 +158,7 @@ public class XmlToRdfTest {
             Builder.getAdvancedBuilderSesame()
                 .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
                 .convertComplexElementsWithOnlyAttributesToPredicates(true)
-                .useElementAsPredicate("http://example.org/entries")
+                .useElementAsPredicate("http://example.org/friends")
                 .build()
         );
 
@@ -166,7 +166,7 @@ public class XmlToRdfTest {
             Builder.getAdvancedBuilderJena()
                 .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
                 .convertComplexElementsWithOnlyAttributesToPredicates(true)
-                .useElementAsPredicate("http://example.org/entries")
+                .useElementAsPredicate("http://example.org/friends")
                 .build()
         );
 
@@ -174,7 +174,7 @@ public class XmlToRdfTest {
             Builder.getAdvancedBuilderStream()
                 .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
                 .convertComplexElementsWithOnlyAttributesToPredicates(true)
-                .useElementAsPredicate("http://example.org/entries")
+                .useElementAsPredicate("http://example.org/friends")
                 .build()
         );
     }

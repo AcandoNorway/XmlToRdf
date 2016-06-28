@@ -674,7 +674,34 @@ public class Builder {
             return (T) this;
         }
 
-
+        /**
+         * @param elementName The fully URI of the element.
+         * @return
+         * @description Create a predicate between the parent and the children elements of an element instead of a node. The element name is used as the
+         * predicate URI. Elements used as predicates should be complex elements without any attributes (the converter will skip any attributes). It is also
+         * recommended to only use elements as predicates where the child elements are all complex.
+         * @xml <people xmlns="http://example.org/">
+         * <person>
+         *     <name>John Doe</name>
+         *     <friends>
+         *         <friend>
+         *             <name>Jane Doe</name>
+         *         </friend>
+        *           <friend>
+         *             <name>John Smith</name>
+         *         </friend>
+         *         <numberOfFriends>2</numberOfFriends>
+         *     </friends>
+         * </person>
+         * </people>
+         * @exampleLabel Use `friends` as a predicate between `person` and `friend`
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .useElementAsPredicate("http://example.org/friends")
+         * .build()
+         * @exampleLabel `friends` becomes a blank node by default
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T useElementAsPredicate(String elementName) {
             if(useElementAsPredicateMap == null){
                 useElementAsPredicateMap = new HashMap<>();

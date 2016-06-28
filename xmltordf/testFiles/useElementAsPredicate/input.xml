@@ -1,9 +1,14 @@
-<result xmlns="http://example.org/">
-    <entries>
-        <entry>
-            <nkode1>84.130</nkode1>
-            <ansatte_dato>22.08.2015</ansatte_dato>
-            <organisasjonsform>ORGL</organisasjonsform>
-        </entry>
-    </entries>
-</result>
+<people xmlns="http://example.org/">
+    <person>
+        <name>John Doe</name>
+        <friends>
+            <friend>
+                <name>Jane Doe</name>
+            </friend>
+            <friend>
+                <name>John Smith</name>
+            </friend>
+            <numberOfFriends>2</numberOfFriends>
+        </friends>
+    </person>
+</people>

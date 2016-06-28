@@ -114,7 +114,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
         }
 
-        if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.properties.isEmpty() && pop.parent != null && pop.parent.mixedContent.isEmpty()) {
+        if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.properties.isEmpty() && pop.parent != null && pop.parent.mixedContent.isEmpty() && !pop.parent.useElementAsPredicate) {
             //convert to literal property
             if (pop.getHasValue() != null) {
                 Optional<ResourceType> resourceType = mapLiteralToResource(pop);
