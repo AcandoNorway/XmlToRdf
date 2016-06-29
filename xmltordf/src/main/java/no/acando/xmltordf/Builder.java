@@ -17,13 +17,51 @@ limitations under the License.
 package no.acando.xmltordf;
 
 import org.apache.jena.datatypes.RDFDatatype;
+import org.apache.jena.ext.com.google.common.cache.CacheBuilder;
 import org.apache.jena.graph.Node;
 import org.openrdf.model.IRI;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Builder {
+    public static XmlPath  createPath(String ... path) {
+        XmlPath xmlPath = new XmlPath();
+
+       xmlPath.path = path;
+
+        return xmlPath;
+    }
+
+     static class XmlPath{
+         String[] path;
+
+
+         boolean equals(Element tailElemenet) {
+
+            Element current = tailElemenet;
+
+            for (int i = path.length-1; i >= 0; i--) {
+               if(current == null) return false;
+
+                if(!current.type.equals(path[i])){
+                    return false;
+                }
+
+                current = current.parent;
+
+            }
+
+            return true;
+
+        }
+
+
+        public String getTail() {
+            return path[path.length - 1];
+        }
+    }
 
     //TODO: consider abstracting some of this out to their own class files
 
@@ -49,11 +87,12 @@ public class Builder {
 
     static class Default<T extends Default<T>> {
 
-        String overrideNamespace;
-        Map<String, String> renameElementMap;
+        String overrideNamespace = null;
+        Map<String, String> renameElementMap = null;
         boolean autoDetectLiteralProperties = true;
         HashMapNoOverwriteWithDefaultTwoLevels<String, String, StringTransform> transformForAttributeValueMap = null;
-        Map<String, StringTransformTwoValue> renameElementFunctionMap;
+        Map<String, StringTransformTwoValue> renameElementFunctionMap = null;
+        Map<String, RenameElementWithPath> renameElementPathMap = null;
 
 
         /**
@@ -96,6 +135,47 @@ public class Builder {
             }
             renameElementMap.put(elementFrom, to);
             return (T) this;
+        }
+
+        /**
+         * @param path The path, where the last element is the one to rename. Create a path with Builder.createPath("", "", ...)
+         * @param to          The new full URI
+         * @return
+         * @description Change the name of an element at the end of a specific path. Useful for renaming elements that .
+         * @xml <window xmlns="http://example.org/">
+         *  <frame>
+         *         <tittle>Main frame</tittle>
+         *  </frame>
+         * <frame>
+         *     <frame>
+         *         <tittle>Sub frame</tittle>
+         *         </frame>
+         * </frame>
+         * </window>
+         * @exampleLabel
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .renameElement(Builder.createPath("http://example.org/frame","http://example.org/frame"), "http://example.org/subFrame")
+         * .build()
+         */
+        public T renameElement(XmlPath path, String to) {
+
+
+            if (renameElementPathMap == null) {
+                renameElementPathMap = new HashMapNoOverwrite<>();
+            }
+            renameElementPathMap.put(path.getTail(), new RenameElementWithPath(path, to));
+
+            return (T) this;
+        }
+
+        static class RenameElementWithPath{
+            XmlPath path;
+            String newElementName;
+
+            public RenameElementWithPath(XmlPath path, String newElementName) {
+                this.path = path;
+                this.newElementName = newElementName;
+            }
         }
 
         /**
@@ -367,7 +447,7 @@ public class Builder {
          */
         public T mapTextInElementToUri(String elementName, String from, ResourceType to) {
             if (literalMap == null) {
-                literalMap = new HashMapNoOverwrite<>();
+                literalMap = new HashMapNoOverwriteWithDefault<>();
             }
 
             if (!literalMap.containsKey(elementName)) {
@@ -753,6 +833,7 @@ public class Builder {
 
 
 
+
         public interface BetweenWithWildcard<TT> {
 
             TT between(String parent, String child);
@@ -1054,7 +1135,7 @@ public class Builder {
 
             if (firstLevel != null) {
                 Value value = firstLevel.get(key2);
-                if (value == null) {
+                if (value == null && internalMap.defaultValue != null) {
                     return internalMap.defaultValue.get(key2);
                 }
                 return value;

@@ -302,13 +302,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             return;
         }
 
-        renameElement(namespace, localName, element);
 
-        if (builder.forcedMixedContentMap != null &&
-            builder.forcedMixedContentMap.containsKey(element.type)) {
-
-            element.containsMixedContent = true;
-        }
 
         calculateNodeId(namespace, element);
 
@@ -327,9 +321,20 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         }
 
-        handleAttributes(namespace, attributes, element);
-
         element.parent = parent;
+
+        renameElement(namespace, localName, element);
+
+        if (builder.forcedMixedContentMap != null &&
+            builder.forcedMixedContentMap.containsKey(element.type)) {
+
+            element.containsMixedContent = true;
+        }
+
+
+        calculateNodeId(namespace, element);
+
+        handleAttributes(namespace, attributes, element);
 
 
         if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(element.type)) {
@@ -407,13 +412,24 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     }
 
     private void renameElement(String uri, String localName, Element element) {
-        if (builder.renameElementMap != null && builder.renameElementMap.containsKey(uri + localName)) {
-            element.type = builder.renameElementMap.get(uri + localName);
-        } else if (builder.renameElementFunctionMap != null) {
-            StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
-            if (stringTransformTwoValue == null) {
-                stringTransformTwoValue = builder.renameElementFunctionMap.get("");
+        if (builder.renameElementPathMap != null) {
+            Builder.Default.RenameElementWithPath renameElementWithPath = builder.renameElementPathMap.get(uri + localName);
+            if (renameElementWithPath != null && renameElementWithPath.path.equals(element))   {
+                element.type = renameElementWithPath.newElementName;
+                return;
             }
+        }
+
+        if (builder.renameElementMap != null) {
+            String newElementName = builder.renameElementMap.get(uri + localName);
+            if(newElementName != null){
+                element.type = newElementName;
+                return;
+            }
+
+        }
+        if (builder.renameElementFunctionMap != null) {
+            StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
             if (stringTransformTwoValue != null) {
                 element.type = stringTransformTwoValue.transform(uri, localName);
             }

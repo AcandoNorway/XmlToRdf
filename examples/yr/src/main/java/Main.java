@@ -16,6 +16,7 @@ limitations under the License.
 
 import no.acando.xmltordf.Builder;
 import org.apache.commons.io.IOUtils;
+import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.query.Dataset;
 import org.xml.sax.SAXException;
 
@@ -28,58 +29,48 @@ import java.net.URISyntaxException;
 
 public class Main {
 
-	public static void main(String[] args) throws URISyntaxException, IOException, ParserConfigurationException, SAXException {
+    private static final String YR_NS = "http://www.yr.no/";
 
-		String url = "http://www.yr.no/place/Norway/Telemark/Sauherad/Gvarv/forecast.xml";
+    public static void main(String[] args) throws URISyntaxException, IOException, ParserConfigurationException, SAXException {
 
-		ByteArrayInputStream yrXml = new ByteArrayInputStream(IOUtils.toString(new URI(url)).getBytes());
+        String url = YR_NS + "place/Norway/Telemark/Sauherad/Gvarv/forecast.xml";
 
-		Builder.AdvancedJena builder = Builder.getAdvancedBuilderJena()
-				.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-				.convertComplexElementsWithOnlyAttributesToPredicate(true)
-				.setBaseNamespace("http://www.yr.no/", Builder.AppliesTo.bothElementsAndAttributes)
-				.renameElement("http://www.yr.no/link", "http://www.yr.no/Link")
-				.renameElement("http://www.yr.no/weatherstation", "http://www.yr.no/Weatherstation")
-				.renameElement("http://www.yr.no/tabular", "http://www.yr.no/TabularForecast")
-				.renameElement("http://www.yr.no/text", "http://www.yr.no/TextualForecast")
+        ByteArrayInputStream yrXml = new ByteArrayInputStream(IOUtils.toString(new URI(url)).getBytes());
+
+        Builder.AdvancedJena builder = Builder.getAdvancedBuilderJena()
+            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
+            .autoTypeLiterals(true)
+            .setBaseNamespace(YR_NS, Builder.AppliesTo.bothElementsAndAttributes)
+            .renameElement(YR_NS + "link", YR_NS + "Link")
+            .renameElement(YR_NS + "weatherstation", YR_NS + "Weatherstation")
+            .renameElement(YR_NS + "tabular", YR_NS + "TabularForecast")
+            .renameElement(YR_NS + "text", YR_NS + "TextualForecast")
+            .renameElement(YR_NS + "weatherdata", YR_NS + "Weatherdata")
+            .renameElement(Builder.createPath("http://www.yr.no/Weatherdata", "http://www.yr.no/location"), "http://www.yr.no/Location")
+
+            .insertPredicate(YR_NS + "data").between(YR_NS + "Weatherdata", YR_NS+"Location")
+
+            .renameElement(YR_NS + "observations", YR_NS + "observation")
+            .useElementAsPredicate(YR_NS + "observation")
 
 
-				.renameElement("http://www.yr.no/observations","http://www.yr.no/observation")
-				.useElementAsPredicate("http://www.yr.no/observation")
+            .renameElement(YR_NS + "links", YR_NS + "link")
+            .useElementAsPredicate(YR_NS + "link")
+
+            .useElementAsPredicate(YR_NS + "credit")
+            .useElementAsPredicate(YR_NS + "forecast")
 
 
-				.renameElement("http://www.yr.no/links", "http://www.yr.no/link")
-				.useElementAsPredicate("http://www.yr.no/link")
+            .insertPredicate(YR_NS + "period").betweenSpecificParentAndAnyChild(YR_NS + "TabularForecast")
+            .insertPredicate(YR_NS + "location").between(YR_NS + "TextualForecast", YR_NS + "location")
 
-				.useElementAsPredicate("http://www.yr.no/credit")
-				.useElementAsPredicate("http://www.yr.no/forecast")
+            .mapTextInElementToUri(YR_NS + "country", "Norway", NodeFactory.createURI("http://dbpedia.org/resource/Norway"))
 
+            ;
 
-				.insertPredicate("http://www.yr.no/period").betweenSpecificParentAndAnyChild("http://www.yr.no/TabularForecast")
-				.insertPredicate("http://www.yr.no/location").between("http://www.yr.no/TextualForecast", "http://www.yr.no/location")
+        Dataset dataset = builder.build().convertToDataset(yrXml);
 
-//				.renameElement("http://www.yr.no/temperature", "http://www.yr.no/Temperature")
-//				.insertPredicate("http://www.yr.no/temperature").betweenAnyParentAndSpecificChild("http://www.yr.no/Temperature")
-//
-//				.renameElement("http://www.yr.no/windDirection", "http://www.yr.no/WindDirection")
-//				.insertPredicate("http://www.yr.no/windDirection").betweenAnyParentAndSpecificChild("http://www.yr.no/WindDirection")
-//
-//				.renameElement("http://www.yr.no/windSpeed", "http://www.yr.no/WindSpeed")
-//				.insertPredicate("http://www.yr.no/windSpeed").betweenAnyParentAndSpecificChild("http://www.yr.no/WindSpeed")
-//
-//				.renameElement("http://www.yr.no/precipitation", "http://www.yr.no/Precipitation")
-//				.insertPredicate("http://www.yr.no/precipitation").betweenAnyParentAndSpecificChild("http://www.yr.no/Precipitation")
-//
-//				.renameElement("http://www.yr.no/pressure", "http://www.yr.no/Pressure")
-//				.insertPredicate("http://www.yr.no/pressure").betweenAnyParentAndSpecificChild("http://www.yr.no/Pressure")
-//
-//				.renameElement("http://www.yr.no/symbol", "http://www.yr.no/Symbol")
-//				.insertPredicate("http://www.yr.no/symbol").betweenAnyParentAndSpecificChild("http://www.yr.no/Symbol")
-
-				;
-
-		Dataset dataset = builder.build().convertToDataset(yrXml);
-
-		dataset.getDefaultModel().write(System.out, "TTL");
-	}
+        dataset.getDefaultModel().write(System.out, "TTL");
+    }
 }

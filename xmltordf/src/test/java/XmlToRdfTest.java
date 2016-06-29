@@ -78,6 +78,17 @@ public class XmlToRdfTest {
     }
 
     @Test
+    public void renameOnPath() throws Exception {
+        testAdvancedJena(
+            Builder.getAdvancedBuilderJena()
+                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a"), "http://example.org/RENAMED")
+                .build());
+//        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+//        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+    }
+
+    @Test
     public void simpleWithAttrs() throws Exception {
 
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
