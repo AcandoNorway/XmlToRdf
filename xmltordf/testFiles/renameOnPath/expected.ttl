@@ -6,8 +6,13 @@
 
 [ a                  :a ;
   xmlToRdf:hasChild  [ a                  :a ;
-                       xmlToRdf:hasChild  [ a       :RENAMED ;
-                                            :b      "Hello"
+                       xmlToRdf:hasChild  [ a          :c ;
+                                            :RENAMED2  "Hello"
+                                          ]
+                     ] ;
+  xmlToRdf:hasChild  [ a                  :a ;
+                       xmlToRdf:hasChild  [ a          :a ;
+                                            :RENAMED1  "Hello"
                                           ]
                      ]
 ] .

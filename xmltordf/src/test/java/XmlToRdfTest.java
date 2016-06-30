@@ -81,7 +81,9 @@ public class XmlToRdfTest {
     public void renameOnPath() throws Exception {
         testAdvancedJena(
             Builder.getAdvancedBuilderJena()
-                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a"), "http://example.org/RENAMED")
+                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
+                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
+
                 .build());
 //        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 //        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());

@@ -413,9 +413,9 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
     private void renameElement(String uri, String localName, Element element) {
         if (builder.renameElementPathMap != null) {
-            Builder.Default.RenameElementWithPath renameElementWithPath = builder.renameElementPathMap.get(uri + localName);
-            if (renameElementWithPath != null && renameElementWithPath.path.equals(element))   {
-                element.type = renameElementWithPath.newElementName;
+            String newElementName = builder.renameElementPathMap.get(element);
+            if (newElementName != null )   {
+                element.type = newElementName;
                 return;
             }
         }

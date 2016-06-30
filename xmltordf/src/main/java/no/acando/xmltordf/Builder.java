@@ -27,9 +27,8 @@ import java.util.Map;
 
 public class Builder {
     public static XmlPath  createPath(String ... path) {
-        XmlPath xmlPath = new XmlPath();
+        XmlPath xmlPath = new XmlPath(path);
 
-       xmlPath.path = path;
 
         return xmlPath;
     }
@@ -37,6 +36,12 @@ public class Builder {
      static class XmlPath{
          String[] path;
 
+         int lastElement;
+
+         public XmlPath(String[] path) {
+             this.path = path;
+             lastElement = path.length -1;
+         }
 
          boolean equals(Element tailElemenet) {
 
@@ -59,9 +64,20 @@ public class Builder {
 
 
         public String getTail() {
-            return path[path.length - 1];
+            if(lastElement < 0) return null;
+            return path[lastElement];
         }
-    }
+
+         public XmlPath shorten() {
+             lastElement--;
+
+             return this;
+         }
+
+         public boolean last() {
+             return lastElement == 0;
+         }
+     }
 
     //TODO: consider abstracting some of this out to their own class files
 
@@ -92,7 +108,7 @@ public class Builder {
         boolean autoDetectLiteralProperties = true;
         HashMapNoOverwriteWithDefaultTwoLevels<String, String, StringTransform> transformForAttributeValueMap = null;
         Map<String, StringTransformTwoValue> renameElementFunctionMap = null;
-        Map<String, RenameElementWithPath> renameElementPathMap = null;
+        ReverseElementTree renameElementPathMap = null;
 
 
         /**
@@ -130,6 +146,8 @@ public class Builder {
          */
         public T renameElement(String elementFrom, String to) {
 
+            elementFrom = elementFrom.intern();
+            to = to.intern();
             if (renameElementMap == null) {
                 renameElementMap = new HashMapNoOverwrite<>();
             }
@@ -161,22 +179,16 @@ public class Builder {
 
 
             if (renameElementPathMap == null) {
-                renameElementPathMap = new HashMapNoOverwrite<>();
+                renameElementPathMap = new ReverseElementTree();
             }
-            renameElementPathMap.put(path.getTail(), new RenameElementWithPath(path, to));
+            renameElementPathMap.insert(path, to);
 
             return (T) this;
         }
 
-        static class RenameElementWithPath{
-            XmlPath path;
-            String newElementName;
 
-            public RenameElementWithPath(XmlPath path, String newElementName) {
-                this.path = path;
-                this.newElementName = newElementName;
-            }
-        }
+
+
 
         /**
          * @param elementFrom The full URI of the element in the XML file
