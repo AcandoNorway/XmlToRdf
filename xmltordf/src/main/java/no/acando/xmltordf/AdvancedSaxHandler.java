@@ -94,6 +94,8 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
         }
 
+        pop.endMixedContent();
+
         builder.doComplexTransformElementAtEndOfElement(pop);
 
         if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(pop.type)) {
@@ -306,11 +308,13 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             if (mixedContent) {
                 parent.addMixedContent(element);
             }
+
         }
 
         handleAttributes(namespace, attributes, element);
 
         element.parent = parent;
+
 
         if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(element.type)) {
             element.useElementAsPredicate = true;

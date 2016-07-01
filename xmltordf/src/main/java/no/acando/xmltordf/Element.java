@@ -37,6 +37,7 @@ public class Element {
     public List<Object> mixedContent = new ArrayList<>();
     public StringBuilder tempMixedContentString = new StringBuilder("");
     public boolean useElementAsPredicate;
+    public boolean containsMixedContent;
 
 
     public void appendValue(char[] ch, int start, int length) {
@@ -103,9 +104,18 @@ public class Element {
 
 
     public void addMixedContent(Element element) {
+        containsMixedContent = true;
         mixedContent.add(tempMixedContentString.toString());
         tempMixedContentString = new StringBuilder("");
         mixedContent.add(element);
+    }
+
+    public void endMixedContent() {
+        if (containsMixedContent) {
+            if (!tempMixedContentString.toString().isEmpty()) {
+                mixedContent.add(tempMixedContentString.toString());
+            }
+        }
     }
 
 

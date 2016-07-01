@@ -1117,6 +1117,21 @@ public class XmlToRdfTest {
             .build());
     }
 
+
+    @Test
+    public void mixedContentSpecial() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .build());
+
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .build());
+    }
+
     private void testAdvancedJena(XmlToRdfAdvancedJena build) throws IOException, ParserConfigurationException, SAXException {
         TestFiles testFiles = getTestFiles();
 
