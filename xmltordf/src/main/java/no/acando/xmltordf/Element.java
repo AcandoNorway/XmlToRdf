@@ -105,7 +105,10 @@ public class Element {
 
     public void addMixedContent(Element element) {
         containsMixedContent = true;
-        mixedContent.add(tempMixedContentString.toString());
+        String temp = tempMixedContentString.toString();
+        if (!temp.isEmpty()) {
+            mixedContent.add(temp);
+        }
         tempMixedContentString = new StringBuilder("");
         mixedContent.add(element);
     }

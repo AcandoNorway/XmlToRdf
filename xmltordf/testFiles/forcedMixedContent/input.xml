@@ -1,0 +1,6 @@
+<A xmlns="http://example.org/">
+    <B>
+        <name><pnavn>a name</pnavn> more text</name>
+        <name2><pnavn>a name</pnavn></name2>
+    </B>
+</A>

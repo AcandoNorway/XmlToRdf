@@ -1132,6 +1132,26 @@ public class XmlToRdfTest {
             .build());
     }
 
+    @Test
+    public void forcedMixedContent() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .forceMixedContent("http://example.org/name")
+            .forceMixedContent("http://example.org/name2")
+            .build());
+
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .forceMixedContent("http://example.org/name")
+            .forceMixedContent("http://example.org/name2")
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .forceMixedContent("http://example.org/name")
+            .forceMixedContent("http://example.org/name2")
+            .build());
+    }
+
     private void testAdvancedJena(XmlToRdfAdvancedJena build) throws IOException, ParserConfigurationException, SAXException {
         TestFiles testFiles = getTestFiles();
 

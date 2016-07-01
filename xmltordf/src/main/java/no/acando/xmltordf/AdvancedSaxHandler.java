@@ -177,9 +177,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         } else {
             out.println(createTriple(pop.uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", pop.type));
             if (pop.parent != null && !pop.parent.useElementAsPredicate) {
-                if (pop.type.equals("http://www.arkivverket.no/standarder/noark5/arkivstruktur/Arkivskaper")) {
-                    System.out.println();
-                }
+
                 String prop = builder.getInsertPredicateBetweenOrDefaultPredicate(pop.parent.type, pop.type, hasChild);
 
                 if (builder.checkInvertPredicate(prop, pop.parent.type, pop.type)) {
@@ -210,11 +208,12 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
                 }
 
-                if (pop.mixedContent.size() > 0) {
-                    out.println(createList(pop.uri, XmlToRdfVocabulary.hasMixedContent, pop.mixedContent));
-                }
 
 
+
+            }
+            if (!pop.mixedContent.isEmpty()) {
+                out.println(createList(pop.uri, XmlToRdfVocabulary.hasMixedContent, pop.mixedContent));
             }
             pop.properties.stream().forEach((property) -> {
                 if (property.value != null) {
@@ -262,7 +261,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             return;
         }
 
-        boolean mixedContent =  detectMixedContent();
+        boolean mixedContent = detectMixedContent();
 
         if (builder.xsiTypeSupport && attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
             String type = attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type");
@@ -274,13 +273,10 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             } else {
                 localName = type;
             }
-
         }
-
 
         Element element = new Element();
         element.index = index++;
-
 
         namespace = calculateNamespace(namespace);
 
@@ -293,6 +289,12 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         }
 
         renameElement(namespace, localName, element);
+
+        if (builder.forcedMixedContentMap != null &&
+            builder.forcedMixedContentMap.containsKey(element.type)) {
+
+            element.containsMixedContent = true;
+        }
 
         calculateNodeId(namespace, element);
 
@@ -426,6 +428,11 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         if (elementStack.size() > 0) {
             Element peek = elementStack.peek();
+
+            if (peek.containsMixedContent) {
+                return true;
+            }
+
             if (peek.getHasValue() != null) {
                 return true;
             }

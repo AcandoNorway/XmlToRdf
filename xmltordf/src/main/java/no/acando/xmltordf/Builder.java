@@ -344,6 +344,7 @@ public class Builder {
         Map<String, String> useElementAsPredicateMap = null;
 
         Map<String, String> skipElementMap = null;
+        Map<String, String> forcedMixedContentMap = null;
 
 
         /**
@@ -708,6 +709,18 @@ public class Builder {
             }
 
             useElementAsPredicateMap.put(elementName, elementName);
+
+            return (T) this;
+        }
+
+        // TODO: Document this
+        public T forceMixedContent(String elementName) {
+
+            if (forcedMixedContentMap == null) {
+                forcedMixedContentMap = new HashMap<>();
+            }
+
+            forcedMixedContentMap.put(elementName, elementName);
 
             return (T) this;
         }
