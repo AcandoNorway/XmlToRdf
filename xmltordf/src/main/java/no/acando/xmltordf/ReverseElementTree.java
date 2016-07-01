@@ -73,9 +73,7 @@ class Node{
 
     void add(Builder.XmlPath path, String renameTo){
 
-        if(path.last()){
-            newElementName = renameTo;
-        }
+
 
         if(path.getTail() == null) return;
 

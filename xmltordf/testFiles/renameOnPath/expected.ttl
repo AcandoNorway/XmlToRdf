@@ -5,6 +5,11 @@
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 
 [ a                  :a ;
+  xmlToRdf:hasChild  [ a                  :d ;
+                       xmlToRdf:hasChild  [ a       :a ;
+                                            :b      "Hello"
+                                          ]
+                     ] ;
   xmlToRdf:hasChild  [ a                  :a ;
                        xmlToRdf:hasChild  [ a          :c ;
                                             :RENAMED2  "Hello"
