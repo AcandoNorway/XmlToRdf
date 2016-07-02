@@ -16,10 +16,8 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.openrdf.model.vocabulary.XMLSchema;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.time.LocalDate;
@@ -29,47 +27,37 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 
-public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
+class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
     private final PrintStream out;
 
-    final static String XSD = "http://www.w3.org/2001/XMLSchema#";
 
-
-    public AdvancedSaxHandlerString(OutputStream out, Builder.AdvancedStream builder) {
+    AdvancedSaxHandlerString(OutputStream out, Builder.AdvancedStream builder) {
         super(out, builder);
-        if (out != null) {
-            this.out = new PrintStream(out);
-        } else {
-            this.out = new PrintStream(new OutputStream() {
-                @Override
-                public void write(int b) throws IOException {
 
-                }
-            });
-        }
-        this.builder = builder;
+        this.out = new PrintStream(out);
+
     }
 
-    public String createTriple(String subject, String predicate, String object) {
+    public void createTriple(String subject, String predicate, String object) {
         boolean objectIsBlank = isBlankNode(object);
 
         if (isBlankNode(subject)) {
             if (objectIsBlank) {
-                return subject + " <" + predicate + "> " + object + '.';
+                out.println(subject + " <" + predicate + "> " + object + '.');
             } else {
-                return subject + " <" + predicate + "> <" + object + ">.";
+                out.println(subject + " <" + predicate + "> <" + object + ">.");
             }
         } else {
             if (objectIsBlank) {
-                return '<' + subject + "> <" + predicate + "> " + object + '.';
+                out.println('<' + subject + "> <" + predicate + "> " + object + '.');
             } else {
-                return '<' + subject + "> <" + predicate + "> <" + object + ">.";
+                out.println('<' + subject + "> <" + predicate + "> <" + object + ">.");
             }
         }
 
     }
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
+    public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
 
         objectLiteral = objectLiteral
             .replace("\\", "\\\\")
@@ -80,19 +68,19 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
         if (builder.autoTypeLiterals) {
             try {
                 Integer.parseInt(objectLiteral);
-                datatype = "^^<"+XSD+"integer>";
+                datatype = "^^<" + XSD + "integer>";
             } catch (NumberFormatException e) {
                 try {
                     Double.parseDouble(objectLiteral);
-                    datatype = "^^<"+XSD+"decimal>";
+                    datatype = "^^<" + XSD + "decimal>";
                 } catch (NumberFormatException e2) {
                     try {
                         LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
-                        datatype = "^^<"+XSD+"dateTime>";
+                        datatype = "^^<" + XSD + "dateTime>";
                     } catch (DateTimeParseException e3) {
                         try {
                             LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
-                            datatype = "^^<"+XSD+"date>";
+                            datatype = "^^<" + XSD + "date>";
                         } catch (DateTimeParseException e4) {
                             //this catch block should be empty!
                         }
@@ -102,24 +90,24 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
         }
 
         if (!isBlankNode(subject)) {
-            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\""+datatype+" .";
+            out.println('<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"" + datatype + " .");
         } else {
-            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\""+datatype+" .";
+            out.println(subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"" + datatype + " .");
         }
 
     }
 
-    public String createTripleLiteral(String subject, String predicate, long objectLong) {
+    public void createTripleLiteral(String subject, String predicate, long objectLong) {
 
         if (!isBlankNode(subject)) {
-            return '<' + subject + "> <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+            out.println('<' + subject + "> <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .");
         } else {
-            return subject + " <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .";
+            out.println(subject + " <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .");
         }
 
     }
 
-    public String createList(String subject, String predicate, List<Object> mixedContent) {
+    public void createList(String subject, String predicate, List<Object> mixedContent) {
         predicate = '<' + predicate + '>';
         if (!isBlankNode(subject)) {
             subject = '<' + subject + '>';
@@ -147,20 +135,20 @@ public class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String>
 
         });
 
-        return stringBuilder.append(").").toString();
+        out.println(stringBuilder.append(").").toString());
 
     }
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral, String dataType) {
+    public void createTripleLiteral(String subject, String predicate, String objectLiteral, String dataType) {
 
         objectLiteral = objectLiteral
             .replace("\\", "\\\\")
             .replace("\"", "\\\"");
 
         if (isBlankNode(subject)) {
-            return subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType + "> .";
+            out.println(subject + " <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType + "> .");
         } else {
-            return '<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType + "> .";
+            out.println('<' + subject + "> <" + predicate + "> \"\"\"" + objectLiteral + "\"\"\"^^<" + dataType + "> .");
         }
 
     }

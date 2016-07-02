@@ -18,9 +18,14 @@ package no.acando.xmltordf;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 
-public class Element {
+public class Element<ResourceType, Datatype> {
+
+    private final AdvancedSaxHandler<ResourceType, Datatype> handler;
+    private final Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
+
     public String type;
     public String uri;
     public Element parent;
@@ -38,7 +43,13 @@ public class Element {
     public StringBuilder tempMixedContentString = new StringBuilder("");
     public boolean useElementAsPredicate;
     public boolean containsMixedContent;
+    public boolean delayedOutput;
 
+    public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
+        this.handler = handler;
+        this.builder = builder;
+
+    }
 
     public void appendValue(char[] ch, int start, int length) {
         if (hasValue == null) {
@@ -59,9 +70,6 @@ public class Element {
         return uri;
     }
 
-    public Element getParent() {
-        return parent;
-    }
 
     String hasValueString;
     boolean hasValueStringEmpty = false;
@@ -80,14 +88,6 @@ public class Element {
             return null;
         }
         return hasValueString;
-    }
-
-    public List<Element> getHasChild() {
-        return hasChild;
-    }
-
-    public List<Property> getProperties() {
-        return properties;
     }
 
     public long getIndex() {
@@ -121,6 +121,145 @@ public class Element {
         }
     }
 
+
+    public void createTriples() {
+
+
+        endMixedContent();
+
+        hasChild.stream()
+            .filter(child -> child.delayedOutput)
+            .peek(Element::createTriples)
+            .forEach(Element::cleanUp);
+
+
+        builder.doComplexTransformElementAtEndOfElement(this);
+
+        if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(type)) {
+
+            hasChild.stream()
+                .forEach(child -> handler.createTriple(parent.uri, type, child.uri));
+
+            return;
+        }
+
+        if (parent != null && !parent.useElementAsPredicate) {
+            if (builder.convertComplexElementsWithOnlyAttributesToPredicates && hasChild.isEmpty()) {
+                shallow = true;
+            } else if (builder.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate) {
+                if (hasChild.stream().filter((element -> !element.autoDetectedAsLiteralProperty)).count() == 0) {
+                    shallow = true;
+                }
+            }
+
+            if (shallow) {
+                if (builder.getInsertPredicateBetweenOrDefaultPredicate(parent.type, type, XmlToRdfVocabulary.hasChild) != XmlToRdfVocabulary.hasChild) {
+                    shallow = false;
+                }
+
+            }
+        }
+
+        boolean shouldConvertToLiteralProperty = builder.autoDetectLiteralProperties && hasChild.isEmpty() && properties.isEmpty() && parent != null && parent.mixedContent.isEmpty() && !parent.useElementAsPredicate;
+        if (shouldConvertToLiteralProperty) {
+
+            if (!parent.containsMixedContent && !delayedOutput) {
+                if (getHasValue() != null) {
+                    delayedOutput = true;
+                }
+            } else {
+                if (getHasValue() != null) {
+                    createTriplesForHasValue(parent.uri, type, type);
+                }
+            }
+
+
+        } else if (shallow) {
+
+            //@TODO handle parent == null
+            handler.createTriple(parent.uri, type, uri);
+            if (getHasValue() != null) {
+                createTriplesForHasValue(uri, XmlToRdfVocabulary.hasValue, uri);
+            }
+
+            addIndexTriples();
+
+        } else {
+            handler.createTriple(uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", type);
+            if (parent != null && !parent.useElementAsPredicate) {
+
+                String prop = builder.getInsertPredicateBetweenOrDefaultPredicate(parent.type, type, XmlToRdfVocabulary.hasChild);
+
+                if (builder.checkInvertPredicate(prop, parent.type, type)) {
+                    handler.createTriple(uri, prop, parent.uri);
+                } else {
+                    handler.createTriple(parent.uri, prop, uri);
+                }
+
+            }
+
+            if (getHasValue() != null) {
+                createTriplesForHasValue(uri, XmlToRdfVocabulary.hasValue, type);
+            }
+
+            if (!mixedContent.isEmpty()) {
+                handler.createList(uri, XmlToRdfVocabulary.hasMixedContent, mixedContent);
+            }
+
+            addIndexTriples();
+
+        }
+
+        properties.stream().filter(property -> property != null).forEach((property) -> {
+
+            ResourceType uriForTextInAttribute = builder.getUriForTextInAttribute(type, property.uriAttr + property.qname, property.value);
+            if (uriForTextInAttribute != null) {
+                handler.createTriple(uri, property.uriAttr + property.qname, uriForTextInAttribute);
+
+            } else {
+                handler.createTripleLiteral(uri, property.uriAttr + property.qname, property.value);
+
+            }
+
+
+        });
+
+        if (!delayedOutput) {
+            cleanUp();
+        }
+
+    }
+
+    private void createTriplesForHasValue(final String subject, final String predicates, final String dataTypeLookup) {
+        Optional<ResourceType> resourceType = handler.mapLiteralToResource(this);
+        autoDetectedAsLiteralProperty = true;
+        if (builder.dataTypeOnElement != null && builder.dataTypeOnElement.containsKey(dataTypeLookup)) {
+            if (resourceType.isPresent()) {
+                throw new IllegalStateException("Can not both map literal to object and have datatype at the same time.");
+            }
+            handler.createTripleLiteral(subject, predicates, getHasValue(), builder.dataTypeOnElement.get(dataTypeLookup)); //TRANSFORM
+        } else {
+            if (resourceType.isPresent()) {
+                handler.createTriple(subject, predicates, resourceType.get());
+            } else {
+                handler.createTripleLiteral(subject, predicates, getHasValue()); //TRANSFORM
+            }
+        }
+    }
+
+    private void addIndexTriples() {
+        if (builder.addIndex) {
+            handler.createTripleLiteral(uri, XmlToRdfVocabulary.index, index);
+            handler.createTripleLiteral(uri, XmlToRdfVocabulary.elementIndex, elementIndex);
+
+        }
+    }
+
+    private void cleanUp() {
+        hasChild = null;
+        parent = null;
+        properties = null;
+    }
 
 }
 

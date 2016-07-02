@@ -26,7 +26,6 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.impl.GraphWithPerform;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.apache.jena.vocabulary.XSD;
 import org.openrdf.model.vocabulary.RDF;
 import org.xml.sax.SAXException;
 
@@ -38,7 +37,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 
-public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
+class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
     private static final Node RDF_REST = NodeFactory.createURI(RDF.REST.toString());
     private static final Node RDF_FIRST = NodeFactory.createURI(RDF.FIRST.toString());
@@ -52,7 +51,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
     private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile));
 
-    public AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
+    AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
         super(new NullOutputStream(), builder);
 
         queue = new ArrayBlockingQueue<>(builder.buffer, false);
@@ -80,7 +79,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
                 }
 
                 prefixUriMap.forEach(dataset.getDefaultModel()::setNsPrefix);
-                dataset.getDefaultModel().setNsPrefix("xsd", XSD.NS);
+                dataset.getDefaultModel().setNsPrefix("xsd", XSD);
 
             }
         };
@@ -89,7 +88,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
     }
 
 
-    public String createTriple(String subject, String predicate, String object) {
+    public void createTriple(String subject, String predicate, String object) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -100,12 +99,11 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
         addTripleToQueue(subjectNode, predicateNode, objectNode);
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
 
-    public String createTriple(String subject, String predicate, Node objectNode) {
+    public void createTriple(String subject, String predicate, Node objectNode) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -113,14 +111,13 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         subjectNode = getNode(subject);
         addTripleToQueue(subjectNode, predicateNode, objectNode);
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
+    public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
         if (objectLiteral == null) {
-            return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
+            return;
         }
 
         Node predicateNode = NodeFactory.createURI(predicate);
@@ -159,14 +156,13 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
         addTripleToQueue(subjectNode, predicateNode, literal);
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
+    public void createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
         if (objectLiteral == null) {
-            return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
+            return;
         }
 
         Node predicateNode = NodeFactory.createURI(predicate);
@@ -178,12 +174,11 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
         addTripleToQueue(subjectNode, predicateNode, literal);
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
 
-    public String createTripleLiteral(String subject, String predicate, long objectLong) {
+    public void createTripleLiteral(String subject, String predicate, long objectLong) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -193,11 +188,10 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
         addTripleToQueue(subjectNode, predicateNode, literal);
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
 
     }
 
-    public String createList(String subject, String predicate, List<Object> mixedContent) {
+    public void createList(String subject, String predicate, List<Object> mixedContent) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -254,7 +248,6 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         addTripleToQueue(subjectNode, predicateNode, head[0]);
 
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
     }
 
     private void addTripleToQueue(Node subjectNode, Node predicateNode, Node objectNode) {

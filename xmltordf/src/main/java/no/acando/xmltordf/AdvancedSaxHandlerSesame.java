@@ -37,7 +37,7 @@ import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
 
-public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
+class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     Repository repository;
     private LinkedBlockingDeque<Statement> queue;
@@ -52,7 +52,7 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     private SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
-    public AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
+    AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
         super(null, builder);
 
         queue = new LinkedBlockingDeque<>(builder.buffer);
@@ -96,7 +96,7 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         repoThread.start();
     }
 
-    public String createTriple(String subject, String predicate, String object) {
+    public void createTriple(String subject, String predicate, String object) {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
@@ -105,24 +105,20 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         putTripleOnQueue(subjectNode, predicateNode, objectNode);
 
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
-
     }
 
-    public String createTriple(String subject, String predicate, IRI objectNode) {
+    public void createTriple(String subject, String predicate, IRI objectNode) {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
 
         putTripleOnQueue(subjectNode, predicateNode, objectNode);
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
-
     }
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
+    public void createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
         if (objectLiteral == null) {
-            return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
+            return;
         }
 
         IRI predicateNode = valueFactory.createIRI(predicate);
@@ -132,12 +128,11 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
         putTripleOnQueue(subjectNode, predicateNode, literal);
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
     }
 
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
+    public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
         if (objectLiteral == null) {
-            return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
+            return;
         }
 
         IRI predicateNode = valueFactory.createIRI(predicate);
@@ -175,11 +170,9 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         putTripleOnQueue(subjectNode, predicateNode, literal);
 
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
-
     }
 
-    public String createTripleLiteral(String subject, String predicate, long objectLong) {
+    public void createTripleLiteral(String subject, String predicate, long objectLong) {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
@@ -190,11 +183,9 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         putTripleOnQueue(subjectNode, predicateNode, literal);
 
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
-
     }
 
-    public String createList(String subject, String predicate, List<Object> mixedContent) {
+    public void createList(String subject, String predicate, List<Object> mixedContent) {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
@@ -233,7 +224,6 @@ public class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
             }
         });
 
-        return null; //should be called from printstream connected to a /dev/null outputstream, which is why we return null
     }
 
     @Override
