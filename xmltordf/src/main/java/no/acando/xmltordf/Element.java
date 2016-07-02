@@ -171,7 +171,7 @@ public class Element<ResourceType, Datatype> {
         boolean shouldConvertToLiteralProperty = builder.autoDetectLiteralProperties && hasChild.isEmpty() && properties.isEmpty() && parent != null && parent.mixedContent.isEmpty() && !parent.useElementAsPredicate;
         if (shouldConvertToLiteralProperty) {
 
-            if (!parent.containsMixedContent && !delayedOutput && hasChild.isEmpty()) {
+            if (!parent.containsMixedContent && !delayedOutput && parent.getHasValue() == null) {
                 if (getHasValue() != null) {
                     parent.childrenWithDelayedOutput = true;
                     delayedOutput = true;
