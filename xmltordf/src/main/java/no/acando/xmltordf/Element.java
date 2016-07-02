@@ -44,6 +44,7 @@ public class Element<ResourceType, Datatype> {
     public boolean useElementAsPredicate;
     boolean containsMixedContent;
     private boolean delayedOutput;
+    private boolean childrenWithDelayedOutput;
 
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         this.handler = handler;
@@ -131,10 +132,13 @@ public class Element<ResourceType, Datatype> {
 
         endMixedContent();
 
-        hasChild.stream()
-            .filter(child -> child.delayedOutput)
-            .peek(Element::createTriples)
-            .forEach(Element::cleanUp);
+        if(childrenWithDelayedOutput){
+            hasChild.stream()
+                .filter(child -> child.delayedOutput)
+                .peek(Element::createTriples)
+                .forEach(Element::cleanUp);
+
+        }
 
 
         builder.doComplexTransformElementAtEndOfElement(this);
@@ -167,8 +171,9 @@ public class Element<ResourceType, Datatype> {
         boolean shouldConvertToLiteralProperty = builder.autoDetectLiteralProperties && hasChild.isEmpty() && properties.isEmpty() && parent != null && parent.mixedContent.isEmpty() && !parent.useElementAsPredicate;
         if (shouldConvertToLiteralProperty) {
 
-            if (!parent.containsMixedContent && !delayedOutput) {
+            if (!parent.containsMixedContent && !delayedOutput && hasChild.isEmpty()) {
                 if (getHasValue() != null) {
+                    parent.childrenWithDelayedOutput = true;
                     delayedOutput = true;
                 }
             } else {
