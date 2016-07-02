@@ -1211,6 +1211,21 @@ public class XmlToRdfTest {
     }
 
     @Test
+    public void mixedContentSpecial2() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            //.forceMixedContent("http://example.org/test")
+            .build());
+
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .build());
+    }
+
+    @Test
     public void forcedMixedContent() throws Exception {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()

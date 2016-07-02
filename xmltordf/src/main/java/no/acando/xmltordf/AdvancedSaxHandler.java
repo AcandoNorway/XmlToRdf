@@ -19,53 +19,44 @@ package no.acando.xmltordf;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
 import java.util.*;
 
 import static no.acando.xmltordf.XmlToRdfVocabulary.hasChild;
 import static no.acando.xmltordf.XmlToRdfVocabulary.hasValue;
 
 
-public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler {
-    private final PrintStream out;
+abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler {
 
-    private final Deque<Element> elementStack = new ArrayDeque<>(100);
+    private final Deque<Element<ResourceType, Datatype>> elementStack = new ArrayDeque<>(100);
+
+    final static String XSD = "http://www.w3.org/2001/XMLSchema#";
+
 
     Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
 
     private long uriCounter = 0;
     private long index = 0;
 
-    private Element skipElementUntil = null;
-    static final Element skippableElement = new Element();
+    private Element<ResourceType, Datatype> skipElementUntil = null;
+    private final Element skippableElement = new Element(this, builder);
 
-    public AdvancedSaxHandler(OutputStream out, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
-        if (out != null) {
-            this.out = new PrintStream(out);
-        } else {
-            this.out = new PrintStream(new OutputStream() {
-                @Override
-                public void write(int b) throws IOException {
+    AdvancedSaxHandler(OutputStream out, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
 
-                }
-            });
-        }
         this.builder = builder;
     }
 
-    abstract String createTriple(String subject, String predicate, String object);
+    abstract void createTriple(String subject, String predicate, String object);
 
-    abstract String createTripleLiteral(String subject, String predicate, String objectLiteral);
+    abstract void createTripleLiteral(String subject, String predicate, String objectLiteral);
 
-    abstract String createTripleLiteral(String subject, String predicate, long objectLong);
+    abstract void createTripleLiteral(String subject, String predicate, long objectLong);
 
-    abstract String createList(String subject, String predicate, List<Object> mixedContent);
+    abstract void createList(String subject, String predicate, List<Object> mixedContent);
 
-    abstract String createTripleLiteral(String subject, String predicate, String objectLiteral, Datatype datatype);
+    abstract void createTripleLiteral(String subject, String predicate, String objectLiteral, Datatype datatype);
 
-    abstract String createTriple(String uri, String hasValue, ResourceType resourceType);
+    abstract void createTriple(String uri, String hasValue, ResourceType resourceType);
 
     @Override
     public void characters(char[] ch, int start, int length) throws SAXException {
@@ -82,7 +73,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     @Override
     public void endElement(String namespace, String localName, String qName) throws SAXException {
 
-        Element pop = elementStack.pop();
+        Element<ResourceType, Datatype> pop = elementStack.pop();
 
         if (pop == skippableElement) {
             return;
@@ -93,163 +84,15 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
         }
 
-        pop.endMixedContent();
-
-        builder.doComplexTransformElementAtEndOfElement(pop);
-
-        if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(pop.type)) {
-
-            pop.hasChild.stream()
-                .forEach(child -> out.println(createTriple(pop.parent.uri, pop.type, child.uri)));
-
-            return;
-        }
-
-        if (pop.parent != null && !pop.parent.useElementAsPredicate) {
-            if (builder.convertComplexElementsWithOnlyAttributesToPredicates && pop.hasChild.isEmpty()) {
-                pop.shallow = true;
-            } else if (builder.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate) {
-                if (pop.hasChild.stream().filter((element -> !element.autoDetectedAsLiteralProperty)).count() == 0) {
-                    pop.shallow = true;
-                }
-            }
-
-            if (pop.shallow) {
-                if (builder.getInsertPredicateBetweenOrDefaultPredicate(pop.parent.type, pop.type, hasChild) != hasChild) {
-                    pop.shallow = false;
-                }
-
-            }
-        }
-
-        if (builder.autoDetectLiteralProperties && pop.hasChild.isEmpty() && pop.properties.isEmpty() && pop.parent != null && pop.parent.mixedContent.isEmpty() && !pop.parent.useElementAsPredicate) {
-            //convert to literal property
-            if (pop.getHasValue() != null) {
-                Optional<ResourceType> resourceType = mapLiteralToResource(pop);
-                pop.autoDetectedAsLiteralProperty = true;
-                if (builder.dataTypeOnElement != null && builder.dataTypeOnElement.containsKey(pop.type)) {
-                    if (resourceType.isPresent()) {
-                        throw new IllegalStateException("Can not both map literal to object and have datatype at the same time.");
-                    }
-                    out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue(), builder.dataTypeOnElement.get(pop.type))); //TRANSFORM
-                } else {
-                    if (resourceType.isPresent()) {
-                        out.println(createTriple(pop.parent.uri, pop.type, resourceType.get()));
-                    } else {
-                        out.println(createTripleLiteral(pop.parent.uri, pop.type, pop.getHasValue())); //TRANSFORM
-                    }
-                }
-            }
-
-        } else if (pop.shallow) {
-
-            //@TODO handle pop.parent == null
-            out.println(createTriple(pop.parent.uri, pop.type, pop.uri));
-            if (pop.getHasValue() != null) {
-                Optional<ResourceType> resourceType = mapLiteralToResource(pop);
-                if (builder.dataTypeOnElement != null && builder.dataTypeOnElement.containsKey(pop.uri)) {
-                    if (resourceType.isPresent()) {
-                        throw new IllegalStateException("Can not both map literal to object and have datatype at the same time.");
-                    }
-                    out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue(), builder.dataTypeOnElement.get(pop.uri))); //TRANSFORM
-
-                } else {
-
-                    if (resourceType.isPresent()) {
-                        out.println(createTriple(pop.uri, hasValue, resourceType.get()));
-                    } else {
-                        out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue())); //TRANSFORM
-                    }
-                }
-            }
-            pop.properties.stream().filter(property -> property != null).forEach((property) -> {
-
-                ResourceType uriForTextInAttribute = builder.getUriForTextInAttribute(pop.type, property.uriAttr + property.qname, property.value);
-                if (uriForTextInAttribute != null) {
-                    out.println(createTriple(pop.uri, property.uriAttr + property.qname, uriForTextInAttribute));
-
-                } else {
-                    out.println(createTripleLiteral(pop.uri, property.uriAttr + property.qname, property.value));
-
-                }
+        pop.createTriples();
 
 
-            });
-
-            if (builder.addIndex) {
-                out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.index, pop.index));
-                out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.elementIndex, pop.elementIndex));
-
-            }
-        } else {
-            out.println(createTriple(pop.uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", pop.type));
-            if (pop.parent != null && !pop.parent.useElementAsPredicate) {
-
-                String prop = builder.getInsertPredicateBetweenOrDefaultPredicate(pop.parent.type, pop.type, hasChild);
-
-                if (builder.checkInvertPredicate(prop, pop.parent.type, pop.type)) {
-                    out.println(createTriple(pop.uri, prop, pop.parent.uri));
-
-                } else {
-                    out.println(createTriple(pop.parent.uri, prop, pop.uri));
-                }
-            }
-            if (pop.getHasValue() != null) {
-                Optional<ResourceType> resourceType = mapLiteralToResource(pop);
-
-                if (builder.dataTypeOnElement != null && builder.dataTypeOnElement.containsKey(pop.type)) {
-                    if (resourceType.isPresent()) {
-                        throw new IllegalStateException("Can not both map literal to object and have datatype at the same time.");
-                    } else {
-                        out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue(), builder.dataTypeOnElement.get(pop.type))); //TRANSFORM
-                    }
-
-                } else {
-                    if (resourceType.isPresent()) {
-                        out.println(createTriple(pop.uri, hasValue, resourceType.get())); //TRANSFORM
-
-                    } else {
-                        out.println(createTripleLiteral(pop.uri, hasValue, pop.getHasValue())); //TRANSFORM
-
-                    }
-
-                }
-
-
-
-
-            }
-            if (!pop.mixedContent.isEmpty()) {
-                out.println(createList(pop.uri, XmlToRdfVocabulary.hasMixedContent, pop.mixedContent));
-            }
-            pop.properties.stream().forEach((property) -> {
-                if (property.value != null) {
-                    ResourceType uriForTextInAttribute = builder.getUriForTextInAttribute(pop.type, property.uriAttr + property.qname, property.value);
-                    if (uriForTextInAttribute != null) {
-                        out.println(createTriple(pop.uri, property.uriAttr + property.qname, uriForTextInAttribute));
-
-                    } else {
-                        out.println(createTripleLiteral(pop.uri, property.uriAttr + property.qname, property.value));
-
-                    }
-                }
-            });
-
-            if (builder.addIndex) {
-                out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.index, pop.index));
-                out.println(createTripleLiteral(pop.uri, XmlToRdfVocabulary.elementIndex, pop.elementIndex));
-
-            }
-
-        }
-
-        cleanUp(pop);
 
     }
 
-    private Optional<ResourceType> mapLiteralToResource(Element pop) {
+     Optional<ResourceType> mapLiteralToResource(Element pop) {
         if (builder.literalMap != null) {
-            Map<String, ResourceType> stringResourceTypeMap = builder.literalMap.get(pop.getType());
+            Map<String, ResourceType> stringResourceTypeMap = builder.literalMap.get(pop.type);
             if (stringResourceTypeMap != null) {
                 ResourceType value = stringResourceTypeMap.get(pop.getHasValue());
                 if (value != null) {
@@ -260,11 +103,6 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         return Optional.empty();
     }
 
-    private void cleanUp(Element pop) {
-        pop.hasChild = null;
-        pop.parent = null;
-        pop.properties = null;
-    }
 
     //TODO: this method is enormous, consider breaking it down
     @Override
@@ -289,7 +127,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
             }
         }
 
-        Element element = new Element();
+        Element<ResourceType, Datatype> element = new Element(this, builder);
         element.index = index++;
 
         namespace = calculateNamespace(namespace);
@@ -303,10 +141,9 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         }
 
 
-
         calculateNodeId(namespace, element);
 
-        Element parent = null;
+        Element<ResourceType, Datatype> parent = null;
 
         if (!elementStack.isEmpty()) {
             parent = elementStack.peek();
@@ -348,7 +185,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
     }
 
-    private void handleAttributes(String elementNamespace, Attributes attributes, Element element) {
+    private void handleAttributes(String elementNamespace, Attributes attributes, Element<ResourceType, Datatype> element) {
         int length = attributes.getLength();
         for (int i = 0; i < length; i++) {
             String uriAttr = attributes.getURI(i);
@@ -397,7 +234,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         return uriAttr;
     }
 
-    private void calculateNodeId(String uri, Element element) {
+    private void calculateNodeId(String uri, Element<ResourceType, Datatype> element) {
         if (builder.uuidBasedIdInsteadOfBlankNodes) {
             String tempUri = uri;
             if (builder.overrideNamespace != null) {
@@ -411,10 +248,10 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         }
     }
 
-    private void renameElement(String uri, String localName, Element element) {
+    private void renameElement(String uri, String localName, Element<ResourceType, Datatype> element) {
         if (builder.renameElementPathMap != null) {
             String newElementName = builder.renameElementPathMap.get(element);
-            if (newElementName != null )   {
+            if (newElementName != null) {
                 element.type = newElementName;
                 return;
             }
@@ -422,7 +259,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
 
         if (builder.renameElementMap != null) {
             String newElementName = builder.renameElementMap.get(uri + localName);
-            if(newElementName != null){
+            if (newElementName != null) {
                 element.type = newElementName;
                 return;
             }
@@ -457,7 +294,7 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
     private boolean detectMixedContent() {
 
         if (elementStack.size() > 0) {
-            Element peek = elementStack.peek();
+            Element<ResourceType, Datatype> peek = elementStack.peek();
 
             if (peek.containsMixedContent) {
                 return true;
@@ -474,12 +311,6 @@ public abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml
         return node.startsWith(Common.BLANK_NODE_PREFIX);
     }
 
-    @Override
-    public void endDocument() throws SAXException {
-
-        out.flush();
-        out.close();
-    }
 
     HashMap<String, String> prefixUriMap = new HashMap<>();
 
