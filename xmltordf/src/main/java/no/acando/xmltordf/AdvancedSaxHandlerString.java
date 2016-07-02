@@ -124,10 +124,10 @@ class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
                 stringBuilder.append("\"\"\"" + objectLiteral + "\"\"\" ");
             } else if (content instanceof Element) {
                 Element objectElement = (Element) content;
-                if (isBlankNode(objectElement.getUri())) {
-                    stringBuilder.append(objectElement.getUri() + ' ');
+                if (isBlankNode(objectElement.uri)) {
+                    stringBuilder.append(objectElement.uri + ' ');
                 } else {
-                    stringBuilder.append('<' + objectElement.getUri() + "> ");
+                    stringBuilder.append('<' + objectElement.uri + "> ");
                 }
             } else {
                 throw new IllegalStateException("Unknown type of: " + content.getClass().toString());

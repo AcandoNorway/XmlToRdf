@@ -92,7 +92,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
      Optional<ResourceType> mapLiteralToResource(Element pop) {
         if (builder.literalMap != null) {
-            Map<String, ResourceType> stringResourceTypeMap = builder.literalMap.get(pop.getType());
+            Map<String, ResourceType> stringResourceTypeMap = builder.literalMap.get(pop.type);
             if (stringResourceTypeMap != null) {
                 ResourceType value = stringResourceTypeMap.get(pop.getHasValue());
                 if (value != null) {

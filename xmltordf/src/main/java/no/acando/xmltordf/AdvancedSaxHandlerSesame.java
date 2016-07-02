@@ -200,10 +200,10 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
             } else if (content instanceof Element) {
                 Element objectElement = (Element) content;
-                if (!objectElement.getUri().startsWith("_:")) {
-                    return valueFactory.createIRI(objectElement.getUri());
+                if (!objectElement.uri.startsWith("_:")) {
+                    return valueFactory.createIRI(objectElement.uri);
                 } else {
-                    return valueFactory.createBNode(objectElement.getUri());
+                    return valueFactory.createBNode(objectElement.uri);
                 }
 
             } else {

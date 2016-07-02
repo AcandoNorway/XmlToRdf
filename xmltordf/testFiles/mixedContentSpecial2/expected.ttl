@@ -1,0 +1,40 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+_:b0    a                  <http://example.org/pnavn> ;
+        xmlToRdf:hasValue  "1" .
+
+_:b1    a                           <http://example.org/test1> ;
+        <http://example.org/test3>  "a" .
+
+_:b2    a                  <http://example.org/pnavn> ;
+        xmlToRdf:hasValue  "3" .
+
+_:b3    a                  <http://example.org/pnavn> ;
+        xmlToRdf:hasValue  "3" .
+
+[ a                  <http://example.org/A> ;
+  xmlToRdf:hasChild  [ a                         <http://example.org/test> ;
+                       xmlToRdf:hasChild         _:b4 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 _:b4 "hei" ) ;
+                       xmlToRdf:hasValue         "hei"
+                     ] ;
+  xmlToRdf:hasChild  [ a                         <http://example.org/name> ;
+                       xmlToRdf:hasChild         _:b2 , _:b5 ;
+                       xmlToRdf:hasMixedContent  ( _:b5 " 2" _:b2 " 4" ) ;
+                       xmlToRdf:hasValue         "2 4"
+                     ] ;
+  xmlToRdf:hasChild  [ a                         <http://example.org/name> ;
+                       xmlToRdf:hasChild         _:b0 , _:b3 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 " 2" _:b3 " 4" ) ;
+                       xmlToRdf:hasValue         "2 4"
+                     ]
+] .
+
+_:b5    a                          <http://example.org/pnavn> ;
+        xmlToRdf:hasValue          "1" ;
+        <http://example.org/attr>  "attr" .
+
+_:b4    a                  <http://example.org/test2> ;
+        xmlToRdf:hasValue  "b" .

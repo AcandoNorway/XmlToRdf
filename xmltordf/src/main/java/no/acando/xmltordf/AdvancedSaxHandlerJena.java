@@ -213,10 +213,10 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
                     Element objectElement = (Element) content;
 
-                    if (isBlankNode(objectElement.getUri())) {
-                        return NodeFactory.createBlankNode(objectElement.getUri());
+                    if (isBlankNode(objectElement.uri)) {
+                        return NodeFactory.createBlankNode(objectElement.uri);
                     } else {
-                        return NodeFactory.createURI(objectElement.getUri());
+                        return NodeFactory.createURI(objectElement.uri);
                     }
 
                 } else {

@@ -34,16 +34,16 @@ public class Element<ResourceType, Datatype> {
     public List<Property> properties = new ArrayList<>(3);
     long index = 0;
     long elementIndex = 0;
-    boolean shallow;
-    boolean autoDetectedAsLiteralProperty;
+    private boolean shallow;
+    private boolean autoDetectedAsLiteralProperty;
     CountingMap indexMap = new CountingMap();
 
 
     public List<Object> mixedContent = new ArrayList<>();
     public StringBuilder tempMixedContentString = new StringBuilder("");
     public boolean useElementAsPredicate;
-    public boolean containsMixedContent;
-    public boolean delayedOutput;
+    boolean containsMixedContent;
+    private boolean delayedOutput;
 
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         this.handler = handler;
@@ -52,6 +52,13 @@ public class Element<ResourceType, Datatype> {
     }
 
     public void appendValue(char[] ch, int start, int length) {
+        if(!hasChild.isEmpty()){
+            if(!containsMixedContent && !new String(ch, start, length).trim().isEmpty()){
+                containsMixedContent = true;
+                hasChild.forEach(e -> mixedContent.add(e));
+            }
+        }
+
         if (hasValue == null) {
             hasValue = new StringBuilder(new String(ch, start, length));
         } else {
@@ -59,15 +66,6 @@ public class Element<ResourceType, Datatype> {
         }
         tempMixedContentString.append(ch, start, length);
         hasValueString = null;
-    }
-
-
-    public String getType() {
-        return type;
-    }
-
-    public String getUri() {
-        return uri;
     }
 
 
@@ -103,7 +101,13 @@ public class Element<ResourceType, Datatype> {
     }
 
 
-    public void addMixedContent(Element element) {
+    void addMixedContent(Element element) {
+        if(!containsMixedContent && hasChild.size() > 1){
+            for (int i = 0; i < hasChild.size()-1; i++) {
+                mixedContent.add(hasChild.get(i));
+            }
+        }
+
         containsMixedContent = true;
         String temp = tempMixedContentString.toString();
         if (!temp.isEmpty()) {
@@ -113,7 +117,7 @@ public class Element<ResourceType, Datatype> {
         mixedContent.add(element);
     }
 
-    public void endMixedContent() {
+    private void endMixedContent() {
         if (containsMixedContent) {
             if (!tempMixedContentString.toString().isEmpty()) {
                 mixedContent.add(tempMixedContentString.toString());
@@ -122,7 +126,7 @@ public class Element<ResourceType, Datatype> {
     }
 
 
-    public void createTriples() {
+    void createTriples() {
 
 
         endMixedContent();
