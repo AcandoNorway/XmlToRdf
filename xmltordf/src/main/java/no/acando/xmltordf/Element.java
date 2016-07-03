@@ -16,9 +16,7 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 
 public class Element<ResourceType, Datatype> {
@@ -44,7 +42,7 @@ public class Element<ResourceType, Datatype> {
     public boolean useElementAsPredicate;
     boolean containsMixedContent;
     private boolean delayedOutput;
-    private boolean childrenWithDelayedOutput;
+    private Deque<Element<ResourceType, Datatype>> delayedOutputQueue = new ArrayDeque<>();
 
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         this.handler = handler;
@@ -132,9 +130,8 @@ public class Element<ResourceType, Datatype> {
 
         endMixedContent();
 
-        if(childrenWithDelayedOutput){
-            hasChild.stream()
-                .filter(child -> child.delayedOutput)
+        if(!delayedOutputQueue.isEmpty()){
+            delayedOutputQueue.stream()
                 .peek(Element::createTriples)
                 .forEach(Element::cleanUp);
 
@@ -173,8 +170,8 @@ public class Element<ResourceType, Datatype> {
 
             if (!parent.containsMixedContent && !delayedOutput && parent.getHasValue() == null) {
                 if (getHasValue() != null) {
-                    parent.childrenWithDelayedOutput = true;
                     delayedOutput = true;
+                    parent.delayedOutputQueue.push(this);
                 }
             } else {
                 if (getHasValue() != null) {
