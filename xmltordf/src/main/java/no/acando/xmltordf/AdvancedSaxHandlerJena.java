@@ -80,6 +80,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
                 prefixUriMap.forEach(dataset.getDefaultModel()::setNsPrefix);
                 dataset.getDefaultModel().setNsPrefix("xsd", XSD);
+                dataset.getDefaultModel().setNsPrefix("xmlTodRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
 
             }
         };

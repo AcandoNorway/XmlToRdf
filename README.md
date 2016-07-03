@@ -41,7 +41,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.4</version>
+    <version>1.4.6</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.4.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.6.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -141,7 +141,34 @@ Dataset dataset = Builder.getAdvancedBuilderJena().build().convertToDataset(in);
 BufferedInputStream in = new BufferedInputStream(new FileInputStream("data.xml"));
 Repository repository = Builder.getAdvancedBuilderSesame().build().convertToRepository(in);
  ```
+ 
+## Mixed content
+ 
+ XML allows for mixed content where an element can contain both text and other elements. XmlToRdf detects and converts mixed content into a RDF list structure.
+ 
+ ```xml
+ <document xmlns="http://example.org/">
+     <paragraph>Hello <b>World</b>!</paragraph>
+ </document>
+ ```
+ 
+ Will give the following turtle output by default:
+ 
+ ```turtle
+ [ a                   :document ;
+   xmlTodRdf:hasChild  [ a                          :paragraph ;
+                         xmlTodRdf:hasChild         _:b0 ;
+                         xmlTodRdf:hasMixedContent  ( "Hello " _:b0 "!" ) ;
+                         xmlTodRdf:hasValue         "Hello !"
+                       ]
+ ] .
+ 
+ _:b0    a                   :b ;
+         xmlTodRdf:hasValue  "World" .
+ ```
 
+Sometimes an element will contain mixed content in some XML documents, but not in others. In this case it is possible to force an element to always be 
+evaluated as mixed content by adding `.forceMixedContent("http://example.org/paragraph")` with the appropriate element name to the builder.
 
 # Java docs
 
@@ -238,7 +265,7 @@ Builder.getAdvancedBuilderStream()
 ---
 ## renameElement(Builder.XmlPath path, String to)
 
-Change the name of an element.
+Change the name of an element at the end of a specific path. Useful for renaming elements that .
 
 **XML example**
 ```xml
@@ -521,7 +548,7 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-## addUseAttributeForId(String elementName, String attributeName, StringTransform stringTransform)
+## useAttributeForId(String elementName, String attributeName, StringTransform stringTransform)
 
 Use an attribute on an element to generate an identifier for the RDF node.
  Any single attribute can be used, and adding a namespace or a prefix to the ID is simple
@@ -543,7 +570,7 @@ Use an attribute on an element to generate an identifier for the RDF node.
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .addUseAttributeForId("http://example.org/record", "http://example.org/nr", v -> "http://acme.com/records/"+v)
+   .useAttributeForId("http://example.org/record", "http://example.org/nr", v -> "http://acme.com/records/"+v)
    .build()
 ```
 
@@ -552,6 +579,10 @@ Builder.getAdvancedBuilderStream()
 @prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 <http://acme.com/records/0000002>
         a         ex:record ;
@@ -562,10 +593,6 @@ Builder.getAdvancedBuilderStream()
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
-
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
 
 ```
 
@@ -1327,7 +1354,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:a3b55b3c-ecfa-4b7a-85ba-8967265c4eb2
+ex:086bb564-f67f-4603-a4cc-26288c3b2cd4
         a        ex:people ;
         ex:name  "John Doe" .
 

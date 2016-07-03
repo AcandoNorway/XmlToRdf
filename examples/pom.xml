@@ -15,6 +15,7 @@
         <module>brreg</module>
         <module>yr</module>
         <module>reportingHub</module>
+        <module>mixedContent</module>
     </modules>
 
     <dependencies>
@@ -26,7 +27,7 @@
         <dependency>
             <groupId>no.acando</groupId>
             <artifactId>xmltordf</artifactId>
-            <version>1.4.5</version>
+            <version>1.4.6</version>
         </dependency>
     </dependencies>
 

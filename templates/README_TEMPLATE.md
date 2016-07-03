@@ -141,7 +141,34 @@ Dataset dataset = Builder.getAdvancedBuilderJena().build().convertToDataset(in);
 BufferedInputStream in = new BufferedInputStream(new FileInputStream("data.xml"));
 Repository repository = Builder.getAdvancedBuilderSesame().build().convertToRepository(in);
  ```
+ 
+## Mixed content
+ 
+ XML allows for mixed content where an element can contain both text and other elements. XmlToRdf detects and converts mixed content into a RDF list structure.
+ 
+ ```xml
+ <document xmlns="http://example.org/">
+     <paragraph>Hello <b>World</b>!</paragraph>
+ </document>
+ ```
+ 
+ Will give the following turtle output by default:
+ 
+ ```turtle
+ [ a                   :document ;
+   xmlTodRdf:hasChild  [ a                          :paragraph ;
+                         xmlTodRdf:hasChild         _:b0 ;
+                         xmlTodRdf:hasMixedContent  ( "Hello " _:b0 "!" ) ;
+                         xmlTodRdf:hasValue         "Hello !"
+                       ]
+ ] .
+ 
+ _:b0    a                   :b ;
+         xmlTodRdf:hasValue  "World" .
+ ```
 
+Sometimes an element will contain mixed content in some XML documents, but not in others. In this case it is possible to force an element to always be 
+evaluated as mixed content by adding `.forceMixedContent("http://example.org/paragraph")` with the appropriate element name to the builder.
 
 # Java docs
 
