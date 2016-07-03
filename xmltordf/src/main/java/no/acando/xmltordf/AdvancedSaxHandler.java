@@ -22,9 +22,6 @@ import org.xml.sax.SAXException;
 import java.io.OutputStream;
 import java.util.*;
 
-import static no.acando.xmltordf.XmlToRdfVocabulary.hasChild;
-import static no.acando.xmltordf.XmlToRdfVocabulary.hasValue;
-
 
 abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler {
 

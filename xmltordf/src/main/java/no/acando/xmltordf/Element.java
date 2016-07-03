@@ -43,6 +43,7 @@ public class Element<ResourceType, Datatype> {
     boolean containsMixedContent;
     private boolean delayedOutput;
     private Runnable delayedCallback;
+    private int childrenWithAutoDetectedAsLiteralProperty;
 
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         this.handler = handler;
@@ -148,7 +149,7 @@ public class Element<ResourceType, Datatype> {
             if (builder.convertComplexElementsWithOnlyAttributesToPredicates && hasChild.isEmpty()) {
                 shallow = true;
             } else if (builder.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate) {
-                if (hasChild.stream().filter((element -> !element.autoDetectedAsLiteralProperty)).count() == 0) {
+                if(childrenWithAutoDetectedAsLiteralProperty == hasChild.size()){
                     shallow = true;
                 }
             }
@@ -252,6 +253,9 @@ public class Element<ResourceType, Datatype> {
     private void createTriplesForHasValue(final String subject, final String predicates, final String dataTypeLookup) {
         Optional<ResourceType> resourceType = handler.mapLiteralToResource(this);
         autoDetectedAsLiteralProperty = true;
+        if(parent != null){
+            parent.childrenWithAutoDetectedAsLiteralProperty++;
+        }
         if (builder.dataTypeOnElement != null && builder.dataTypeOnElement.containsKey(dataTypeLookup)) {
             if (resourceType.isPresent()) {
                 throw new IllegalStateException("Can not both map literal to object and have datatype at the same time.");
