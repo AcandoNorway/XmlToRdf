@@ -78,6 +78,49 @@ public class XmlToRdfTest {
     }
 
     @Test
+    public void renameOnPath() throws Exception {
+        testAdvancedJena(
+            Builder.getAdvancedBuilderJena()
+                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
+                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
+                .build());
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
+            .build());
+
+    }
+
+    @Test
+    public void renameOnPathLongest() throws Exception {
+        testAdvancedJena(
+            Builder.getAdvancedBuilderJena()
+                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
+                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
+                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
+                .build());
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
+            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
+            .build());
+
+    }
+
+    @Test
     public void simpleWithAttrs() throws Exception {
 
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
@@ -295,18 +338,18 @@ public class XmlToRdfTest {
         final String b = "B";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .addUseAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
-            .addUseAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .addUseAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
             .build());
 
     }
@@ -318,18 +361,18 @@ public class XmlToRdfTest {
         final String b = "http://example2.com/B";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addUseAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .addUseAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addUseAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
     }
 
@@ -337,19 +380,19 @@ public class XmlToRdfTest {
     public void attributeForId2() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addUseAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
 
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .addUseAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addUseAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
     }
 
@@ -643,34 +686,34 @@ public class XmlToRdfTest {
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .addTransformationForAttributeValue(null, RDF_NODE_ID,
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
-            .addUseAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
+            .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
             .build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .addTransformationForAttributeValue(null, RDF_NODE_ID,
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
-            .addUseAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
+            .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
             .build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .addTransformationForAttributeValue(null, RDF_NODE_ID,
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
-            .addUseAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
+            .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
             .build());
     }
 
     @Test
     public void skosFromLexaurus() throws Exception {
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addUseAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
             .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .addUseAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
             .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addUseAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
             .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
     }
 
@@ -794,6 +837,26 @@ public class XmlToRdfTest {
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
             .invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
+            .build());
+
+    }
+
+    @Test
+    public void autoTypedLiterals() throws Exception {
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .autoTypeLiterals(true)
+
+            .build());
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .autoTypeLiterals(true)
+
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .autoTypeLiterals(true)
+
             .build());
 
     }
@@ -1116,12 +1179,42 @@ public class XmlToRdfTest {
             .skipElement("http://example.org/B")
             .build());
     }
+    @Test
+    public void mapAttributeTextToResource() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", SimpleValueFactory.getInstance().createIRI("http://http://example.org/c"))
+            .build());
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", NodeFactory.createURI("http://http://example.org/c"))
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", "http://http://example.org/c")
+            .build());
+    }
 
 
     @Test
     public void mixedContentSpecial() throws Exception {
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .build());
+
+
+        testAdvancedJena(Builder.getAdvancedBuilderJena()
+            .build());
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream()
+            .build());
+    }
+
+    @Test
+    public void mixedContentSpecial2() throws Exception {
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            //.forceMixedContent("http://example.org/test")
             .build());
 
 
@@ -1158,6 +1251,7 @@ public class XmlToRdfTest {
         Model actualModelJena = build.convertToDataset(new FileInputStream(testFiles.xml)).getDefaultModel();
 
         Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
+
 
         if (!expectedModel.isIsomorphicWith(actualModelJena)) {
             try {

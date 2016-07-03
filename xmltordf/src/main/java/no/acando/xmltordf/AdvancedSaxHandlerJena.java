@@ -29,11 +29,15 @@ import org.apache.jena.query.DatasetFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.xml.sax.SAXException;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 
-public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
+class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
     private static final Node RDF_REST = NodeFactory.createURI(RDF.REST.toString());
     private static final Node RDF_FIRST = NodeFactory.createURI(RDF.FIRST.toString());
@@ -47,7 +51,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
     private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile));
 
-    public AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
+    AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
         super(new NullOutputStream(), builder);
 
         queue = new ArrayBlockingQueue<>(builder.buffer, false);
@@ -75,6 +79,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
                 }
 
                 prefixUriMap.forEach(dataset.getDefaultModel()::setNsPrefix);
+                dataset.getDefaultModel().setNsPrefix("xsd", XSD);
 
             }
         };
@@ -83,8 +88,7 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
     }
 
 
-    //TODO: this always returns null, what up?
-    public String createTriple(String subject, String predicate, String object) {
+    public void createTriple(String subject, String predicate, String object) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -93,31 +97,27 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         subjectNode = getNode(subject);
         objectNode = getNode(object);
 
-        addTripleToQueue(predicateNode, subjectNode, objectNode);
+        addTripleToQueue(subjectNode, predicateNode, objectNode);
 
-        return null;
 
     }
 
 
-    //TODO: this always returns null, what up?
-    public String createTriple(String subject, String predicate, Node objectNode) {
+    public void createTriple(String subject, String predicate, Node objectNode) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
 
         subjectNode = getNode(subject);
-        addTripleToQueue(predicateNode, subjectNode, objectNode);
+        addTripleToQueue(subjectNode, predicateNode, objectNode);
 
-        return null;
 
     }
 
 
-    //TODO: this always returns null, what up?
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral) {
+    public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
         if (objectLiteral == null) {
-            return null;
+            return;
         }
 
         Node predicateNode = NodeFactory.createURI(predicate);
@@ -125,18 +125,44 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
         subjectNode = getNode(subject);
 
-        Node literal = NodeFactory.createLiteral(objectLiteral, null, false);
+        Node literal = null;
+        if (builder.autoTypeLiterals) {
 
-        addTripleToQueue(predicateNode, subjectNode, literal);
+            try {
+                Integer.parseInt(objectLiteral);
+                literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDinteger);
+            } catch (NumberFormatException e) {
+                try {
+                    Double.parseDouble(objectLiteral);
+                    literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdecimal);
+                } catch (NumberFormatException e2) {
+                    try {
+                        LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
+                        literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdateTime);
+                    } catch (DateTimeParseException e3) {
+                        try {
+                            LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
+                            literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdate);
+                        } catch (DateTimeParseException e4) {
+                            literal = NodeFactory.createLiteral(objectLiteral, null, false);
+                        }
+                    }
+                }
+            }
+        } else {
+            literal = NodeFactory.createLiteral(objectLiteral, null, false);
+        }
 
-        return null;
+
+        addTripleToQueue(subjectNode, predicateNode, literal);
+
 
     }
 
-    //TODO: this always returns null, what up?
-    public String createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
+
+    public void createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
         if (objectLiteral == null) {
-            return null;
+            return;
         }
 
         Node predicateNode = NodeFactory.createURI(predicate);
@@ -146,14 +172,13 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
         Node literal = NodeFactory.createLiteral(objectLiteral, datatype);
 
-        addTripleToQueue(predicateNode, subjectNode, literal);
+        addTripleToQueue(subjectNode, predicateNode, literal);
 
-        return null;
 
     }
 
-    //TODO: this always returns null, what up?
-    public String createTripleLiteral(String subject, String predicate, long objectLong) {
+
+    public void createTripleLiteral(String subject, String predicate, long objectLong) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -161,13 +186,12 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
         subjectNode = getNode(subject);
         Node literal = NodeFactory.createLiteral(objectLong + "", XSDDatatype.XSDlong);
 
-        addTripleToQueue(predicateNode, subjectNode, literal);
+        addTripleToQueue(subjectNode, predicateNode, literal);
 
-        return null;
 
     }
 
-    public String createList(String subject, String predicate, List<Object> mixedContent) {
+    public void createList(String subject, String predicate, List<Object> mixedContent) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -189,10 +213,10 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
                     Element objectElement = (Element) content;
 
-                    if (isBlankNode(objectElement.getUri())) {
-                        return NodeFactory.createBlankNode(objectElement.getUri());
+                    if (isBlankNode(objectElement.uri)) {
+                        return NodeFactory.createBlankNode(objectElement.uri);
                     } else {
-                        return NodeFactory.createURI(objectElement.getUri());
+                        return NodeFactory.createURI(objectElement.uri);
                     }
 
                 } else {
@@ -205,22 +229,13 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
                 if (head[0] == null) {
                     head[0] = blankNode;
-                    try {
-                        queue.put(new Triple(head[0], RDF_FIRST, value));
-                    } catch (InterruptedException e) {
-                        //TODO: handle or throw up the stack
-                        e.printStackTrace();
-                    }
+
+                    addTripleToQueue(head[0], RDF_FIRST, value);
 
                 } else {
-                    try {
-                        queue.put(new Triple(temporaryNode[0], RDF_REST, blankNode));
-                        queue.put(new Triple(blankNode, RDF_FIRST, value));
 
-                    } catch (InterruptedException e) {
-                        //TODO: handle or throw up the stack
-                        e.printStackTrace();
-                    }
+                    addTripleToQueue(temporaryNode[0], RDF_REST, blankNode);
+                    addTripleToQueue(blankNode, RDF_FIRST, value);
 
                 }
 
@@ -228,25 +243,19 @@ public class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype
 
             });
 
-        try {
-            queue.put(new Triple(temporaryNode[0], RDF_REST, RDF_NIL));
-            queue.put(new Triple(subjectNode, predicateNode, head[0]));
 
-        } catch (InterruptedException e) {
-            //TODO: handle or throw up the stack
-            e.printStackTrace();
-        }
+        addTripleToQueue(temporaryNode[0], RDF_REST, RDF_NIL);
+        addTripleToQueue(subjectNode, predicateNode, head[0]);
 
-        return null;
+
     }
 
-    private void addTripleToQueue(Node predicateNode, Node subjectNode, Node objectNode) {
+    private void addTripleToQueue(Node subjectNode, Node predicateNode, Node objectNode) {
         Triple triple = new Triple(subjectNode, predicateNode, objectNode);
         try {
             queue.put(triple);
         } catch (InterruptedException e) {
-            //TODO: handle this or throw it up the stack
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
 

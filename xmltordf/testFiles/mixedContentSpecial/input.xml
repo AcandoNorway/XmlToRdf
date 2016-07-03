@@ -1,4 +1,4 @@
-<A xmlns="htt://example.org/">
+<A xmlns="http://example.org/">
     <B>
         <num>1</num>
         <name>text <pnavn>a name</pnavn> more text</name>

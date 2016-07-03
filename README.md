@@ -41,7 +41,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.5</version>
+    <version>1.4.4</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.5.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.4.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -231,6 +231,52 @@ Builder.getAdvancedBuilderStream()
 
 [ a        ex:PEOPLE ;
   ex:name  "John Doe"
+] .
+
+```
+
+---
+## renameElement(Builder.XmlPath path, String to)
+
+Change the name of an element.
+
+**XML example**
+```xml
+<window xmlns="http://example.org/">
+  <frame>
+    <tittle>Main frame</tittle>
+  </frame>
+  <frame>
+    <frame>
+      <tittle>Sub frame</tittle>
+    </frame>
+  </frame>
+</window>
+```
+
+### 
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .renameElement(Builder.createPath("http://example.org/frame","http://example.org/frame"), "http://example.org/subFrame")
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                  ex:window ;
+  xmlToRdf:hasChild  [ a                  ex:frame ;
+                       xmlToRdf:hasChild  [ a          ex:subFrame ;
+                                            ex:tittle  "Sub frame"
+                                          ]
+                     ] ;
+  xmlToRdf:hasChild  [ a          ex:frame ;
+                       ex:tittle  "Main frame"
+                     ]
 ] .
 
 ```
@@ -512,14 +558,14 @@ Builder.getAdvancedBuilderStream()
         ex:nr     "0000002" ;
         ex:title  "Other record" .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000001>
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 ```
 
@@ -835,12 +881,12 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/people> ;
+[ a                  <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/people> ;
   xmlToRdf:hasChild  [ a                       <http://other.org/name> ;
                        xmlToRdf:hasValue       "Unknown" ;
                        <http://other.org/age>  "2"
                      ] ;
-  xmlToRdf:hasChild  [ a                       <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/name> ;
+  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/name> ;
                        xmlToRdf:hasValue       "John Doe" ;
                        <http://other.org/age>  "1"
                      ]
@@ -944,13 +990,13 @@ Builder.getAdvancedBuilderStream()
 
 [ a                  ex:people ;
   xmlToRdf:hasChild  [ a                      ex:person ;
-                       ex:age                 "99" ;
-                       ex:dateAndTimeOfBirth  "1900-01-01T00:00:01+01:00" ;
-                       ex:dateOfBirth         "1900-01-01" ;
-                       ex:idNumber            "1234" ;
+                       ex:age                 99 ;
+                       ex:dateAndTimeOfBirth  "1900-01-01T00:00:01+01:00"^^xsd:dateTime ;
+                       ex:dateOfBirth         "1900-01-01"^^xsd:date ;
+                       ex:idNumber            1234 ;
                        ex:married             "true" ;
                        ex:name                "John Doe" ;
-                       ex:weight              "80.5"
+                       ex:weight              80.5
                      ]
 ] .
 
@@ -1281,7 +1327,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:e4acaa9f-11fe-4770-9f46-a549a2895f1f
+ex:a3b55b3c-ecfa-4b7a-85ba-8967265c4eb2
         a        ex:people ;
         ex:name  "John Doe" .
 
@@ -1388,9 +1434,9 @@ Do any transformation on an element will full access to information about its at
 Builder.getAdvancedBuilderStream()
    .addComplexElementTransformAtEndOfElement("http://example.org/name", element -> element.type = element.type.toUpperCase())
    .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> {
-       if(element.hasChild.size() > 1){
-           element.type = "http://example.org/people";
-       }
+   if(element.hasChild.size() > 1){
+   element.type = "http://example.org/people";
+   }
    })
    .build()
 ```
@@ -1442,16 +1488,16 @@ Builder.getAdvancedBuilderStream()
 
 Do any transformation on an element will full access to information about its attributes but not about it's children.
  The transformation is applied when the convertor finishes processing the attributes at the start of a tag.
-
+ <p>
  Take careful note, as shown in the examples, that transforming an element at the start is simpler to reason about that at the
  end when you are using options such as insertPredicate. In the seconds java example the transform is run at the end of the element,
  after the insertPredicate() method has run.
-
+ <p>
  ```xml
  <people> <!-- start element transform runs now -->
-     <person> <!-- start element transform runs now -->
-         <name>John Doe</name>
-     </person> <!-- end element transform followed by insertPredicate runs now -->
+ <person> <!-- start element transform runs now -->
+ <name>John Doe</name>
+ </person> <!-- end element transform followed by insertPredicate runs now -->
  </people> <!-- end element transform runs now -->
  ```
 
@@ -1470,7 +1516,7 @@ Do any transformation on an element will full access to information about its at
 Builder.getAdvancedBuilderStream()
    .addComplexElementTransformAtStartOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
    .addComplexElementTransformAtStartOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
-    .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
+   .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
    .build()
 ```
 
@@ -1495,7 +1541,7 @@ Builder.getAdvancedBuilderStream()
 Builder.getAdvancedBuilderStream()
    .addComplexElementTransformAtEndOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
    .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
-    .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
+   .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
    .build()
 ```
 

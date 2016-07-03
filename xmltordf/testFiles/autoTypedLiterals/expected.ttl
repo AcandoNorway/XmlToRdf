@@ -1,0 +1,12 @@
+@prefix :      <http://example.org/> .
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+[ a          :A ;
+  :date      "2011-01-01Z"^^xsd:date , "2011-01-01+01:00"^^xsd:date , "2011-01-01"^^xsd:date ;
+  :dateTime  "2011-01-01T00:01+01:00"^^xsd:dateTime , "2011-01-01T00:01Z"^^xsd:dateTime , "2011-01-01T00:01"^^xsd:dateTime ;
+  :double    1.1 ;
+  :int       1
+] .

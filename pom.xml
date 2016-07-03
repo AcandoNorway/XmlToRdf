@@ -11,6 +11,7 @@
     <modules>
         <module>doclet</module>
         <module>xmltordf</module>
+        <module>examples</module>
     </modules>
 
     <dependencies>
