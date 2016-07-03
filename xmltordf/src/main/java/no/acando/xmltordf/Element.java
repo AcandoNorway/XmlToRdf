@@ -42,7 +42,7 @@ public class Element<ResourceType, Datatype> {
     public boolean useElementAsPredicate;
     boolean containsMixedContent;
     private boolean delayedOutput;
-    private Deque<Element<ResourceType, Datatype>> delayedOutputQueue = new ArrayDeque<>();
+    private Runnable delayedCallback;
 
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         this.handler = handler;
@@ -51,8 +51,8 @@ public class Element<ResourceType, Datatype> {
     }
 
     public void appendValue(char[] ch, int start, int length) {
-        if(!hasChild.isEmpty()){
-            if(!containsMixedContent && !new String(ch, start, length).trim().isEmpty()){
+        if (!hasChild.isEmpty()) {
+            if (!containsMixedContent && !new String(ch, start, length).trim().isEmpty()) {
                 containsMixedContent = true;
                 hasChild.forEach(e -> mixedContent.add(e));
             }
@@ -101,8 +101,8 @@ public class Element<ResourceType, Datatype> {
 
 
     void addMixedContent(Element element) {
-        if(!containsMixedContent && hasChild.size() > 1){
-            for (int i = 0; i < hasChild.size()-1; i++) {
+        if (!containsMixedContent && hasChild.size() > 1) {
+            for (int i = 0; i < hasChild.size() - 1; i++) {
                 mixedContent.add(hasChild.get(i));
             }
         }
@@ -130,13 +130,9 @@ public class Element<ResourceType, Datatype> {
 
         endMixedContent();
 
-        if(!delayedOutputQueue.isEmpty()){
-            delayedOutputQueue.stream()
-                .peek(Element::createTriples)
-                .forEach(Element::cleanUp);
-
+        if (delayedCallback != null) {
+            delayedCallback.run();
         }
-
 
         builder.doComplexTransformElementAtEndOfElement(this);
 
@@ -171,7 +167,24 @@ public class Element<ResourceType, Datatype> {
             if (!parent.containsMixedContent && !delayedOutput && parent.getHasValue() == null) {
                 if (getHasValue() != null) {
                     delayedOutput = true;
-                    parent.delayedOutputQueue.push(this);
+                    if (parent.delayedCallback == null) {
+                        parent.delayedCallback = () -> {
+                            createTriples();
+                            cleanUp();
+                        };
+
+                    } else {
+
+                        Runnable delayedCallback = parent.delayedCallback;
+
+                        parent.delayedCallback = () -> {
+                            createTriples();
+                            cleanUp();
+                            delayedCallback.run();
+                        };
+
+                    }
+
                 }
             } else {
                 if (getHasValue() != null) {
