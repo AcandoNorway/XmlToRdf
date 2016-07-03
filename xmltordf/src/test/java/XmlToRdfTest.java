@@ -338,18 +338,18 @@ public class XmlToRdfTest {
         final String b = "B";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .addUseAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
-            .addUseAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .addUseAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
             .build());
 
     }
@@ -361,18 +361,18 @@ public class XmlToRdfTest {
         final String b = "http://example2.com/B";
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addUseAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .addUseAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addUseAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
     }
 
@@ -380,19 +380,19 @@ public class XmlToRdfTest {
     public void attributeForId2() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addUseAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
 
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .addUseAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addUseAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .addUseAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
     }
 
@@ -686,34 +686,34 @@ public class XmlToRdfTest {
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .addTransformationForAttributeValue(null, RDF_NODE_ID,
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
-            .addUseAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
+            .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
             .build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .addTransformationForAttributeValue(null, RDF_NODE_ID,
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
-            .addUseAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
+            .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
             .build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .addTransformationForAttributeValue(null, RDF_NODE_ID,
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
-            .addUseAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
+            .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
             .build());
     }
 
     @Test
     public void skosFromLexaurus() throws Exception {
         testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addUseAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
             .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-            .addUseAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
             .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addUseAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
+            .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
             .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
     }
 

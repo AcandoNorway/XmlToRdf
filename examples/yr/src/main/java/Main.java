@@ -35,6 +35,8 @@ public class Main {
 
         String url = YR_NS + "place/Norway/Telemark/Sauherad/Gvarv/forecast.xml";
 
+//        System.out.println(IOUtils.toString(new URI(url)));
+
         ByteArrayInputStream yrXml = new ByteArrayInputStream(IOUtils.toString(new URI(url)).getBytes());
 
         Builder.AdvancedJena builder = Builder.getAdvancedBuilderJena()
@@ -66,6 +68,8 @@ public class Main {
             .insertPredicate(YR_NS + "location").between(YR_NS + "TextualForecast", YR_NS + "location")
 
             .mapTextInElementToUri(YR_NS + "country", "Norway", NodeFactory.createURI("http://dbpedia.org/resource/Norway"))
+
+            .useAttributeForId(null, YR_NS+"geobaseid", v -> YR_NS+"location/"+v)
 
             ;
 

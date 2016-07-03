@@ -346,13 +346,13 @@ public class Builder {
          * </archive>
          * @exampleLabel Use the record number (nr) as the node ID in the RDF.
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .addUseAttributeForId("http://example.org/record", "http://example.org/nr", v -> "http://acme.com/records/"+v)
+         * .useAttributeForId("http://example.org/record", "http://example.org/nr", v -> "http://acme.com/records/"+v)
          * .build()
          * @exampleLabel With default blank node
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
-        public T addUseAttributeForId(String elementName, String attributeName, StringTransform stringTransform) {
+        public T useAttributeForId(String elementName, String attributeName, StringTransform stringTransform) {
             if (useAttributedForIdMap == null) {
                 useAttributedForIdMap = new HashMapNoOverwriteWithDefaultTwoLevels<>();
 
@@ -363,7 +363,7 @@ public class Builder {
         }
 
 
-        void useAttributedForId(String type, String s, String value, Element element) {
+        void getIdByUseAttributeForId(String type, String s, String value, Element element) {
             if (useAttributedForIdMap != null) {
 
                 StringTransform stringTransform = useAttributedForIdMap.get(type, s);

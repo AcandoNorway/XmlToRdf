@@ -203,7 +203,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
                 valueAttr = String.join("", split);
             }
 
-            builder.useAttributedForId(element.type, uriAttr + nameAttr, valueAttr, element);
+            builder.getIdByUseAttributeForId(element.type, uriAttr + nameAttr, valueAttr, element);
 
             element.properties.add(new Property(uriAttr, nameAttr, valueAttr));
 

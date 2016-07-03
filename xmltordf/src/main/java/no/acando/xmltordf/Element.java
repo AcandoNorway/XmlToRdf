@@ -26,9 +26,9 @@ public class Element<ResourceType, Datatype> {
 
     public String type;
     public String uri;
-    public Element parent;
+    public Element<ResourceType, Datatype> parent;
     public StringBuilder hasValue;
-    public List<Element> hasChild = new ArrayList<>(10);
+    public List<Element<ResourceType, Datatype>> hasChild = new ArrayList<>(10);
     public List<Property> properties = new ArrayList<>(3);
     long index = 0;
     long elementIndex = 0;
@@ -42,7 +42,7 @@ public class Element<ResourceType, Datatype> {
     public boolean useElementAsPredicate;
     boolean containsMixedContent;
     private boolean delayedOutput;
-    private Runnable delayedCallback;
+    private Runnable delayedCreateTripleCallback;
     private int childrenWithAutoDetectedAsLiteralProperty;
 
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
@@ -101,7 +101,7 @@ public class Element<ResourceType, Datatype> {
     }
 
 
-    void addMixedContent(Element element) {
+    void addMixedContent(Element<ResourceType, Datatype> element) {
         if (!containsMixedContent && hasChild.size() > 1) {
             for (int i = 0; i < hasChild.size() - 1; i++) {
                 mixedContent.add(hasChild.get(i));
@@ -128,11 +128,10 @@ public class Element<ResourceType, Datatype> {
 
     void createTriples() {
 
-
         endMixedContent();
 
-        if (delayedCallback != null) {
-            delayedCallback.run();
+        if (delayedCreateTripleCallback != null) {
+            delayedCreateTripleCallback.run();
         }
 
         builder.doComplexTransformElementAtEndOfElement(this);
@@ -168,17 +167,17 @@ public class Element<ResourceType, Datatype> {
             if (!parent.containsMixedContent && !delayedOutput && parent.getHasValue() == null) {
                 if (getHasValue() != null) {
                     delayedOutput = true;
-                    if (parent.delayedCallback == null) {
-                        parent.delayedCallback = () -> {
+                    if (parent.delayedCreateTripleCallback == null) {
+                        parent.delayedCreateTripleCallback = () -> {
                             createTriples();
                             cleanUp();
                         };
 
                     } else {
 
-                        Runnable delayedCallback = parent.delayedCallback;
+                        Runnable delayedCallback = parent.delayedCreateTripleCallback;
 
-                        parent.delayedCallback = () -> {
+                        parent.delayedCreateTripleCallback = () -> {
                             createTriples();
                             cleanUp();
                             delayedCallback.run();
