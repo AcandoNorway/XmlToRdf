@@ -831,7 +831,23 @@ public class Builder {
             return (T) this;
         }
 
-        // TODO: Document this
+        /**
+         * @param elementName The fully URI of the element.
+         * @return
+         * @description Force mixed content handling for elements, even when they do not
+         * contain mixed content.
+         * @xml <document xmlns="http://example.org/">
+         * <paragraph><b>Hello</b> <b>World</b>!</paragraph>
+         * <paragraph>Hello, World!</paragraph>
+         * </document>
+         * @exampleLabel Use forced mixed content on `paragraph`.
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .forceMixedContent("http://example.org/paragraph")
+         * .build()
+         * @exampleLabel With auto detection of mixed content.
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T forceMixedContent(String elementName) {
 
             if (forcedMixedContentMap == null) {

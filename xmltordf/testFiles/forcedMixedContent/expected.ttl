@@ -5,19 +5,23 @@
 _:b0    a                  <http://example.org/pnavn> ;
         xmlToRdf:hasValue  "a name" .
 
+_:b1    a                  <http://example.org/pnavn> ;
+        xmlToRdf:hasValue  "a name" .
+
 [ a                  <http://example.org/A> ;
   xmlToRdf:hasChild  [ a                  <http://example.org/B> ;
                        xmlToRdf:hasChild  [ a                         <http://example.org/name2> ;
-                                            xmlToRdf:hasChild         _:b0 ;
-                                            xmlToRdf:hasMixedContent  ( _:b0 )
+                                            xmlToRdf:hasMixedContent  ( "a string" ) ;
+                                            xmlToRdf:hasValue         "a string"
+                                          ] ;
+                       xmlToRdf:hasChild  [ a                         <http://example.org/name2> ;
+                                            xmlToRdf:hasChild         _:b1 ;
+                                            xmlToRdf:hasMixedContent  ( _:b1 )
                                           ] ;
                        xmlToRdf:hasChild  [ a                         <http://example.org/name> ;
-                                            xmlToRdf:hasChild         _:b1 ;
-                                            xmlToRdf:hasMixedContent  ( _:b1 " more text" ) ;
+                                            xmlToRdf:hasChild         _:b0 ;
+                                            xmlToRdf:hasMixedContent  ( _:b0 " more text" ) ;
                                             xmlToRdf:hasValue         "more text"
                                           ]
                      ]
 ] .
-
-_:b1    a                  <http://example.org/pnavn> ;
-        xmlToRdf:hasValue  "a name" .

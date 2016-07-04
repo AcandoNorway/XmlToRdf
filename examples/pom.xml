@@ -27,7 +27,7 @@
         <dependency>
             <groupId>no.acando</groupId>
             <artifactId>xmltordf</artifactId>
-            <version>1.4.6</version>
+            <version>1.4.7</version>
         </dependency>
     </dependencies>
 

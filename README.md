@@ -41,7 +41,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.6</version>
+    <version>1.4.7</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.6.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.7.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -580,10 +580,6 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
@@ -593,6 +589,10 @@ Builder.getAdvancedBuilderStream()
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 ```
 
@@ -908,12 +908,12 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/people> ;
+[ a                  <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/people> ;
   xmlToRdf:hasChild  [ a                       <http://other.org/name> ;
                        xmlToRdf:hasValue       "Unknown" ;
                        <http://other.org/age>  "2"
                      ] ;
-  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/name> ;
+  xmlToRdf:hasChild  [ a                       <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/name> ;
                        xmlToRdf:hasValue       "John Doe" ;
                        <http://other.org/age>  "1"
                      ]
@@ -1327,6 +1327,87 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
+## forceMixedContent(String elementName)
+
+Force mixed content handling for elements, even when they do not
+ contain mixed content.
+
+**XML example**
+```xml
+<document xmlns="http://example.org/">
+  <paragraph>
+    <b>Hello</b>
+    <b>World</b>!</paragraph>
+  <paragraph>Hello, World!</paragraph>
+</document>
+```
+
+### Use forced mixed content on `paragraph`.
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .forceMixedContent("http://example.org/paragraph")
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
+[ a                  ex:document ;
+  xmlToRdf:hasChild  [ a                         ex:paragraph ;
+                       xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
+                       xmlToRdf:hasValue         "Hello, World!"
+                     ] ;
+  xmlToRdf:hasChild  [ a                         ex:paragraph ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
+                       xmlToRdf:hasValue         "!"
+                     ]
+] .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
+```
+
+---
+### With auto detection of mixed content.
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                  ex:document ;
+  xmlToRdf:hasChild  [ a                         ex:paragraph ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
+                       xmlToRdf:hasValue         "!"
+                     ] ;
+  ex:paragraph       "Hello, World!"
+] .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
+```
+
+---
 ## uuidBasedIdInsteadOfBlankNodes(boolean enabled)
 
 By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
@@ -1354,7 +1435,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:086bb564-f67f-4603-a4cc-26288c3b2cd4
+ex:5a4f1669-7477-414c-b508-4d21ef9e4408
         a        ex:people ;
         ex:name  "John Doe" .
 

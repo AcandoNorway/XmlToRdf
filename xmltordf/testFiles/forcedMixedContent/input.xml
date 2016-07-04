@@ -2,5 +2,6 @@
     <B>
         <name><pnavn>a name</pnavn> more text</name>
         <name2><pnavn>a name</pnavn></name2>
+        <name2>a string</name2>
     </B>
 </A>

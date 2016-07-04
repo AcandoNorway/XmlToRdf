@@ -161,7 +161,7 @@ public class Element<ResourceType, Datatype> {
             }
         }
 
-        boolean shouldConvertToLiteralProperty = builder.autoDetectLiteralProperties && hasChild.isEmpty() && properties.isEmpty() && parent != null && parent.mixedContent.isEmpty() && !parent.useElementAsPredicate;
+        boolean shouldConvertToLiteralProperty = builder.autoDetectLiteralProperties && hasChild.isEmpty() && properties.isEmpty() && parent != null && parent.mixedContent.isEmpty() && !parent.useElementAsPredicate && !containsMixedContent;
         if (shouldConvertToLiteralProperty) {
 
             if (!parent.containsMixedContent && !delayedOutput && parent.getHasValue() == null) {
