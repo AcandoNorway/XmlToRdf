@@ -17,13 +17,13 @@ limitations under the License.
 package no.acando.xmltordf;
 
 import org.apache.jena.datatypes.RDFDatatype;
-import org.apache.jena.ext.com.google.common.cache.CacheBuilder;
 import org.apache.jena.graph.Node;
 import org.openrdf.model.IRI;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 public class Builder {
     public static XmlPath  createPath(String ... path) {
@@ -437,6 +437,7 @@ public class Builder {
 
         Map<String, String> skipElementMap = null;
         Map<String, String> forcedMixedContentMap = null;
+         Map<String, CompositeIdInterface<T>> compositeIdMap;
 
 
         /**
@@ -859,7 +860,81 @@ public class Builder {
             return (T) this;
         }
 
+        public CompositeIdInterface<T> compositeId(String elementName) {
 
+            if (compositeIdMap == null) {
+                compositeIdMap = new HashMap<>();
+            }
+
+            Advanced<ResourceType, DataType, T> that = this;
+
+            return new CompositeIdInterface<T>() {
+
+                Map<String, String> requiredElement = new HashMap<>();
+                Map<String, String> requiredAttribute = new HashMap<>();
+                Map<String, String> resolvedElement = new HashMap<>();
+                Map<String, String> resolvedAttribute = new HashMap<>();
+
+                BiFunction<Map<String, String>, Map<String, String>, String> mapFunction;
+
+                @Override
+                public CompositeIdInterface<T> fromElement(String elementName) {
+                    requiredElement.put(elementName, elementName);
+                    return this;
+                }
+
+                @Override
+                public CompositeIdInterface<T> fromAttribute(String attributeName) {
+                    requiredAttribute.put(attributeName, attributeName);
+                    return this;
+                }
+
+                @Override
+                public T mappedTo(BiFunction<Map<String, String>, Map<String, String>, String> mapFunction) {
+                    this.mapFunction = mapFunction;
+
+                    compositeIdMap.put(elementName, this);
+
+                    return (T) that;
+                }
+
+                @Override
+                protected boolean completed() {
+                    return ( resolvedElement.size() + resolvedAttribute.size() ) ==
+                        ( requiredElement.size() + requiredAttribute.size() );
+                }
+
+                @Override
+                protected void resolveElement(String elementName, String value) {
+                    if(requiredElement.containsKey(elementName)) {
+                        resolvedElement.put(elementName, value);
+                    }
+                }
+
+                @Override
+                protected void resolveAttribute(String attributeName, String value) {
+                    if(requiredAttribute.containsKey(attributeName)) {
+                        resolvedAttribute.put(attributeName, value);
+                    }
+                }
+
+                @Override
+                protected String resolveIdentifier() {
+                    return mapFunction.apply(resolvedElement, resolvedAttribute);
+                }
+            };
+        }
+
+        public abstract class CompositeIdInterface<TT> {
+
+            public abstract CompositeIdInterface<TT> fromElement(String elementName);
+            public abstract CompositeIdInterface<TT> fromAttribute(String attributeName);
+            public abstract TT mappedTo(BiFunction<Map<String, String>, Map<String, String>, String> mapFunction);
+            abstract protected boolean completed();
+            abstract protected void resolveElement(String elementName, String value);
+            abstract protected void resolveAttribute(String attributeName, String value);
+            abstract protected String resolveIdentifier();
+        }
 
 
         public interface BetweenWithWildcard<TT> {

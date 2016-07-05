@@ -44,6 +44,9 @@ public class Element<ResourceType, Datatype> {
     private boolean delayedOutput;
     private Runnable delayedCreateTripleCallback;
     private int childrenWithAutoDetectedAsLiteralProperty;
+    public Builder.Advanced.CompositeIdInterface compositeId;
+
+
 
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         this.handler = handler;
@@ -52,6 +55,7 @@ public class Element<ResourceType, Datatype> {
     }
 
     public void appendValue(char[] ch, int start, int length) {
+
         if (!hasChild.isEmpty()) {
             if (!containsMixedContent && !new String(ch, start, length).trim().isEmpty()) {
                 containsMixedContent = true;
@@ -128,6 +132,20 @@ public class Element<ResourceType, Datatype> {
 
     void createTriples() {
 
+        if(parent != null && parent.uri == null){
+            // resolve
+            parent.compositeId.resolveElement(type, getHasValue());
+
+            // delay
+            parent.addDelayedTripleCreation(this);
+
+            if (parent.compositeId.completed()) {
+                parent.uri = parent.compositeId.resolveIdentifier();
+            }
+
+            return;
+        }
+
         endMixedContent();
 
         if (delayedCreateTripleCallback != null) {
@@ -166,25 +184,7 @@ public class Element<ResourceType, Datatype> {
 
             if (!parent.containsMixedContent && !delayedOutput && parent.getHasValue() == null) {
                 if (getHasValue() != null) {
-                    delayedOutput = true;
-                    if (parent.delayedCreateTripleCallback == null) {
-                        parent.delayedCreateTripleCallback = () -> {
-                            createTriples();
-                            cleanUp();
-                        };
-
-                    } else {
-
-                        Runnable delayedCallback = parent.delayedCreateTripleCallback;
-
-                        parent.delayedCreateTripleCallback = () -> {
-                            createTriples();
-                            cleanUp();
-                            delayedCallback.run();
-                        };
-
-                    }
-
+                    parent.addDelayedTripleCreation(this);
                 }
             } else {
                 if (getHasValue() != null) {
@@ -203,6 +203,11 @@ public class Element<ResourceType, Datatype> {
 
             addIndexTriples();
 
+            if (!mixedContent.isEmpty()) {
+                handler.createList(uri, XmlToRdfVocabulary.hasMixedContent, mixedContent);
+            }
+
+
         } else {
             handler.createTriple(uri, "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", type);
             if (parent != null && !parent.useElementAsPredicate) {
@@ -214,7 +219,6 @@ public class Element<ResourceType, Datatype> {
                 } else {
                     handler.createTriple(parent.uri, prop, uri);
                 }
-
             }
 
             if (getHasValue() != null) {
@@ -283,5 +287,34 @@ public class Element<ResourceType, Datatype> {
         properties = null;
     }
 
+    public void addDelayedTripleCreation(Element element) {
+
+        element.delayedOutput = true;
+
+        if (delayedCreateTripleCallback == null) {
+            delayedCreateTripleCallback = () -> {
+                element.createTriples();
+                element.cleanUp();
+            };
+
+        } else {
+
+            Runnable delayedCallback = delayedCreateTripleCallback;
+
+            delayedCreateTripleCallback = () -> {
+                element.createTriples();
+                element.cleanUp();
+                delayedCallback.run();
+            };
+        }
+    }
+
+    public AdvancedSaxHandler<ResourceType, Datatype> getHandler() {
+        return handler;
+    }
+
+    public Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> getBuilder() {
+        return builder;
+    }
 }
 

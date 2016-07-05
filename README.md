@@ -41,7 +41,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.7</version>
+    <version>1.4.9</version>
 </dependency>
 ```
 
@@ -51,7 +51,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.7.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.9.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -1356,9 +1356,6 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
@@ -1373,6 +1370,9 @@ _:b0    a                  ex:b ;
 
 _:b1    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1390,20 +1390,20 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
-
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1435,7 +1435,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:5a4f1669-7477-414c-b508-4d21ef9e4408
+ex:0da68d8b-4a28-436f-ac57-c39cb14c4837
         a        ex:people ;
         ex:name  "John Doe" .
 

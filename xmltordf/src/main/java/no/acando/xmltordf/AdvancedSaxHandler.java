@@ -138,7 +138,6 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         }
 
 
-        calculateNodeId(namespace, element);
 
         Element<ResourceType, Datatype> parent = null;
 
@@ -166,7 +165,20 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         }
 
 
-        calculateNodeId(namespace, element);
+        if (builder.compositeIdMap != null) {
+
+            Builder.Advanced.CompositeIdInterface compositeId = builder.compositeIdMap.get(element.type);
+            if (compositeId == null) {
+                calculateNodeId(namespace, element);
+            } else {
+                element.compositeId = compositeId;
+            }
+
+        }else{
+            calculateNodeId(namespace, element);
+
+        }
+
 
         handleAttributes(namespace, attributes, element);
 
@@ -205,7 +217,12 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
             builder.getIdByUseAttributeForId(element.type, uriAttr + nameAttr, valueAttr, element);
 
-            element.properties.add(new Property(uriAttr, nameAttr, valueAttr));
+            Property property = new Property(uriAttr, nameAttr, valueAttr);
+            element.properties.add(property);
+
+           if(element.compositeId != null){
+               element.compositeId.resolveAttribute(uriAttr + nameAttr, valueAttr);
+           }
 
         }
     }

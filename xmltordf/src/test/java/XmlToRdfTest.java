@@ -1231,18 +1231,68 @@ public class XmlToRdfTest {
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .forceMixedContent("http://example.org/name")
             .forceMixedContent("http://example.org/name2")
+            .renameElement("http://example.org/name3","http://example.org/name2")
             .build());
 
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .forceMixedContent("http://example.org/name")
             .forceMixedContent("http://example.org/name2")
+            .renameElement("http://example.org/name3","http://example.org/name2")
+
             .build());
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .forceMixedContent("http://example.org/name")
             .forceMixedContent("http://example.org/name2")
+            .renameElement("http://example.org/name3","http://example.org/name2")
+
             .build());
+    }
+
+    @Test
+    public void forcedMixedContentWithShallow() throws Exception {
+
+        String xmlNameSpace = "http://example.org/";
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .convertComplexElementsWithOnlyAttributesToPredicate(true)
+            .setBaseNamespace(xmlNameSpace, Builder.AppliesTo.bothElementsAndAttributes)
+            .forceMixedContent(xmlNameSpace+"b").build());
+
+    }
+
+
+    @Test
+    public void compositeId() throws Exception {
+
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+
+//            .insertPredicate("").betweenAny()
+//
+//            .compositeId(
+//                "http://example.org/B",
+//                Builder.createCompositeId().fromElement("http://example.org/num").fromElement("http://example.org/name")
+//                map -> "http://data.org/"+map.get("http://example.org/num")+map.get("http://example.org/name")
+//            )
+//
+//            .compositeId("http://example.org/B")
+//            .withComposition(
+//                Builder.createCompositeId().fromElement("http://example.org/num").fromElement("http://example.org/name")
+//            )
+//            .mappedTo(map -> "http://data.org/"+map.get("http://example.org/num")+map.get("http://example.org/name"))
+
+            .compositeId("http://example.org/B")
+                .fromElement("http://example.org/num")
+                .fromElement("http://example.org/name")
+                .fromAttribute("http://example.org/localId")
+                .mappedTo((elementMap, attributeMap) ->
+                    "http://data.org/"+elementMap.get("http://example.org/num")+elementMap.get("http://example.org/name")+attributeMap.get("http://example.org/localId"))
+
+
+            .build());
+
     }
 
     private void testAdvancedJena(XmlToRdfAdvancedJena build) throws IOException, ParserConfigurationException, SAXException {
