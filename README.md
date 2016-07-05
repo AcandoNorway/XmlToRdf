@@ -8,10 +8,10 @@ Java library to convert any XML file to RDF.
 
 | Method | File size | Time |
 |--------|---|---|
-|Fast convert | 100 MB | 1.836 seconds |
-|Advanced convert | 100 MB |  2.711 seconds |
-|Jena convert | 100 MB |  9.744 seconds |
-|Sesame convert | 100 MB |  9.811 seconds |
+|Fast convert | 100 MB | ~ 1.8 seconds |
+|Advanced convert | 100 MB |  ~ 3.1 seconds |
+|Jena convert | 100 MB |  ~ 11 seconds |
+|Sesame convert | 100 MB |  ~ 10 seconds |
 
 
 ### Memory usage
@@ -24,6 +24,7 @@ Java library to convert any XML file to RDF.
 |Sesame convert | 100 MB |  9.811 seconds |
 
 Min: Minimum required memory
+
 Comfort: Amount of memory required to get close to benchmark speeds
 
 Benchmark information
@@ -580,6 +581,10 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
+
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
@@ -589,10 +594,6 @@ Builder.getAdvancedBuilderStream()
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
-
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
 
 ```
 
@@ -1356,22 +1357,22 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
                        xmlToRdf:hasValue         "Hello, World!"
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 " " _:b1 "!" ) ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
 
 _:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
-_:b0    a                  ex:b ;
         xmlToRdf:hasValue  "World" .
 
 ```
@@ -1390,20 +1391,20 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1435,7 +1436,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:0da68d8b-4a28-436f-ac57-c39cb14c4837
+ex:70c57754-53a5-43f1-ac22-2b4f5a4da657
         a        ex:people ;
         ex:name  "John Doe" .
 
