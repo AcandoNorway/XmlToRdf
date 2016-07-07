@@ -9,6 +9,14 @@
         <http://example.org/num>      "1" ;
         <http://example.org/other>    "abc1" , "abc2" .
 
+<http://data.org/b2b2b2>
+        a                             <http://example.org/B> ;
+        <http://example.org/localId>  "b2" ;
+        <http://example.org/name>     "b2" ;
+        <http://example.org/num>      "b2" ;
+        <http://example.org/other>    "b2" .
+
+
 [ a                  <http://example.org/A> ;
-  xmlToRdf:hasChild  <http://data.org/1hellonotUnique>
+  xmlToRdf:hasChild  <http://data.org/1hellonotUnique>, <http://data.org/b2b2b2>
 ] .

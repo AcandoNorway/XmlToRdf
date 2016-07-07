@@ -1,8 +1,17 @@
 <A xmlns="http://example.org/">
+
     <B localId="notUnique">
         <other>abc1</other>
         <num>1</num>
         <name>hello</name>
         <other>abc2</other>
     </B>
+
+    <B localId="b2">
+        <other>b2</other>
+        <num>b2</num>
+        <name>b2</name>
+        <other>b2</other>
+    </B>
+
 </A>
