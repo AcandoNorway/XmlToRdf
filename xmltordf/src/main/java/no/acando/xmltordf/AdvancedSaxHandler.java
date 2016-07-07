@@ -36,9 +36,9 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
     private long index = 0;
 
     private Element<ResourceType, Datatype> skipElementUntil = null;
-    private final Element skippableElement = new Element(this, builder);
+    private final Element<ResourceType, Datatype> skippableElement = new Element<>(this, builder);
 
-    AdvancedSaxHandler(OutputStream out, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
+    AdvancedSaxHandler(Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
 
         this.builder = builder;
     }
@@ -123,7 +123,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
             }
         }
 
-        Element<ResourceType, Datatype> element = new Element(this, builder);
+        Element<ResourceType, Datatype> element = new Element<>(this, builder);
         element.index = index++;
 
         namespace = calculateNamespace(namespace);

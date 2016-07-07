@@ -32,7 +32,7 @@ class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
 
 
     AdvancedSaxHandlerString(OutputStream out, Builder.AdvancedStream builder) {
-        super(out, builder);
+        super(builder);
 
         this.out = new PrintStream(out);
 

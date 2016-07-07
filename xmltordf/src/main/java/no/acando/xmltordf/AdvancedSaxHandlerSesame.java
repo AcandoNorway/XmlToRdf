@@ -53,7 +53,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
     private SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
     AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
-        super(null, builder);
+        super(builder);
 
         queue = new LinkedBlockingDeque<>(builder.buffer);
 

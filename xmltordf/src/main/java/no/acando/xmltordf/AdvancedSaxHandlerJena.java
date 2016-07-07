@@ -16,7 +16,6 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.apache.jena.atlas.io.NullOutputStream;
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.Graph;
@@ -52,7 +51,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
     private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile));
 
     AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
-        super(new NullOutputStream(), builder);
+        super(builder);
 
         queue = new ArrayBlockingQueue<>(builder.buffer, false);
         dataset = DatasetFactory.createMem();
