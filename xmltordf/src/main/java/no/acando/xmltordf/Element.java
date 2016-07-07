@@ -44,7 +44,7 @@ public class Element<ResourceType, Datatype> {
     private boolean delayedOutput;
     private Runnable delayedCreateTripleCallback;
     private int childrenWithAutoDetectedAsLiteralProperty;
-    public Builder.Advanced.CompositeIdInterface compositeId;
+    public CompositeId compositeId;
 
 
 

@@ -42,7 +42,7 @@ To install you can either just use `mvn install` to install the artifact in your
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.9</version>
+    <version>1.4.10</version>
 </dependency>
 ```
 
@@ -52,7 +52,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.9.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.10.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -581,14 +581,14 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
         ex:title  "Other record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 <http://acme.com/records/0000001>
         a         ex:record ;
@@ -1360,6 +1360,9 @@ Builder.getAdvancedBuilderStream()
 _:b0    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
 
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
@@ -1371,9 +1374,6 @@ _:b0    a                  ex:b ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1391,20 +1391,105 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
 
-_:b0    a                  ex:b ;
+_:b1    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
 
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
+```
+
+---
+## compositeId(String elementName)
+
+Use attributes and child elements to create a composite identifier for an element. `compositeId("elementName")` returns
+ a builder to list your required elements and attributes followed by a mapping of those to a string which will be used as the
+ URI for the RDF resource.
+
+**XML example**
+```xml
+<documents xmlns="http://example.org/">
+  <document seqnr="1">
+    <organisation>Abc</organisation>
+    <title>Hello</title>
+  </document>
+  <document seqnr="2">
+    <organisation>Def</organisation>
+    <title>Hi</title>
+  </document>
+</documents>
+```
+
+### Create composite id from `organisation` and `seqnr`
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .compositeId("http://example.org/document")
+   .fromElement("http://example.org/organisation")
+   .fromAttribute("http://example.org/seqnr")
+   .mappedTo((elementMap, attributeMap) -> "http://acme.com/"+elementMap.get("http://example.org/organisation") + attributeMap.get("http://example.org/seqnr"))
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                  ex:documents ;
+  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
+] .
+
+<http://acme.com/Def2>
+        a                ex:document ;
+        ex:organisation  "Def" ;
+        ex:seqnr         "2" ;
+        ex:title         "Hi" .
+
+<http://acme.com/Abc1>
+        a                ex:document ;
+        ex:organisation  "Abc" ;
+        ex:seqnr         "1" ;
+        ex:title         "Hello" .
+
+```
+
+---
+### Use default blank nodes
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                  ex:documents ;
+  xmlToRdf:hasChild  [ a                ex:document ;
+                       ex:organisation  "Def" ;
+                       ex:seqnr         "2" ;
+                       ex:title         "Hi"
+                     ] ;
+  xmlToRdf:hasChild  [ a                ex:document ;
+                       ex:organisation  "Abc" ;
+                       ex:seqnr         "1" ;
+                       ex:title         "Hello"
+                     ]
+] .
 
 ```
 
@@ -1436,7 +1521,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:70c57754-53a5-43f1-ac22-2b4f5a4da657
+ex:008fc30a-a3c8-4a74-9dad-8a4382452895
         a        ex:people ;
         ex:name  "John Doe" .
 

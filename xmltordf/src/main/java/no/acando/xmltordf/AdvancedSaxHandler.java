@@ -166,21 +166,19 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
         if (builder.compositeIdMap != null) {
 
-            Builder.Advanced.CompositeIdInterface compositeId = builder.compositeIdMap.get(element.type);
+            CompositeId compositeId = builder.compositeIdMap.get(element.type);
             if (compositeId == null) {
                 calculateNodeId(namespace, element);
             } else {
                 element.compositeId = compositeId;
+                compositeId.resetMaps();
             }
 
-        }else{
+        } else {
             calculateNodeId(namespace, element);
-
         }
 
-
         handleAttributes(namespace, attributes, element);
-
 
         if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(element.type)) {
             element.useElementAsPredicate = true;

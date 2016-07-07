@@ -22,8 +22,6 @@ import org.openrdf.model.IRI;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.BiFunction;
-import java.util.function.Function;
 
 public class Builder {
     public static XmlPath  createPath(String ... path) {
@@ -437,7 +435,7 @@ public class Builder {
 
         Map<String, String> skipElementMap = null;
         Map<String, String> forcedMixedContentMap = null;
-         Map<String, CompositeIdInterface<T>> compositeIdMap;
+         Map<String, CompositeId<T>> compositeIdMap;
 
 
         /**
@@ -860,82 +858,41 @@ public class Builder {
             return (T) this;
         }
 
-        public CompositeIdInterface<T> compositeId(String elementName) {
+        /**
+         * @param elementName The fully URI of the element.
+         * @return
+         * @description Use attributes and child elements to create a composite identifier for an element. `compositeId("elementName")` returns
+         * a builder to list your required elements and attributes followed by a mapping of those to a string which will be used as the
+         * URI for the RDF resource.
+         * @xml <documents xmlns="http://example.org/">
+         *     <document seqnr="1">
+         *         <organisation>Abc</organisation>
+         *         <title>Hello</title>
+         *     </document>
+         *     <document seqnr="2">
+         *         <organisation>Def</organisation>
+         *         <title>Hi</title>
+         *     </document>
+         * </documents>
+         * @exampleLabel Create composite id from `organisation` and `seqnr`
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .compositeId("http://example.org/document")
+         * .fromElement("http://example.org/organisation")
+         * .fromAttribute("http://example.org/seqnr")
+         * .mappedTo((elementMap, attributeMap) -> "http://acme.com/"+elementMap.get("http://example.org/organisation") + attributeMap.get("http://example.org/seqnr"))
+         * .build()
+         * @exampleLabel Use default blank nodes
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
+        public CompositeId<T> compositeId(String elementName) {
 
             if (compositeIdMap == null) {
-                compositeIdMap = new HashMap<>();
+                compositeIdMap = new HashMapNoOverwrite<>();
             }
 
-            Advanced<ResourceType, DataType, T> that = this;
-
-            return new CompositeIdInterface<T>() {
-
-                Map<String, String> requiredElement = new HashMap<>();
-                Map<String, String> requiredAttribute = new HashMap<>();
-                Map<String, String> resolvedElement = new HashMap<>();
-                Map<String, String> resolvedAttribute = new HashMap<>();
-
-                BiFunction<Map<String, String>, Map<String, String>, String> mapFunction;
-
-                @Override
-                public CompositeIdInterface<T> fromElement(String elementName) {
-                    requiredElement.put(elementName, elementName);
-                    return this;
-                }
-
-                @Override
-                public CompositeIdInterface<T> fromAttribute(String attributeName) {
-                    requiredAttribute.put(attributeName, attributeName);
-                    return this;
-                }
-
-                @Override
-                public T mappedTo(BiFunction<Map<String, String>, Map<String, String>, String> mapFunction) {
-                    this.mapFunction = mapFunction;
-
-                    compositeIdMap.put(elementName, this);
-
-                    return (T) that;
-                }
-
-                @Override
-                protected boolean completed() {
-                    return ( resolvedElement.size() + resolvedAttribute.size() ) ==
-                        ( requiredElement.size() + requiredAttribute.size() );
-                }
-
-                @Override
-                protected void resolveElement(String elementName, String value) {
-                    if(requiredElement.containsKey(elementName)) {
-                        resolvedElement.put(elementName, value);
-                    }
-                }
-
-                @Override
-                protected void resolveAttribute(String attributeName, String value) {
-                    if(requiredAttribute.containsKey(attributeName)) {
-                        resolvedAttribute.put(attributeName, value);
-                    }
-                }
-
-                @Override
-                protected String resolveIdentifier() {
-                    return mapFunction.apply(resolvedElement, resolvedAttribute);
-                }
-            };
+            return new CompositeId<T>((T) this, elementName, compositeIdMap);
         }
-
-        public abstract class CompositeIdInterface<TT> {
-
-            public abstract CompositeIdInterface<TT> fromElement(String elementName);
-            public abstract CompositeIdInterface<TT> fromAttribute(String attributeName);
-            public abstract TT mappedTo(BiFunction<Map<String, String>, Map<String, String>, String> mapFunction);
-            abstract protected boolean completed();
-            abstract protected void resolveElement(String elementName, String value);
-            abstract protected void resolveAttribute(String attributeName, String value);
-            abstract protected String resolveIdentifier();
-        }
-
 
         public interface BetweenWithWildcard<TT> {
 
