@@ -143,7 +143,6 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
         }
     }
 
-    //TODO: Comment me
     private void handleTextValue(String nodeId, String typePop, String value) {
 
         if (builder.autoDetectLiteralProperties) {

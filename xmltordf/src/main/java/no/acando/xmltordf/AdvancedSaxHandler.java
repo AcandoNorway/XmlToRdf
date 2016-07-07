@@ -66,7 +66,6 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
     }
 
-    //TODO: this method is enormous, consider breaking it down
     @Override
     public void endElement(String namespace, String localName, String qName) throws SAXException {
 

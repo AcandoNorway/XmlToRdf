@@ -1268,21 +1268,6 @@ public class XmlToRdfTest {
 
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
-
-//            .insertPredicate("").betweenAny()
-//
-//            .compositeId(
-//                "http://example.org/B",
-//                Builder.createCompositeId().fromElement("http://example.org/num").fromElement("http://example.org/name")
-//                map -> "http://data.org/"+map.get("http://example.org/num")+map.get("http://example.org/name")
-//            )
-//
-//            .compositeId("http://example.org/B")
-//            .withComposition(
-//                Builder.createCompositeId().fromElement("http://example.org/num").fromElement("http://example.org/name")
-//            )
-//            .mappedTo(map -> "http://data.org/"+map.get("http://example.org/num")+map.get("http://example.org/name"))
-
             .compositeId("http://example.org/B")
                 .fromElement("http://example.org/num")
                 .fromElement("http://example.org/name")
