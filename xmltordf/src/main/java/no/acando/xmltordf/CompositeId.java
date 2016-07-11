@@ -39,6 +39,16 @@ public class CompositeId<T> {
         this.compositeIdMap = compositeIdMap;
     }
 
+    CompositeId(CompositeId<T> from) {
+        requiredAttribute = from.requiredAttribute;
+        requiredElement = from.requiredElement;
+        that = from.that;
+        elementName = from.elementName;
+        compositeIdMap = from.compositeIdMap;
+        mapFunction = from.mapFunction;
+
+    }
+
     void resetMaps() {
         resolvedAttribute = new HashMap<>();
         resolvedElement = new HashMap<>();
@@ -81,5 +91,9 @@ public class CompositeId<T> {
 
     String resolveIdentifier() {
         return mapFunction.apply(resolvedElement, resolvedAttribute);
+    }
+
+    public CompositeId<T> simpleClone() {
+        return new CompositeId<>(this);
     }
 }

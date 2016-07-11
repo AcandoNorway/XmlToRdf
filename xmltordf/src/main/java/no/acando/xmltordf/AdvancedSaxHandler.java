@@ -170,8 +170,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
             if (compositeId == null) {
                 calculateNodeId(namespace, element);
             } else {
-                element.compositeId = compositeId;
-                compositeId.resetMaps();
+                element.compositeId = compositeId.simpleClone();
             }
 
         } else {

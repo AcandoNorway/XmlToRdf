@@ -462,7 +462,7 @@ public class Builder {
             }
 
             if (!literalMap.containsKey(elementName)) {
-                literalMap.put(elementName, new HashMapNoOverwrite<String, ResourceType>());
+                literalMap.put(elementName, new HashMapNoOverwriteWithDefault<String, ResourceType>());
             }
 
             literalMap.get(elementName).put(from, to);
