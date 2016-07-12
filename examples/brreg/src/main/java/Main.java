@@ -44,11 +44,11 @@ public class Main {
                 .renameElement("http://brreg.no/naerk_tekst", RDFS.label.getURI())
                 .renameElement("http://brreg.no/entry", "http://brreg.no/Naeringskode")
 
+                .compositeId("http://brreg.no/Naeringskode")
+                .fromElement("http://brreg.no/naerk")
+                .mappedTo((elementMap, attributeMap) -> "http://brreg.no/naeringskode/"+elementMap.get("http://brreg.no/naerk"))
+
                 .build().convertForPostProcessing(naeringskodeXml)
-                .mustacheTransform(new ByteArrayInputStream(("" +
-                    "delete{?a ?b ?c. ?d ?e ?a} insert {?newA ?b ?c.} where {?a <http://brreg.no/naerk> ?naerk. ?a ?b ?c. ?d ?e ?a. BIND(IRI(concat(\"{{{namespace}}}\", ?naerk)) as ?newA )}").getBytes()), new Object() {
-                    String namespace = "http://brreg.no/naeringskode/";
-                })
                 .mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes()), new Object())
                 .getModel();
 
@@ -70,11 +70,11 @@ public class Main {
 
             .renameElement("http://brreg.no/entry", "http://brreg.no/Enhetstype")
 
+            .compositeId("http://brreg.no/Enhetstype")
+            .fromElement("http://brreg.no/enhetstype")
+            .mappedTo((elementMap, attributeMap) -> "http://brreg.no/enhetstype/"+elementMap.get("http://brreg.no/enhetstype"))
+
             .build().convertForPostProcessing(orgFormXml)
-            .mustacheTransform(new ByteArrayInputStream(("" +
-                "delete{?a ?b ?c. ?d ?e ?a} insert {?newA ?b ?c.} where {?a <http://brreg.no/enhetstype> ?enhetsType. ?a ?b ?c. ?d ?e ?a. BIND(IRI(concat(\"{{{namespace}}}\", ?enhetsType)) as ?newA )}").getBytes()), new Object() {
-                String namespace = "http://brreg.no/enhetstype/";
-            })
             .mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes()), new Object())
             .getModel();
 
@@ -147,6 +147,9 @@ public class Main {
             .addComplexElementTransformAtEndOfElement("http://brreg.no/avvikling", convertBoolean)
             .setDatatype("http://brreg.no/avvikling", XSDDatatype.XSDboolean)
 
+            .compositeId("http://brreg.no/Enhet")
+            .fromElement("http://brreg.no/orgnr")
+            .mappedTo((elementMap, attributeMap) -> "http://brreg.no/"+elementMap.get("http://brreg.no/orgnr"))
 
             .mapTextInElementToUri(ns + "forradrland", "Norge", NodeFactory.createURI("http://dbpedia.org/resource/Norway"));
 
@@ -166,10 +169,7 @@ public class Main {
 
         Model all = brregXmlBuilder
             .build().convertForPostProcessing(brregXml)
-            .mustacheTransform(new ByteArrayInputStream(("" +
-                "delete{?a ?b ?c. ?d ?e ?a} insert {?newA ?b ?c. ?d ?e ?newA} where {?a <http://brreg.no/orgnr> ?orgnr. ?a ?b ?c. ?d ?e ?a. BIND(IRI(concat(\"{{{namespace}}}\", ?orgnr)) as ?newA )}").getBytes()), new Object() {
-                String namespace = "http://brreg.no/";
-            })
+
             .getModel()
             .add(enhetstyper)
             .add(naeringskode);
