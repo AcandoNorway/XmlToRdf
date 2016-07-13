@@ -21,7 +21,7 @@ Java library to convert any XML file to RDF.
 |Fast convert | 100 MB | Min: 3 MB; Comfort: 20 MB |
 |Advanced convert | 100 MB |  Min: 15 MB; Comfort 50MB |
 |Jena convert | 100 MB |  Min: 1600 MB; Comfort  |
-|Sesame convert | 100 MB |  Not measured yet |
+|Sesame convert | 100 MB | Not measured yet |
 
 Min: Minimum required memory
 
@@ -266,7 +266,8 @@ Builder.getAdvancedBuilderStream()
 ---
 ## renameElement(Builder.XmlPath path, String to)
 
-Change the name of an element at the end of a specific path. Useful for renaming elements that .
+Change the name of an element at the end of a specific path. Useful for renaming elements that do not have a unique name, but have local names
+ scoped to their parents. Can also be used to rename elements to more specific types based on their context as in the examples below.
 
 **XML example**
 ```xml
@@ -586,14 +587,14 @@ Builder.getAdvancedBuilderStream()
         ex:nr     "0000002" ;
         ex:title  "Other record" .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000001>
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 ```
 
@@ -909,12 +910,12 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/people> ;
+[ a                  <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/people> ;
   xmlToRdf:hasChild  [ a                       <http://other.org/name> ;
                        xmlToRdf:hasValue       "Unknown" ;
                        <http://other.org/age>  "2"
                      ] ;
-  xmlToRdf:hasChild  [ a                       <file:///home/veronika/Projects/xmlToRdf/XmlToRdf/name> ;
+  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/name> ;
                        xmlToRdf:hasValue       "John Doe" ;
                        <http://other.org/age>  "1"
                      ]
@@ -988,7 +989,7 @@ Builder.getAdvancedBuilderStream()
 ---
 ## autoTypeLiterals(boolean enabled)
 
-Not implemented fully
+Detects the datatype of simple elements by analyzing their content. Currently support for long, int, double, date and datetime.
 
 **XML example**
 ```xml
@@ -1189,7 +1190,7 @@ Builder.getAdvancedBuilderStream()
 ---
 ## skipElement(String elementName)
 
-Skip and element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
+Skip an element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
 
 **XML example**
 ```xml
@@ -1357,9 +1358,6 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
@@ -1371,6 +1369,9 @@ _:b0    a                  ex:b ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
 
 _:b1    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
@@ -1394,9 +1395,6 @@ Builder.getAdvancedBuilderStream()
 _:b0    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
 
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasChild         _:b0 , _:b1 ;
@@ -1405,6 +1403,9 @@ _:b1    a                  ex:b ;
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1521,7 +1522,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:7c592937-f807-47de-b89c-96aabd08e402
+ex:8cbf2ef9-96f4-4c41-8d83-8fd16ccf16f7
         a        ex:people ;
         ex:name  "John Doe" .
 

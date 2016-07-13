@@ -157,7 +157,8 @@ public class Builder {
          * @param path The path, where the last element is the one to rename. Create a path with Builder.createPath("", "", ...)
          * @param to          The new full URI
          * @return
-         * @description Change the name of an element at the end of a specific path. Useful for renaming elements that .
+         * @description Change the name of an element at the end of a specific path. Useful for renaming elements that do not have a unique name, but have local names
+         * scoped to their parents. Can also be used to rename elements to more specific types based on their context as in the examples below.
          * @xml <window xmlns="http://example.org/">
          *  <frame>
          *         <tittle>Main frame</tittle>
@@ -594,7 +595,7 @@ public class Builder {
         /**
          * @param enabled true for enabled
          * @return
-         * @description Not implemented fully
+         * @description Detects the datatype of simple elements by analyzing their content. Currently support for long, int, double, date and datetime.
          * @xml <people xmlns="http://example.org/">
          * <person idNumber="1234" married="true" weight="80.5">
          * <name>John Doe</name>
@@ -767,7 +768,7 @@ public class Builder {
         /**
          * @param elementName The fully URI of the element.
          * @return
-         * @description Skip and element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
+         * @description Skip an element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
          * @xml <people xmlns="http://example.org/">
          * <person>
          * <name>John Doe</name>
