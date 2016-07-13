@@ -21,7 +21,7 @@ Java library to convert any XML file to RDF.
 |Fast convert | 100 MB | Min: 3 MB; Comfort: 20 MB |
 |Advanced convert | 100 MB |  Min: 15 MB; Comfort 50MB |
 |Jena convert | 100 MB |  Min: 1600 MB; Comfort  |
-|Sesame convert | 100 MB |  9.811 seconds |
+|Sesame convert | 100 MB | Not measured yet |
 
 Min: Minimum required memory
 
