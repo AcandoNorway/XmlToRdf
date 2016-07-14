@@ -139,9 +139,10 @@ public class JsonJavadocExampleRunner {
                     }
 
                     printWriter.println("---");
-                    printWriter.println("<p>&nbsp;</p>");
 
                 }
+                printWriter.println("<p>&nbsp;</p>");
+
             }
 
 

@@ -209,7 +209,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Use namespaces provided in XML
 **Java code**
 ```java
@@ -382,7 +381,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Expand
 **Java code**
 ```java
@@ -438,7 +436,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Without any transformation
 **Java code**
 ```java
@@ -527,7 +524,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### No index
 **Java code**
 ```java
@@ -610,7 +606,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### With default blank node
 **Java code**
 ```java
@@ -673,7 +668,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Unaltered XML namespace
 **Java code**
 ```java
@@ -730,7 +724,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### No mapping
 **Java code**
 ```java
@@ -787,7 +780,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### convertComplexElementsWithOnlyAttributesToPredicate disabled
 **Java code**
 ```java
@@ -849,7 +841,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### autoAttributeNamespace disabled
 **Java code**
 ```java
@@ -918,7 +909,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Use empty namespace
 **Java code**
 ```java
@@ -985,7 +975,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Use `person` as the rdf:type
 **Java code**
 ```java
@@ -1057,7 +1046,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Use untyped literals
 **Java code**
 ```java
@@ -1130,7 +1118,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Use default hasChild perdicate
 **Java code**
 ```java
@@ -1193,7 +1180,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Just insert `ownedBy`
 **Java code**
 ```java
@@ -1251,7 +1237,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Without skipping any elements
 **Java code**
 ```java
@@ -1331,7 +1316,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### `friends` becomes a blank node by default
 **Java code**
 ```java
@@ -1393,6 +1377,9 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
@@ -1405,16 +1392,12 @@ Builder.getAdvancedBuilderStream()
                      ]
 ] .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 _:b1    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
 
 ```
 
 ---
-<p>&nbsp;</p>
 ### With auto detection of mixed content.
 **Java code**
 ```java
@@ -1429,15 +1412,15 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
+        xmlToRdf:hasValue  "World" .
 
 _:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
+        xmlToRdf:hasValue  "Hello" .
 
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
@@ -1490,20 +1473,19 @@ Builder.getAdvancedBuilderStream()
         ex:seqnr         "2" ;
         ex:title         "Hi" .
 
-[ a                  ex:documents ;
-  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
-] .
-
 <http://acme.com/Abc1>
         a                ex:document ;
         ex:organisation  "Abc" ;
         ex:seqnr         "1" ;
         ex:title         "Hello" .
 
+[ a                  ex:documents ;
+  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
+] .
+
 ```
 
 ---
-<p>&nbsp;</p>
 ### Use default blank nodes
 **Java code**
 ```java
@@ -1561,14 +1543,13 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:42cf4278-d30e-4a51-a232-1396927a36fc
+ex:c5569bef-299c-4089-834b-57803972490e
         a        ex:people ;
         ex:name  "John Doe" .
 
 ```
 
 ---
-<p>&nbsp;</p>
 ### Use locally unique blank node
 **Java code**
 ```java
@@ -1626,7 +1607,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Leave untyped
 **Java code**
 ```java
@@ -1697,7 +1677,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### No transforms
 **Java code**
 ```java
@@ -1775,7 +1754,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Transform on `<people>` runs after insertPredicate
 **Java code**
 ```java
@@ -1837,7 +1815,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Do not resolve qnames
 **Java code**
 ```java
@@ -1906,7 +1883,6 @@ Builder.getAdvancedBuilderStream()
 ```
 
 ---
-<p>&nbsp;</p>
 ### Ignore xsi:type references
 **Java code**
 ```java
