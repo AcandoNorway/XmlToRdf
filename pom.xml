@@ -9,8 +9,8 @@
     <packaging>pom</packaging>
     <version>1.0</version>
     <modules>
-        <module>doclet</module>
         <module>xmltordf</module>
+        <module>doclet</module>
         <module>examples</module>
     </modules>
 
