@@ -19,13 +19,11 @@ Java library to convert any XML file to RDF.
 | Method | File size | Memory requirement |
 |--------|---|---|
 |Fast convert | 100 MB | Min: 3 MB; Comfort: 20 MB |
-|Advanced convert | 100 MB |  Min: 15 MB; Comfort 50MB |
-|Jena convert | 100 MB |  Min: 1600 MB; Comfort  |
-|Sesame convert | 100 MB | Not measured yet |
+|Advanced convert | 100 MB |  Min: 15 MB; Comfort: 50MB |
+|Jena convert | 100 MB |  Min: 1600 MB; Comfort:  *Not measured yet* |
+|Sesame convert | 100 MB | Min: 1100 MB; Comfort: *Not measured yet* |
 
-Min: Minimum required memory
-
-Comfort: Amount of memory required to get close to benchmark speeds
+> <p>Min: Minimum required memory<br /> Comfort: Amount of memory required to get close to benchmark speeds</p>
 
 Benchmark information
  - *JDK*: JDK 1.8.0_65, VM 25.65-b01
@@ -589,14 +587,14 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
         ex:title  "Other record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 <http://acme.com/records/0000001>
         a         ex:record ;
@@ -1377,9 +1375,6 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
@@ -1394,6 +1389,9 @@ _:b0    a                  ex:b ;
 
 _:b1    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1543,7 +1541,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:c5569bef-299c-4089-834b-57803972490e
+ex:7e74dc92-bbc1-4a6c-aea2-9951787e348d
         a        ex:people ;
         ex:name  "John Doe" .
 
