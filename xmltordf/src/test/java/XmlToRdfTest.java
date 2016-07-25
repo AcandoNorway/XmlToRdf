@@ -77,6 +77,7 @@ public class XmlToRdfTest {
 
     }
 
+
     @Test
     public void renameOnPath() throws Exception {
         testAdvancedJena(

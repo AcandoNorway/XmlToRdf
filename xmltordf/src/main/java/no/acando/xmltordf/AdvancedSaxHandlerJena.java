@@ -195,9 +195,8 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
     public void createList(String subject, String predicate, List<Object> mixedContent) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
-        Node subjectNode = null;
+        Node subjectNode = getNode(subject);
 
-        subjectNode = getNode(subject);
 
         final Node[] head = new Node[1];
         final Node[] temporaryNode = new Node[1];
