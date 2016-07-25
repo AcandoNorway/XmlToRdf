@@ -1,21 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <groupId>no.acando</groupId>
-
+    <artifactId>xmltordf</artifactId>
     <version>1.4.11</version>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>xmltordf</artifactId>
+    <name>XmlToRdf</name>
+    <description>Fast and configurable XML to RDF converter.</description>
+    <url>https://github.com/AcandoNorway/XmlToRdf</url>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <scm>
+        <url>https://github.com/AcandoNorway/XmlToRdf</url>
+        <connection>scm:git:git://github.com/AcandoNorway/XmlToRdf.git</connection>
+      <tag>xmltordf-1.4.11</tag>
+  </scm>
+
+    <developers>
+        <developer>
+            <email>hmottestad@gmail.com</email>
+            <name>Håvard Mikkelsen Ottestad</name>
+            <url>https://github.com/hmottestad</url>
+            <id>hmottestad</id>
+        </developer>
+    </developers>
 
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
         </dependency>
 
 
