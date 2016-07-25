@@ -28,8 +28,8 @@ public class Element<ResourceType, Datatype> {
     public String uri;
     public Element<ResourceType, Datatype> parent;
     public StringBuilder hasValue;
-    public List<Element<ResourceType, Datatype>> hasChild = new ArrayList<>(10);
-    public List<Property> properties = new ArrayList<>(3);
+    public ArrayList<Element<ResourceType, Datatype>> hasChild = new ArrayList<>(10);
+    public ArrayList<Property> properties = new ArrayList<>(3);
     long index = 0;
     long elementIndex = 0;
     private boolean shallow;
@@ -37,7 +37,7 @@ public class Element<ResourceType, Datatype> {
     CountingMap indexMap = new CountingMap();
 
 
-    public List<Object> mixedContent = new ArrayList<>();
+    public ArrayList<Object> mixedContent = new ArrayList<>();
     public StringBuilder tempMixedContentString = new StringBuilder("");
     public boolean useElementAsPredicate;
     boolean containsMixedContent;

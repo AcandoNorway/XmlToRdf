@@ -33,24 +33,26 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
 
-class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
+final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     Repository repository;
     private LinkedBlockingDeque<Statement> queue;
     private boolean notDone = true;
     private Thread repoThread;
+    final static private SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
-    private final Statement EndOfFileStatement = SimpleValueFactory.getInstance().createStatement(
-        SimpleValueFactory.getInstance().createIRI(XmlToRdfVocabulary.EndOfFile),
-        SimpleValueFactory.getInstance().createIRI(XmlToRdfVocabulary.EndOfFile),
-        SimpleValueFactory.getInstance().createIRI(XmlToRdfVocabulary.EndOfFile)
+    private static final Statement EndOfFileStatement = SimpleValueFactory.getInstance().createStatement(
+        valueFactory.createIRI(XmlToRdfVocabulary.EndOfFile),
+        valueFactory.createIRI(XmlToRdfVocabulary.EndOfFile),
+        valueFactory.createIRI(XmlToRdfVocabulary.EndOfFile)
     );
 
-    private SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
 
     AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
         super(builder);
@@ -96,7 +98,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         repoThread.start();
     }
 
-    public void createTriple(String subject, String predicate, String object) {
+    final public void createTriple(String subject, String predicate, String object) {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
@@ -107,7 +109,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     }
 
-    public void createTriple(String subject, String predicate, IRI objectNode) {
+    final public void createTriple(String subject, String predicate, IRI objectNode) {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
@@ -116,7 +118,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     }
 
-    public void createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
+    final public void createTripleLiteral(String subject, String predicate, String objectLiteral, IRI datatype) {
         if (objectLiteral == null) {
             return;
         }
@@ -130,7 +132,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     }
 
-    public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
+    final public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
         if (objectLiteral == null) {
             return;
         }
@@ -172,7 +174,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     }
 
-    public void createTripleLiteral(String subject, String predicate, long objectLong) {
+    final public void createTripleLiteral(String subject, String predicate, long objectLong) {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
@@ -185,7 +187,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     }
 
-    public void createList(String subject, String predicate, List<Object> mixedContent) {
+    final public void createList(String subject, String predicate, List<Object> mixedContent) {
 
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
@@ -227,7 +229,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
     }
 
     @Override
-    public void endDocument() throws SAXException {
+    final public void endDocument() throws SAXException {
 
         notDone = false;
 
@@ -244,7 +246,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         }
     }
 
-    private Resource getResource(String subject) {
+    private static Resource getResource(String subject) {
         if (!isBlankNode(subject)) {
             return valueFactory.createIRI(subject);
         } else {

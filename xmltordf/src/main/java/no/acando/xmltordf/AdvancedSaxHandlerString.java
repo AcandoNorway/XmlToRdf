@@ -27,7 +27,7 @@ import java.time.format.DateTimeParseException;
 import java.util.List;
 
 
-class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
+final class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
     private final PrintStream out;
 
 
@@ -38,7 +38,7 @@ class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
 
     }
 
-    public void createTriple(String subject, String predicate, String object) {
+    final public void createTriple(String subject, String predicate, String object) {
         boolean objectIsBlank = isBlankNode(object);
 
         if (isBlankNode(subject)) {
@@ -57,7 +57,7 @@ class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
 
     }
 
-    public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
+    final public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
 
         objectLiteral = objectLiteral
             .replace("\\", "\\\\")
@@ -97,7 +97,7 @@ class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
 
     }
 
-    public void createTripleLiteral(String subject, String predicate, long objectLong) {
+    final public void createTripleLiteral(String subject, String predicate, long objectLong) {
 
         if (!isBlankNode(subject)) {
             out.println('<' + subject + "> <" + predicate + "> \"" + objectLong + "\"^^<http://www.w3.org/2001/XMLSchema#long>" + " .");
@@ -107,7 +107,7 @@ class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
 
     }
 
-    public void createList(String subject, String predicate, List<Object> mixedContent) {
+    final public void createList(String subject, String predicate, List<Object> mixedContent) {
         predicate = '<' + predicate + '>';
         if (!isBlankNode(subject)) {
             subject = '<' + subject + '>';
@@ -139,7 +139,7 @@ class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
 
     }
 
-    public void createTripleLiteral(String subject, String predicate, String objectLiteral, String dataType) {
+    final public void createTripleLiteral(String subject, String predicate, String objectLiteral, String dataType) {
 
         objectLiteral = objectLiteral
             .replace("\\", "\\\\")
@@ -154,7 +154,7 @@ class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> {
     }
 
     @Override
-    public void endDocument() throws SAXException {
+    final public void endDocument() throws SAXException {
 
         out.flush();
         out.close();

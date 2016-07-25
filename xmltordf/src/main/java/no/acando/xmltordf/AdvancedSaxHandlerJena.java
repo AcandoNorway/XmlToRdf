@@ -36,7 +36,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 
 
-class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
+final class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
     private static final Node RDF_REST = NodeFactory.createURI(RDF.REST.toString());
     private static final Node RDF_FIRST = NodeFactory.createURI(RDF.FIRST.toString());
@@ -88,7 +88,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
     }
 
 
-    public void createTriple(String subject, String predicate, String object) {
+    final public void createTriple(String subject, String predicate, String object) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -103,7 +103,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
     }
 
 
-    public void createTriple(String subject, String predicate, Node objectNode) {
+    final public void createTriple(String subject, String predicate, Node objectNode) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -115,7 +115,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
     }
 
 
-    public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
+    final public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
         if (objectLiteral == null) {
             return;
         }
@@ -160,7 +160,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
     }
 
 
-    public void createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
+    final public void createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
         if (objectLiteral == null) {
             return;
         }
@@ -178,7 +178,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
     }
 
 
-    public void createTripleLiteral(String subject, String predicate, long objectLong) {
+    final public void createTripleLiteral(String subject, String predicate, long objectLong) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -191,7 +191,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
     }
 
-    public void createList(String subject, String predicate, List<Object> mixedContent) {
+    final public void createList(String subject, String predicate, List<Object> mixedContent) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
         Node subjectNode = null;
@@ -259,7 +259,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
         }
     }
 
-    private Node getNode(String subject) {
+    private static Node getNode(String subject) {
         if (!isBlankNode(subject)) {
             return NodeFactory.createURI(subject);
         } else {

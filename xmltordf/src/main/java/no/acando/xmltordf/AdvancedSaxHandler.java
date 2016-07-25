@@ -83,10 +83,9 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         pop.createTriples();
 
 
-
     }
 
-     Optional<ResourceType> mapLiteralToResource(Element pop) {
+    Optional<ResourceType> mapLiteralToResource(Element pop) {
         if (builder.literalMap != null) {
             Map<String, ResourceType> stringResourceTypeMap = builder.literalMap.get(pop.type);
             if (stringResourceTypeMap != null) {
@@ -135,7 +134,6 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
             elementStack.push(element);
             return;
         }
-
 
 
         Element<ResourceType, Datatype> parent = null;
@@ -216,9 +214,9 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
             Property property = new Property(uriAttr, nameAttr, valueAttr);
             element.properties.add(property);
 
-           if(element.compositeId != null){
-               element.compositeId.resolveAttribute(uriAttr + nameAttr, valueAttr);
-           }
+            if (element.compositeId != null) {
+                element.compositeId.resolveAttribute(uriAttr + nameAttr, valueAttr);
+            }
 
         }
     }
@@ -317,7 +315,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         return false;
     }
 
-    boolean isBlankNode(String node) {
+    static boolean isBlankNode(String node) {
         return node.startsWith(Common.BLANK_NODE_PREFIX);
     }
 
@@ -325,7 +323,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
     HashMap<String, String> prefixUriMap = new HashMap<>();
 
     @Override
-    public void startPrefixMapping(String prefix, String uri) throws SAXException {
+    final public void startPrefixMapping(String prefix, String uri) throws SAXException {
 
         if (builder.autoAddSuffixToNamespace != null) {
             if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
