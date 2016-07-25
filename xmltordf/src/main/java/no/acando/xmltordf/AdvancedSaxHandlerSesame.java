@@ -33,14 +33,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.BlockingQueue;
 import java.util.stream.Collectors;
 
 
 class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     Repository repository;
-    private LinkedBlockingDeque<Statement> queue;
+    private BlockingQueue<Statement> queue;
     private boolean notDone = true;
     private Thread repoThread;
 
@@ -55,7 +55,7 @@ class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
     AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
         super(builder);
 
-        queue = new LinkedBlockingDeque<>(builder.buffer);
+        queue = new CustomBlockingQueue<>(builder.buffer);
 
         MemoryStore memoryStore = new MemoryStore();
         memoryStore.initialize();

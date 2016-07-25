@@ -34,6 +34,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 
 class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
@@ -44,7 +45,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
     private Graph graph;
 
     Dataset dataset;
-    private ArrayBlockingQueue<Triple> queue;
+    private BlockingQueue<Triple> queue;
     private boolean notDone = true;
     private Thread jenaThread;
 
@@ -53,7 +54,7 @@ class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
     AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
         super(builder);
 
-        queue = new ArrayBlockingQueue<>(builder.buffer, false);
+        queue = new CustomBlockingQueue<>(builder.buffer);
         dataset = DatasetFactory.createMem();
         graph = dataset.getDefaultModel().getGraph();
 
