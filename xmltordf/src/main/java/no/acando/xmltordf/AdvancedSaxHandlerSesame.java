@@ -18,9 +18,8 @@ package no.acando.xmltordf;
 
 import org.openrdf.IsolationLevels;
 import org.openrdf.model.*;
-import org.openrdf.model.impl.LinkedHashModel;
 import org.openrdf.model.impl.SimpleValueFactory;
-import org.openrdf.model.util.RDFCollections;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.sail.SailRepository;
@@ -33,16 +32,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.stream.Collectors;
 
 
 final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
     Repository repository;
-    private LinkedBlockingDeque<Statement> queue;
+    private BlockingQueue<Statement> queue;
     private boolean notDone = true;
     private Thread repoThread;
     final static private SimpleValueFactory valueFactory = SimpleValueFactory.getInstance();
@@ -57,7 +54,7 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
     AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
         super(builder);
 
-        queue = new LinkedBlockingDeque<>(builder.buffer);
+        queue = new CustomBlockingQueue<>(builder.buffer);
 
         MemoryStore memoryStore = new MemoryStore();
         memoryStore.initialize();
@@ -104,7 +101,7 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         Resource subjectNode = getResource(subject);
         Resource objectNode = getResource(object);
 
-        putTripleOnQueue(subjectNode, predicateNode, objectNode);
+        addTripleToQueue(subjectNode, predicateNode, objectNode);
 
 
     }
@@ -114,7 +111,7 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
 
-        putTripleOnQueue(subjectNode, predicateNode, objectNode);
+        addTripleToQueue(subjectNode, predicateNode, objectNode);
 
     }
 
@@ -128,7 +125,7 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
 
         Literal literal = valueFactory.createLiteral(objectLiteral, datatype);
 
-        putTripleOnQueue(subjectNode, predicateNode, literal);
+        addTripleToQueue(subjectNode, predicateNode, literal);
 
     }
 
@@ -169,7 +166,7 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         }
 
 
-        putTripleOnQueue(subjectNode, predicateNode, literal);
+        addTripleToQueue(subjectNode, predicateNode, literal);
 
 
     }
@@ -182,7 +179,7 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         Literal literal = valueFactory.createLiteral(objectLong);
 
 
-        putTripleOnQueue(subjectNode, predicateNode, literal);
+        addTripleToQueue(subjectNode, predicateNode, literal);
 
 
     }
@@ -192,39 +189,52 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         IRI predicateNode = valueFactory.createIRI(predicate);
         Resource subjectNode = getResource(subject);
 
-        Resource head = valueFactory.createBNode();
+        final Resource[] head = new Resource[1];
+        final Resource[] temporaryNode = new Resource[1];
 
-        List<Value> collect = mixedContent.stream().map(content -> {
-            if (content instanceof String) {
-                String objectLiteral = (String) content;
+        mixedContent
+            .stream()
+            .map(content -> {
+                if (content instanceof String) {
+                    String objectLiteral = (String) content;
 
-                return valueFactory.createLiteral(objectLiteral);
+                    return valueFactory.createLiteral(objectLiteral);
 
-            } else if (content instanceof Element) {
-                Element objectElement = (Element) content;
-                if (!objectElement.uri.startsWith("_:")) {
-                    return valueFactory.createIRI(objectElement.uri);
+                } else if (content instanceof Element) {
+                    Element objectElement = (Element) content;
+                    if (!objectElement.uri.startsWith("_:")) {
+                        return valueFactory.createIRI(objectElement.uri);
+                    } else {
+                        return valueFactory.createBNode(objectElement.uri);
+                    }
+
                 } else {
-                    return valueFactory.createBNode(objectElement.uri);
+                    throw new IllegalStateException("Unknown type of: " + content.getClass().toString());
+                }
+            })
+            .forEachOrdered(value -> {
+                Resource blankNode = valueFactory.createBNode();
+
+                if (head[0] == null) {
+                    head[0] = blankNode;
+
+                    addTripleToQueue(head[0], RDF.FIRST, value);
+
+                } else {
+
+                    addTripleToQueue(temporaryNode[0], RDF.REST, blankNode);
+                    addTripleToQueue(blankNode, RDF.FIRST, value);
+
                 }
 
-            } else {
-                throw new IllegalStateException("Unknown type of: " + content.getClass().toString());
-            }
-        }).collect(Collectors.toList());
+                temporaryNode[0] = blankNode;
 
-        Model mixedContentModel = RDFCollections.asRDF(collect, head, new LinkedHashModel());
+            });
 
-        putTripleOnQueue(subjectNode, predicateNode, head);
 
-        mixedContentModel.forEach(statement -> {
-            try {
-                queue.put(statement);
-            } catch (InterruptedException interruptedException) {
-                throw new RuntimeException(interruptedException);
+        addTripleToQueue(temporaryNode[0], RDF.REST, RDF.NIL);
+        addTripleToQueue(subjectNode, predicateNode, head[0]);
 
-            }
-        });
 
     }
 
@@ -255,7 +265,7 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
     }
 
 
-    private void putTripleOnQueue(Resource subject, IRI predicate, Value object) {
+    private void addTripleToQueue(Resource subject, IRI predicate, Value object) {
         try {
             Statement statement = valueFactory.createStatement(subject, predicate, object);
             queue.put(statement);

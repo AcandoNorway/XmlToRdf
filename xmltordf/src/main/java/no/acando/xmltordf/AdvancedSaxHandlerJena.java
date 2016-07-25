@@ -34,6 +34,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 
 final class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
@@ -44,7 +45,7 @@ final class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype>
     private Graph graph;
 
     Dataset dataset;
-    private ArrayBlockingQueue<Triple> queue;
+    private BlockingQueue<Triple> queue;
     private boolean notDone = true;
     private Thread jenaThread;
 
@@ -53,7 +54,7 @@ final class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype>
     AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
         super(builder);
 
-        queue = new ArrayBlockingQueue<>(builder.buffer, false);
+        queue = new CustomBlockingQueue<>(builder.buffer);
         dataset = DatasetFactory.createMem();
         graph = dataset.getDefaultModel().getGraph();
 
@@ -194,9 +195,8 @@ final class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype>
     final public void createList(String subject, String predicate, List<Object> mixedContent) {
 
         Node predicateNode = NodeFactory.createURI(predicate);
-        Node subjectNode = null;
+        Node subjectNode = getNode(subject);
 
-        subjectNode = getNode(subject);
 
         final Node[] head = new Node[1];
         final Node[] temporaryNode = new Node[1];
