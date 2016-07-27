@@ -1,4 +1,4 @@
-# XmlToRdf
+# XmlToRdf [![Build Status](https://travis-ci.org/AcandoNorway/XmlToRdf.svg?branch=master)](https://travis-ci.org/AcandoNorway/XmlToRdf)
 
 
 Java library to convert any XML file to RDF.
@@ -33,8 +33,8 @@ Benchmark information
  - *SSD*: 512 GB
 
 
-## Installing
-To install you can either just use `mvn install` to install the artifact in your local repo and add a dependecy in your project:
+## Maven
+To use XmlToRdf in your project add the following dependency to your pom.xml file.
 
 ```
 <dependency>
@@ -44,6 +44,7 @@ To install you can either just use `mvn install` to install the artifact in your
 </dependency>
 ```
 
+<!--
 It is also possible to install the jar file in a specified local repo, for instance inside a directory in your own project.
 Two steps are required for this. First you need to install the jar file in your required directory:
 
@@ -66,6 +67,7 @@ And then you need to use that directory as a local repository in your project:
     </repository>
 </repositories>
 ```
+-->
 
 # Example
 

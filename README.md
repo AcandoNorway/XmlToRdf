@@ -1,4 +1,4 @@
-# XmlToRdf
+# XmlToRdf [![Build Status](https://travis-ci.org/AcandoNorway/XmlToRdf.svg?branch=master)](https://travis-ci.org/AcandoNorway/XmlToRdf)
 
 
 Java library to convert any XML file to RDF.
@@ -33,8 +33,8 @@ Benchmark information
  - *SSD*: 512 GB
 
 
-## Installing
-To install you can either just use `mvn install` to install the artifact in your local repo and add a dependecy in your project:
+## Maven
+To use XmlToRdf in your project add the following dependency to your pom.xml file.
 
 ```
 <dependency>
@@ -44,6 +44,7 @@ To install you can either just use `mvn install` to install the artifact in your
 </dependency>
 ```
 
+<!--
 It is also possible to install the jar file in a specified local repo, for instance inside a directory in your own project.
 Two steps are required for this. First you need to install the jar file in your required directory:
 
@@ -66,6 +67,7 @@ And then you need to use that directory as a local repository in your project:
     </repository>
 </repositories>
 ```
+-->
 
 # Example
 
@@ -920,12 +922,12 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  <file:///Users/havardottestad/Documents/Java/xmlToRdf2/people> ;
+[ a                  <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/people> ;
   xmlToRdf:hasChild  [ a                       <http://other.org/name> ;
                        xmlToRdf:hasValue       "Unknown" ;
                        <http://other.org/age>  "2"
                      ] ;
-  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Java/xmlToRdf2/name> ;
+  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/name> ;
                        xmlToRdf:hasValue       "John Doe" ;
                        <http://other.org/age>  "1"
                      ]
@@ -1376,6 +1378,9 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
+_:b1    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
 
 [ a                  ex:document ;
@@ -1384,14 +1389,11 @@ _:b0    a                  ex:b ;
                        xmlToRdf:hasValue         "Hello, World!"
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 " " _:b1 "!" ) ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1409,19 +1411,19 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
 
 _:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
+_:b0    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
 
 ```
@@ -1541,7 +1543,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:2cbf3d1d-cc08-4fa3-9b4f-36b0a05d66f5
+ex:188d2c29-b755-4528-9d93-fd287f6b1bd2
         a        ex:people ;
         ex:name  "John Doe" .
 

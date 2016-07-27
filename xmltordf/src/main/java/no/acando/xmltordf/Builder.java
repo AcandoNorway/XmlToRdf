@@ -111,7 +111,7 @@ public class Builder {
 
         /**
          * @param namespace Override all namespaces with this namespace
-         * @return
+         * @return returns this builder
          * @description Override all namespaces in the XML with a new namespace.
          * @xml <people xmlns="http://example.org/" xmlns:a="http://A.com/">
          * <name a:test="hello">John Doe</name>
@@ -132,7 +132,7 @@ public class Builder {
         /**
          * @param elementFrom The full URI of the element in the XML file
          * @param to          The new full URI
-         * @return
+         * @return returns this builder
          * @description Change the name of an element.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
@@ -156,7 +156,7 @@ public class Builder {
         /**
          * @param path The path, where the last element is the one to rename. Create a path with Builder.createPath("", "", ...)
          * @param to          The new full URI
-         * @return
+         * @return returns this builder
          * @description Change the name of an element at the end of a specific path. Useful for renaming elements that do not have a unique name, but have local names
          * scoped to their parents. Can also be used to rename elements to more specific types based on their context as in the examples below.
          * @xml <window xmlns="http://example.org/">
@@ -192,7 +192,7 @@ public class Builder {
         /**
          * @param elementFrom The full URI of the element in the XML file
          * @param transform   a function that takes the namespace and element name as attributes and returns a new string.
-         * @return
+         * @return returns this builder
          * @description Change the name on the fly using a function. Eg. for capitalizing element names.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
@@ -215,7 +215,7 @@ public class Builder {
 
         /**
          * @param policy Either SimpleTypePolicy.compact or SimpleTypePolicy.expand
-         * @return
+         * @return returns this builder
          * @description XML elements with only text inside and no attributes (known as Simple Type elements)
          * can be compacted to use the element name as the RDF predicate or be expanded to use the xmlToRdf:hasChild
          * predicate
@@ -246,7 +246,7 @@ public class Builder {
          * @param elementName   The element name (full URI)
          * @param attributeName The attribute name (full URI)
          * @param transform     A function for transforming the value. Eg v -> v.toUpperCase()
-         * @return
+         * @return returns this builder
          * @description Run a function on the value of an attribute and use the returned string as the new value.
          * Take careful note of the namespaces. Unless specified, attributes inherit the namespace of their element.
          * @xml <person xmlns="http://example.org/" age="3" />
@@ -294,7 +294,7 @@ public class Builder {
 
         /**
          * @param enabled true for enabled
-         * @return
+         * @return returns this builder
          * @description Add the index of the element as a predicate to the RDF. `xmlToRdf:index` is a
          * global element counter (depth-first) that keeps track of which absolute element this is. `xmlToRdf:elementIndex` is a
          * relative counter that keeps track of which index this element is for the given type relative to other elements
@@ -331,7 +331,7 @@ public class Builder {
          * @param elementName     Full URI of element name
          * @param attributeName   Full URI og attribute name
          * @param stringTransform Function for transforming the string value
-         * @return
+         * @return returns this builder
          * @description Use an attribute on an element to generate an identifier for the RDF node.
          * Any single attribute can be used, and adding a namespace or a prefix to the ID is simple
          * as part of the transform.
@@ -374,7 +374,7 @@ public class Builder {
 
         /**
          * @param sign the sign (eg. "/") to suffix the namespace with
-         * @return
+         * @return returns this builder
          * @description Namespaces in RDF typically end in either `/` or `#` unlike in XML where a
          * namespace often has no specific suffix. By default a `#` is added to the namespace if
          * it doesn't already end in either `/` or `#`.
@@ -443,7 +443,7 @@ public class Builder {
          * @param elementName Full URI of element name
          * @param from        Original text inside element
          * @param to          New resource
-         * @return
+         * @return returns this builder
          * @description Map the text inside an element to a URI.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
@@ -501,7 +501,7 @@ public class Builder {
 
         /**
          * @param enabled true for enabled
-         * @return
+         * @return returns this builder
          * @description Use element name as predicate instead of the rdf:type on complex elements that only contain attributes.
          * @xml <people xmlns="http://example.org/">
          * <person name="John Doe" age="89"  />
@@ -522,7 +522,7 @@ public class Builder {
 
         /**
          * @param enabled true for enabled *default: true*
-         * @return
+         * @return returns this builder
          * @description Uses the namespace for the element as the namespace for any attributes that lack namespaces. Default: true.
          * @xml <people xmlns="http://example.org/">
          * <name test="yay">John Doe</name>
@@ -546,7 +546,7 @@ public class Builder {
         /**
          * @param namespace The namespace
          * @param which     Should the namespace apply to element, attributes or both
-         * @return
+         * @return returns this builder
          * @description Sets a namespace for elements and attributes that lack their own namespace. This is recommended to use
          * in order to make sure everything has a namespace in your final RDF.
          * @xml <people xmlns:other="http://other.org/">
@@ -570,7 +570,7 @@ public class Builder {
 
         /**
          * @param enabled true for enabled
-         * @return
+         * @return returns this builder
          * @description Use the element name as the predicate rather than the rdf:type of elements that are complex type, but
          * only contain simple type elements and/or attributes
          * @xml <people xmlns="http://example.org/">
@@ -594,7 +594,7 @@ public class Builder {
 
         /**
          * @param enabled true for enabled
-         * @return
+         * @return returns this builder
          * @description Detects the datatype of simple elements by analyzing their content. Currently support for long, int, double, date and datetime.
          * @xml <people xmlns="http://example.org/">
          * <person idNumber="1234" married="true" weight="80.5">
@@ -621,7 +621,7 @@ public class Builder {
 
         /**
          * @param predicate The string value of the predicate to insert between a give parent and child.
-         * @return
+         * @return returns this builder
          * @description Uses the specified predicate between the parent and the child. Order of application:
          * - between("parent", "child")
          * - betweenSpecificParentAndAnyChild("parent")
@@ -703,7 +703,7 @@ public class Builder {
 
         /**
          * @param predicate The fully URI of the predicate to be inverted.
-         * @return
+         * @return returns this builder
          * @description Inverts an inserted predicate between two elements, so that the inherit parent -> child relationship is reversed.
          * Remember to insert a predicate before trying to invert it.
          * @xml <person xmlns="http://example.org/"  name="John Doe">
@@ -767,7 +767,7 @@ public class Builder {
 
         /**
          * @param elementName The fully URI of the element.
-         * @return
+         * @return returns this builder
          * @description Skip an element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
          * @xml <people xmlns="http://example.org/">
          * <person>
@@ -795,7 +795,7 @@ public class Builder {
 
         /**
          * @param elementName The fully URI of the element.
-         * @return
+         * @return returns this builder
          * @description Create a predicate between the parent and the children elements of an element instead of a node. The element name is used as the
          * predicate URI. Elements used as predicates should be complex elements without any attributes (the converter will skip any attributes). It is also
          * recommended to only use elements as predicates where the child elements are all complex.
@@ -833,7 +833,7 @@ public class Builder {
 
         /**
          * @param elementName The fully URI of the element.
-         * @return
+         * @return returns this builder
          * @description Force mixed content handling for elements, even when they do not
          * contain mixed content.
          * @xml <document xmlns="http://example.org/">
@@ -861,7 +861,7 @@ public class Builder {
 
         /**
          * @param elementName The fully URI of the element.
-         * @return
+         * @return returns this builder
          * @description Use attributes and child elements to create a composite identifier for an element. `compositeId("elementName")` returns
          * a builder to list your required elements and attributes followed by a mapping of those to a string which will be used as the
          * URI for the RDF resource.
@@ -922,7 +922,7 @@ public class Builder {
 
         /**
          * @param enabled true for enabled
-         * @return
+         * @return returns this builder
          * @description By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
          * Blank nodes are locally unique, while UUIDs are globally unique. UUIDs take time to generate, depending on your system, and will make the conversion
          * from XML to RDF considerably slower.
@@ -946,7 +946,7 @@ public class Builder {
         /**
          * @param element  Full URI of element
          * @param datatype Datatype to use. A string when using getAdvancedBuilderStream(), RDFDatatype for Jena and IRI for Sesame.
-         * @return
+         * @return returns this builder
          * @description Specify the datatype on a Simple Type element. Use a string with AdvancedBuilderStream as the datatype,
          * and the respective Sesame or Jena types with AdvancedBuilderSesame and AdvancedBuilderJena.
          * @xml <people xmlns="http://example.org/">
@@ -995,7 +995,7 @@ public class Builder {
         /**
          * @param element   Full URI of element
          * @param transform Function that can transform an Element
-         * @return
+         * @return returns this builder
          * @description Do any transformation on an element will full access to information about its attributes and children.
          * The transformation is applied when the convertor hits the end element tag.
          * @xml <person xmlns="http://example.org/" >
@@ -1040,7 +1040,7 @@ public class Builder {
         /**
          * @param element   Full URI of element
          * @param transform Function that can transform an Element
-         * @return
+         * @return returns this builder
          * @description Do any transformation on an element will full access to information about its attributes but not about it's children.
          * The transformation is applied when the convertor finishes processing the attributes at the start of a tag.
          * <p>
@@ -1096,7 +1096,7 @@ public class Builder {
 
         /**
          * @param enabled true for enabled
-         * @return
+         * @return returns this builder
          * @description Will resolve a qname inside an attribute by expanding it to a full URI as a string.
          * @xml <people xmlns="http://example.org/" xmlns:test="http://test.com/">
          * <name age="test:old">John Doe</name>
@@ -1117,7 +1117,7 @@ public class Builder {
 
         /**
          * @param enabled true for enabled
-         * @return
+         * @return returns this builder
          * @description Detects and uses the value in xsi:type attributes as the rdf:type.
          * @xml <animals xmlns="http://example.org/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dbpedia="http://dbpedia.org/resource/">
          * <human xsi:type="man">
@@ -1147,7 +1147,7 @@ public class Builder {
 
         /**
          * @param size size of buffer *default: 1000*
-         * @return
+         * @return returns this builder
          * @description Set the size of the buffer used to write RDF statements into a Jena Dataset or Sesame Repository.
          * Adjusting the buffer size may affect performance.
          */
