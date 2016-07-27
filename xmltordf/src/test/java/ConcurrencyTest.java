@@ -33,7 +33,7 @@ import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
 
-public class ConcurrencyTests {
+public class ConcurrencyTest {
     private List<Dataset> datasets = new ArrayList<>();
     private List<Repository> repositories = new ArrayList<>();
 
