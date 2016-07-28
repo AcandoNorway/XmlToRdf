@@ -3,6 +3,12 @@
 
 Java library to convert any XML file to RDF.
 
+XmlToRdf offers incredibly fast conversion by using the built in Java SAX parser to stream convert your XML file to RDF. 
+A vast selection of configurations (with sane defaults) makes it simple to adjust the conversion for your needs, including element renaming and advanced IRI generation with 
+composite identifiers. 
+
+Output from the conversion can be written directly to file as RDF Turtle or added to a Sesame Repository or Jena Dataset for further
+processing. With Sesame and Jena it is possible to do further, SPARQL based, transformations on the data and outputting to formats such as RDF Turtle and JSON-LD.
 
 ## Benchmark results
 
