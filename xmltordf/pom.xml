@@ -11,6 +11,11 @@
     <description>Fast and configurable XML to RDF converter.</description>
     <url>https://github.com/AcandoNorway/XmlToRdf</url>
 
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
