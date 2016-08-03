@@ -22,6 +22,7 @@ import org.xml.sax.SAXException;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
@@ -46,7 +47,11 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
     Builder.Fast builder;
 
     public FastSaxHandler(OutputStream out, Builder.Fast builder) {
-        this.out = new UndoableBufferedPrintWriter(new PrintStream(out, false));
+        try {
+            this.out = new UndoableBufferedPrintWriter(new PrintStream(out, false, "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("unsupported encoding");
+        }
         this.builder = builder;
     }
 
