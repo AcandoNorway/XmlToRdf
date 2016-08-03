@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -34,7 +35,11 @@ final class AdvancedSaxHandlerString extends AdvancedSaxHandler<String, String> 
     AdvancedSaxHandlerString(OutputStream out, Builder.AdvancedStream builder) {
         super(builder);
 
-        this.out = new PrintStream(out);
+        try {
+            this.out = new PrintStream(out, false, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("utf8 encoding could niot be found");
+        }
 
     }
 
