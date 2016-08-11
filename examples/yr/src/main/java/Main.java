@@ -37,7 +37,7 @@ public class Main {
 
 //        System.out.println(IOUtils.toString(new URI(url)));
 
-        ByteArrayInputStream yrXml = new ByteArrayInputStream(IOUtils.toString(new URI(url)).getBytes());
+        ByteArrayInputStream yrXml = new ByteArrayInputStream(IOUtils.toString(new URI(url)).getBytes("UTF-8"));
 
         Builder.AdvancedJena builder = Builder.getAdvancedBuilderJena()
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)

@@ -38,6 +38,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.lang.reflect.Type;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -61,8 +62,8 @@ public class JsonJavadocExampleRunner {
         "\tpublic String toString(String xml) {\n" +
         " ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();\n" +
         "\t\t\ttry {\n" +
-        "\t\t\t\tBUILDER.convertToStream(new ByteArrayInputStream(xml.getBytes()), byteArrayOutputStream);\n" +
-        "\t\t\t\tString s = new String(byteArrayOutputStream.toByteArray());\n" +
+        "\t\t\t\tBUILDER.convertToStream(new ByteArrayInputStream(xml.getBytes(\"UTF-8\")), byteArrayOutputStream);\n" +
+        "\t\t\t\tString s = new String(byteArrayOutputStream.toByteArray(), Charset.forName(\"UTF-8\");\n" +
         "\t\t\t\treturn s;\n" +
         "\t\t\t} catch (Exception e) {\n" +
         "\t\t\t\te.printStackTrace();\n" +
@@ -121,7 +122,7 @@ public class JsonJavadocExampleRunner {
 
                         Model defaultModel = ModelFactory.createDefaultModel();
 
-                        defaultModel.read(new ByteArrayInputStream(s.getBytes()), "", "TTL");
+                        defaultModel.read(new ByteArrayInputStream(s.getBytes("UTF-8")), "", "TTL");
 
                         defaultModel.setNsPrefix("ex", "http://example.org/");
                         defaultModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");

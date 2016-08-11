@@ -36,7 +36,7 @@ public class Main {
         Model naeringskode = ModelFactory.createDefaultModel();
 
         for (int i = 1; true; i++) {
-            ByteArrayInputStream naeringskodeXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/naeringskode?page=" + i)).getBytes());
+            ByteArrayInputStream naeringskodeXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/naeringskode?page=" + i)).getBytes("UTF-8"));
 
             Model naeringskodeTemp = Builder.getAdvancedBuilderJena()
                 .setBaseNamespace(ns, Builder.AppliesTo.bothElementsAndAttributes)
@@ -49,7 +49,7 @@ public class Main {
                 .mappedTo((elementMap, attributeMap) -> "http://brreg.no/naeringskode/"+elementMap.get("http://brreg.no/naerk"))
 
                 .build().convertForPostProcessing(naeringskodeXml)
-                .mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes()), new Object())
+                .mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes("UTF-8")), new Object())
                 .getModel();
 
             naeringskode.add(naeringskodeTemp);
@@ -61,7 +61,7 @@ public class Main {
         }
 
 
-        ByteArrayInputStream orgFormXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/organisasjonsform?")).getBytes());
+        ByteArrayInputStream orgFormXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/organisasjonsform?")).getBytes("UTF-8"));
 
         Model enhetstyper = Builder.getAdvancedBuilderJena()
             .setBaseNamespace(ns, Builder.AppliesTo.bothElementsAndAttributes)
@@ -75,11 +75,11 @@ public class Main {
             .mappedTo((elementMap, attributeMap) -> "http://brreg.no/enhetstype/"+elementMap.get("http://brreg.no/enhetstype"))
 
             .build().convertForPostProcessing(orgFormXml)
-            .mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes()), new Object())
+            .mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes("UTF-8")), new Object())
             .getModel();
 
 
-        ByteArrayInputStream brregXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/enhetsregisteret?")).getBytes());
+        ByteArrayInputStream brregXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/enhetsregisteret?")).getBytes("UTF-8"));
 
 
         ComplexClassTransform convertDate = e -> {
