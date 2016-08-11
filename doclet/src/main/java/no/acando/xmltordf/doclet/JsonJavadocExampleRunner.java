@@ -38,7 +38,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.lang.reflect.Type;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +48,7 @@ public class JsonJavadocExampleRunner {
         "import no.acando.xmltordf.doclet.ExampleInterface;\n" +
         "import org.xml.sax.SAXException;\n" +
         "import java.io.*;\n" +
+        "import java.nio.charset.Charset;\n"+
         "import no.acando.xmltordf.Builder;\n" +
         "import javax.xml.parsers.ParserConfigurationException;\n" +
         "import java.io.ByteArrayInputStream;\n" +
@@ -63,7 +63,7 @@ public class JsonJavadocExampleRunner {
         " ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();\n" +
         "\t\t\ttry {\n" +
         "\t\t\t\tBUILDER.convertToStream(new ByteArrayInputStream(xml.getBytes(\"UTF-8\")), byteArrayOutputStream);\n" +
-        "\t\t\t\tString s = new String(byteArrayOutputStream.toByteArray(), Charset.forName(\"UTF-8\");\n" +
+        "\t\t\t\tString s = new String(byteArrayOutputStream.toByteArray(), Charset.forName(\"UTF-8\"));\n" +
         "\t\t\t\treturn s;\n" +
         "\t\t\t} catch (Exception e) {\n" +
         "\t\t\t\te.printStackTrace();\n" +
