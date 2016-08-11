@@ -15,6 +15,7 @@ limitations under the License.
  */
 
 import no.acando.xmltordf.*;
+import org.apache.commons.io.FileUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.Model;
@@ -1351,7 +1352,7 @@ public class XmlToRdfTest {
         Repository repository = build.convertToRepository(new FileInputStream(testFiles.xml));
 
         String rdf = repositoryToString(repository, RDFFormat.JSONLD);
-        Model actualModelSesame = ModelFactory.createDefaultModel().read(new ByteArrayInputStream(rdf.getBytes()), "", RDFLanguages.strLangJSONLD);
+        Model actualModelSesame = ModelFactory.createDefaultModel().read(new ByteArrayInputStream(rdf.getBytes("UTF-8")), "", RDFLanguages.strLangJSONLD);
 
         Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
 

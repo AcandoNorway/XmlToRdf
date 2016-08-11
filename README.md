@@ -46,7 +46,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.13</version>
+    <version>1.4.14</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.13.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.14.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -600,14 +600,14 @@ Builder.getAdvancedBuilderStream()
         ex:nr     "0000002" ;
         ex:title  "Other record" .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000001>
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 ```
 
@@ -1418,19 +1418,19 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
+_:b1    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
 
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1549,7 +1549,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:ea469e53-2e64-4757-94cf-6ff60c6c71ce
+ex:560ec258-b775-4406-823e-e93df5578ab7
         a        ex:people ;
         ex:name  "John Doe" .
 

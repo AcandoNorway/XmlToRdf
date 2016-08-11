@@ -34,7 +34,7 @@ public class Main {
 
         String url = "http://www.psa.no/getfile.php/PDF/DDRS_example.xml";
 
-        ByteArrayInputStream reportingHubXml = new ByteArrayInputStream(IOUtils.toString(new URI(url)).getBytes());
+        ByteArrayInputStream reportingHubXml = new ByteArrayInputStream(IOUtils.toString(new URI(url)).getBytes("UTF-8"));
 
         String witsml = "http://www.witsml.org/schemas/1series#";
 
@@ -147,7 +147,7 @@ public class Main {
                 "       ?uri a <http://data.posccaesar.org/npd/ontology/ilap-interface/Wellbore>; ",
                 "            rdfs:label ?wellboreString . ",
                 "   }",
-                "}").getBytes()),
+                "}").getBytes("UTF-8")),
 
                 new Object() {
                     String witsmlNs = witsml;
@@ -155,7 +155,7 @@ public class Main {
             .mustacheTransform(new ByteArrayInputStream(String.join("\n", "",
                 "delete{?a <http://acandonorway.github.com/XmlToRdf/ontology.ttl#hasValue> ?b}",
                 "insert{?a <{{{witsmlNs}}}value> ?b}",
-                "where{?a <http://acandonorway.github.com/XmlToRdf/ontology.ttl#hasValue> ?b}").getBytes()), new Object() {
+                "where{?a <http://acandonorway.github.com/XmlToRdf/ontology.ttl#hasValue> ?b}").getBytes("UTF-8")), new Object() {
                 String witsmlNs = witsml;
             })
             .getModel();

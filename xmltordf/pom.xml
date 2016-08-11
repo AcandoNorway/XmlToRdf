@@ -4,12 +4,17 @@
     <groupId>no.acando</groupId>
 
     <artifactId>xmltordf</artifactId>
-    <version>1.4.13</version>
+    <version>1.4.14</version>
     <modelVersion>4.0.0</modelVersion>
 
     <name>XmlToRdf</name>
     <description>Fast and configurable XML to RDF converter.</description>
     <url>https://github.com/AcandoNorway/XmlToRdf</url>
+
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
 
     <licenses>
         <license>
