@@ -46,7 +46,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.5.0</version>
+    <version>1.6.0</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.5.0.jar \
+    -Dfile=xmltordf/target/xmltordf-1.6.0.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -411,7 +411,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
-## addTransformationForAttributeValue(String elementName, String attributeName, StringTransform transform)
+## transformAttributeValue(String elementName, String attributeName, StringTransform transform)
 
 Run a function on the value of an attribute and use the returned string as the new value.
  Take careful note of the namespaces. Unless specified, attributes inherit the namespace of their element.
@@ -425,7 +425,7 @@ Run a function on the value of an attribute and use the returned string as the n
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .addTransformationForAttributeValue("http://example.org/person", "http://example.org/age", v -> String.valueOf(Integer.parseInt(v)*10))
+   .transformAttributeValue("http://example.org/person", "http://example.org/age", v -> String.valueOf(Integer.parseInt(v)*10))
    .build()
 ```
 
@@ -457,6 +457,60 @@ Builder.getAdvancedBuilderStream()
 
 [ a       ex:person ;
   ex:age  "3"
+] .
+
+```
+
+---
+<p>&nbsp;</p>
+## transformElementValue(String elementName, StringTransform transform)
+
+Run a function on the value of an element and use the returned string as the new value.
+ Mixed content
+
+**XML example**
+```xml
+<person xmlns="http://example.org/">
+  <name>Peter</name>
+</person>
+```
+
+### Convert name to uppercase
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .transformElementValue("http://example.org/name", v -> v.toUpperCase())
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a        ex:person ;
+  ex:name  "PETER"
+] .
+
+```
+
+---
+### Without any transformation
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a        ex:person ;
+  ex:name  "Peter"
 ] .
 
 ```
@@ -1426,11 +1480,11 @@ Builder.getAdvancedBuilderStream()
   ex:paragraph       "Hello, World!"
 ] .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
 _:b1    a                  ex:b ;
         xmlToRdf:hasValue  "World" .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
 
 ```
 
@@ -1550,7 +1604,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-<http://data.example.org/7cea5e22-ce5d-4480-801e-b4d0966fb002>
+<http://data.example.org/a51bf430-5765-47bd-a0b6-38a8fb7472c6>
         a        ex:people ;
         ex:name  "John Doe" .
 
