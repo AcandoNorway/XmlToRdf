@@ -147,17 +147,17 @@ public class XmlToRdfTest {
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .overrideNamespace(HTTP_TEST)
-            .uuidBasedIdInsteadOfBlankNodes(true)
+            .uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
             .build());
 
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .overrideNamespace(HTTP_TEST)
-            .uuidBasedIdInsteadOfBlankNodes(true)
+            .uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
             .build());
 
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .overrideNamespace(HTTP_TEST)
-            .uuidBasedIdInsteadOfBlankNodes(true)
+            .uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
             .build());
 
         assertTrue("This test just tests that the results are NOT isomorphic, which they will be when you don't use blank nodes anymore.", errorOccured[0]);
