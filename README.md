@@ -46,7 +46,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.15</version>
+    <version>1.5.0</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.15.jar \
+    -Dfile=xmltordf/target/xmltordf-1.5.0.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -595,6 +595,10 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
+
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
@@ -604,10 +608,6 @@ Builder.getAdvancedBuilderStream()
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
-
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
 
 ```
 
@@ -1417,9 +1417,6 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasChild         _:b0 , _:b1 ;
@@ -1428,6 +1425,9 @@ _:b0    a                  ex:b ;
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
 
 _:b1    a                  ex:b ;
         xmlToRdf:hasValue  "World" .
@@ -1479,15 +1479,15 @@ Builder.getAdvancedBuilderStream()
         ex:seqnr         "2" ;
         ex:title         "Hi" .
 
+[ a                  ex:documents ;
+  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
+] .
+
 <http://acme.com/Abc1>
         a                ex:document ;
         ex:organisation  "Abc" ;
         ex:seqnr         "1" ;
         ex:title         "Hello" .
-
-[ a                  ex:documents ;
-  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
-] .
 
 ```
 
@@ -1522,11 +1522,12 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
-## uuidBasedIdInsteadOfBlankNodes(boolean enabled)
+## uuidBasedIdInsteadOfBlankNodes(String baseNamespace)
 
 By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
  Blank nodes are locally unique, while UUIDs are globally unique. UUIDs take time to generate, depending on your system, and will make the conversion
- from XML to RDF considerably slower.
+ from XML to RDF considerably slower. UUID based identifiser require a namespace to be used for the final IRI, if the namespace is
+ "http://data.example.org/" then the IRI of the resource would be http://data.example.org/94210b03-3000-4064-8675-0303ff9b3c27"
 
 **XML example**
 ```xml
@@ -1539,7 +1540,7 @@ By default or elements are converted to blank nodes. Elements can alse be conver
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .uuidBasedIdInsteadOfBlankNodes(true)
+   .uuidBasedIdInsteadOfBlankNodes("http://data.example.org/")
    .build()
 ```
 
@@ -1549,7 +1550,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:35f2ea11-9018-4e88-94a1-e02efe285fef
+<http://data.example.org/7cea5e22-ce5d-4480-801e-b4d0966fb002>
         a        ex:people ;
         ex:name  "John Doe" .
 
@@ -1560,7 +1561,6 @@ ex:35f2ea11-9018-4e88-94a1-e02efe285fef
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .uuidBasedIdInsteadOfBlankNodes(false)
    .build()
 ```
 
