@@ -74,13 +74,13 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         if (builder.renameElementMap != null && builder.renameElementMap.containsKey(uri + localName)) {
             fullyQualifiedName = builder.renameElementMap.get(uri + localName);
-        }else if(builder.renameElementFunctionMap != null){
+        } else if (builder.renameElementFunctionMap != null) {
             StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
-            if(stringTransformTwoValue == null){
+            if (stringTransformTwoValue == null) {
                 stringTransformTwoValue = builder.renameElementFunctionMap.get("");
             }
-            if(stringTransformTwoValue != null){
-                fullyQualifiedName = stringTransformTwoValue.transform(uri,localName);
+            if (stringTransformTwoValue != null) {
+                fullyQualifiedName = stringTransformTwoValue.transform(uri, localName);
             }
         }
 
@@ -106,7 +106,6 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
             String valueAttr = attributes.getValue(i);
 
 
-
             if (builder.overrideNamespace != null) {
                 uriAttr = builder.overrideNamespace;
             }
@@ -129,7 +128,12 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         final String nodeId = nodeIdStack.pop();
         final String typePop = typeStack.pop();
-        final String value = stringBuilderStack.pop().toString().trim();
+        String value = stringBuilderStack.pop().toString().trim();
+
+        if (value != null) {
+            value = builder.doTransformForElementValue(typePop, value);
+        }
+
 
         if (!value.isEmpty()) {
             handleTextValue(nodeId, typePop, value);
