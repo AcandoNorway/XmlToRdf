@@ -46,7 +46,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.4.14</version>
+    <version>1.4.15</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.4.14.jar \
+    -Dfile=xmltordf/target/xmltordf-1.4.15.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -928,12 +928,12 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  <file:///Users/havardottestad/Documents/Java/xmlToRdf2/people> ;
+[ a                  <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/people> ;
   xmlToRdf:hasChild  [ a                       <http://other.org/name> ;
                        xmlToRdf:hasValue       "Unknown" ;
                        <http://other.org/age>  "2"
                      ] ;
-  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Java/xmlToRdf2/name> ;
+  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/name> ;
                        xmlToRdf:hasValue       "John Doe" ;
                        <http://other.org/age>  "1"
                      ]
@@ -1383,23 +1383,23 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
                        xmlToRdf:hasValue         "Hello, World!"
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 " " _:b1 "!" ) ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1418,19 +1418,19 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
-_:b1    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
 
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1549,7 +1549,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-ex:560ec258-b775-4406-823e-e93df5578ab7
+ex:35f2ea11-9018-4e88-94a1-e02efe285fef
         a        ex:people ;
         ex:name  "John Doe" .
 
