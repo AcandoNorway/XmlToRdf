@@ -166,13 +166,13 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
             CompositeId compositeId = builder.compositeIdMap.get(element.type);
             if (compositeId == null) {
-                calculateNodeId(namespace, element);
+                calculateNodeId(element);
             } else {
                 element.compositeId = compositeId.simpleClone();
             }
 
         } else {
-            calculateNodeId(namespace, element);
+            calculateNodeId(element);
         }
 
         handleAttributes(namespace, attributes, element);
@@ -242,13 +242,10 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         return uriAttr;
     }
 
-    private void calculateNodeId(String uri, Element<ResourceType, Datatype> element) {
-        if (builder.uuidBasedIdInsteadOfBlankNodes) {
-            String tempUri = uri;
-            if (builder.overrideNamespace != null) {
-                tempUri = builder.overrideNamespace;
-            }
-            element.uri = tempUri + UUID.randomUUID().toString();
+    private void calculateNodeId(Element<ResourceType, Datatype> element) {
+        if (builder.uuidBasedIdInsteadOfBlankNodes != null) {
+
+            element.uri = builder.uuidBasedIdInsteadOfBlankNodes + UUID.randomUUID().toString();
 
         } else {
             element.uri = Common.BLANK_NODE_PREFIX + uriCounter++;

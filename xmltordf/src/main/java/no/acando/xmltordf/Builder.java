@@ -419,7 +419,7 @@ public class Builder {
         boolean autoAttributeNamespace = true;
         boolean convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate;
         boolean autoTypeLiterals;
-        boolean uuidBasedIdInsteadOfBlankNodes;
+        String uuidBasedIdInsteadOfBlankNodes;
 
         private Map<String, ParentChild> invertPredicate = null;
         private HashMapNoOverwriteWithDefaultTwoLevels<String, String, String> insertPredicateBetween = null;
@@ -921,25 +921,25 @@ public class Builder {
         }
 
         /**
-         * @param enabled true for enabled
+         * @param baseNamespace The namespace that will be used for the UUIDs
          * @return returns this builder
          * @description By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
          * Blank nodes are locally unique, while UUIDs are globally unique. UUIDs take time to generate, depending on your system, and will make the conversion
-         * from XML to RDF considerably slower.
+         * from XML to RDF considerably slower. UUID based identifiser require a namespace to be used for the final IRI, if the namespace is
+         * "http://data.example.org/" then the IRI of the resource would be http://data.example.org/94210b03-3000-4064-8675-0303ff9b3c27"
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * </people>
          * @exampleLabel Use UUIDs
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .uuidBasedIdInsteadOfBlankNodes(true)
+         * .uuidBasedIdInsteadOfBlankNodes("http://data.example.org/")
          * .build()
          * @exampleLabel Use locally unique blank node
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .uuidBasedIdInsteadOfBlankNodes(false)
          * .build()
          */
-        public T uuidBasedIdInsteadOfBlankNodes(boolean enabled) {
-            uuidBasedIdInsteadOfBlankNodes = enabled;
+        public T uuidBasedIdInsteadOfBlankNodes(String baseNamespace) {
+            uuidBasedIdInsteadOfBlankNodes = baseNamespace;
             return (T) this;
         }
 
