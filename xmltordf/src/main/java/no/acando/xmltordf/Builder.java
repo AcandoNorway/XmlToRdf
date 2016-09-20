@@ -24,31 +24,33 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Builder {
-    public static XmlPath  createPath(String ... path) {
+    public static XmlPath createPath(String... path) {
         XmlPath xmlPath = new XmlPath(path);
 
 
         return xmlPath;
     }
 
-     static class XmlPath{
-         String[] path;
+    static class XmlPath {
+        String[] path;
 
-         int lastElement;
+        int lastElement;
 
-         public XmlPath(String[] path) {
-             this.path = path;
-             lastElement = path.length -1;
-         }
+        public XmlPath(String[] path) {
+            this.path = path;
+            lastElement = path.length - 1;
+        }
 
-         boolean equals(Element tailElemenet) {
+        boolean equals(Element tailElemenet) {
 
             Element current = tailElemenet;
 
-            for (int i = path.length-1; i >= 0; i--) {
-               if(current == null) return false;
+            for (int i = path.length - 1; i >= 0; i--) {
+                if (current == null) {
+                    return false;
+                }
 
-                if(!current.type.equals(path[i])){
+                if (!current.type.equals(path[i])) {
                     return false;
                 }
 
@@ -62,20 +64,22 @@ public class Builder {
 
 
         public String getTail() {
-            if(lastElement < 0) return null;
+            if (lastElement < 0) {
+                return null;
+            }
             return path[lastElement];
         }
 
-         public XmlPath shorten() {
-             lastElement--;
+        public XmlPath shorten() {
+            lastElement--;
 
-             return this;
-         }
+            return this;
+        }
 
-         public boolean last() {
-             return lastElement == 0;
-         }
-     }
+        public boolean last() {
+            return lastElement == 0;
+        }
+    }
 
     //TODO: consider abstracting some of this out to their own class files
 
@@ -105,6 +109,8 @@ public class Builder {
         Map<String, String> renameElementMap = null;
         boolean autoDetectLiteralProperties = true;
         HashMapNoOverwriteWithDefaultTwoLevels<String, String, StringTransform> transformForAttributeValueMap = null;
+        HashMapNoOverwriteWithDefault<String, StringTransform> transformForElementValueMap = null;
+
         Map<String, StringTransformTwoValue> renameElementFunctionMap = null;
         ReverseElementTree renameElementPathMap = null;
 
@@ -155,18 +161,18 @@ public class Builder {
 
         /**
          * @param path The path, where the last element is the one to rename. Create a path with Builder.createPath("", "", ...)
-         * @param to          The new full URI
+         * @param to   The new full URI
          * @return returns this builder
          * @description Change the name of an element at the end of a specific path. Useful for renaming elements that do not have a unique name, but have local names
          * scoped to their parents. Can also be used to rename elements to more specific types based on their context as in the examples below.
          * @xml <window xmlns="http://example.org/">
-         *  <frame>
-         *         <tittle>Main frame</tittle>
-         *  </frame>
          * <frame>
-         *     <frame>
-         *         <tittle>Sub frame</tittle>
-         *         </frame>
+         * <tittle>Main frame</tittle>
+         * </frame>
+         * <frame>
+         * <frame>
+         * <tittle>Sub frame</tittle>
+         * </frame>
          * </frame>
          * </window>
          * @exampleLabel
@@ -184,9 +190,6 @@ public class Builder {
 
             return (T) this;
         }
-
-
-
 
 
         /**
@@ -252,13 +255,13 @@ public class Builder {
          * @xml <person xmlns="http://example.org/" age="3" />
          * @exampleLabel Multiply age by 10
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .addTransformationForAttributeValue("http://example.org/person", "http://example.org/age", v -> String.valueOf(Integer.parseInt(v)*10))
+         * .transformAttributeValue("http://example.org/person", "http://example.org/age", v -> String.valueOf(Integer.parseInt(v)*10))
          * .build()
          * @exampleLabel Without any transformation
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .build()
          */
-        public T addTransformationForAttributeValue(String elementName, String attributeName, StringTransform transform) {
+        public T transformAttributeValue(String elementName, String attributeName, StringTransform transform) {
 
             if (transformForAttributeValueMap == null) {
                 transformForAttributeValueMap = new HashMapNoOverwriteWithDefaultTwoLevels<>();
@@ -275,6 +278,51 @@ public class Builder {
 
             if (transformForAttributeValueMap != null) {
                 StringTransform stringTransform = transformForAttributeValueMap.get(element, attribute);
+                if (stringTransform != null) {
+                    return stringTransform.transform(value);
+                }
+
+            }
+
+            return value;
+
+        }
+
+
+        /**
+         * @param elementName The element name (full URI)
+         * @param transform   A function for transforming the value. Eg v -> v.toUpperCase()
+         * @return returns this builder
+         * @description Run a function on the value of an element and use the returned string as the new value.
+         * Mixed content
+         * @xml <person xmlns="http://example.org/">
+         *     <name>Peter</name>
+         *     </person>
+         * @exampleLabel Convert name to uppercase
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .transformElementValue("http://example.org/name", v -> v.toUpperCase())
+         * .build()
+         * @exampleLabel Without any transformation
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
+        public T transformElementValue(String elementName, StringTransform transform) {
+
+            if (transformForElementValueMap == null) {
+                transformForElementValueMap = new HashMapNoOverwriteWithDefault<>();
+            }
+
+            transformForElementValueMap.put(elementName, transform);
+
+            return (T) this;
+
+        }
+
+
+        String doTransformForElementValue(String element, String value) {
+
+            if (transformForElementValueMap != null) {
+                StringTransform stringTransform = transformForElementValueMap.get(element);
                 if (stringTransform != null) {
                     return stringTransform.transform(value);
                 }
@@ -436,7 +484,7 @@ public class Builder {
 
         Map<String, String> skipElementMap = null;
         Map<String, String> forcedMixedContentMap = null;
-         Map<String, CompositeId<T>> compositeIdMap;
+        Map<String, CompositeId<T>> compositeIdMap;
 
 
         /**
@@ -474,7 +522,7 @@ public class Builder {
 
         public T mapTextInAttributeToUri(String elementName, String attributeName, String from, ResourceType to) {
 
-                ;
+            ;
             if (elementAttributeTextToUriMap == null) {
                 elementAttributeTextToUriMap = new HashMapNoOverwriteWithDefaultTwoLevels<>();
             }
@@ -866,14 +914,14 @@ public class Builder {
          * a builder to list your required elements and attributes followed by a mapping of those to a string which will be used as the
          * URI for the RDF resource.
          * @xml <documents xmlns="http://example.org/">
-         *     <document seqnr="1">
-         *         <organisation>Abc</organisation>
-         *         <title>Hello</title>
-         *     </document>
-         *     <document seqnr="2">
-         *         <organisation>Def</organisation>
-         *         <title>Hi</title>
-         *     </document>
+         * <document seqnr="1">
+         * <organisation>Abc</organisation>
+         * <title>Hello</title>
+         * </document>
+         * <document seqnr="2">
+         * <organisation>Def</organisation>
+         * <title>Hi</title>
+         * </document>
          * </documents>
          * @exampleLabel Create composite id from `organisation` and `seqnr`
          * @exampleCommand Builder.getAdvancedBuilderStream()

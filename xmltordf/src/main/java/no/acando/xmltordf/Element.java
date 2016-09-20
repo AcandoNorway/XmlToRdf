@@ -173,6 +173,13 @@ public class Element<ResourceType, Datatype> {
 
         builder.doComplexTransformElementAtEndOfElement(this);
 
+        if(getHasValue() != null){
+            hasValue = new StringBuilder(builder.doTransformForElementValue(type, getHasValue()));
+            hasValueString = null;
+        }
+
+
+
         if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(type)) {
 
             hasChild.stream()
