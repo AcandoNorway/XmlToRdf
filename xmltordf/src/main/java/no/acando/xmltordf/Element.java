@@ -32,7 +32,7 @@ public class Element<ResourceType, Datatype> {
     public ArrayList<Property> properties = new ArrayList<>(3);
     long index = 0;
     long elementIndex = 0;
-    private boolean shallow;
+    public boolean shallow;
     private boolean autoDetectedAsLiteralProperty;
     CountingMap indexMap = new CountingMap();
 
@@ -42,11 +42,16 @@ public class Element<ResourceType, Datatype> {
     public boolean useElementAsPredicate;
     boolean containsMixedContent;
     private boolean delayedOutput;
-    private Runnable delayedCreateTripleCallback;
+    //private Runnable delayedCreateTripleCallback;
+    private ArrayDeque<Element> delayedCreateTripleCallback = new ArrayDeque<>();
+
     private int childrenWithAutoDetectedAsLiteralProperty;
     public CompositeId compositeId;
 
 
+    public boolean getContainsMixedContent() {
+        return containsMixedContent;
+    }
 
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         this.handler = handler;
@@ -148,8 +153,22 @@ public class Element<ResourceType, Datatype> {
 
         endMixedContent();
 
-        if (delayedCreateTripleCallback != null) {
-            delayedCreateTripleCallback.run();
+        if (!delayedCreateTripleCallback.isEmpty()) {
+
+            while(!delayedCreateTripleCallback.isEmpty()){
+                Element element = delayedCreateTripleCallback.pop();
+                element.createTriples();
+                element.cleanUp();
+            }
+
+//            for (int i = 0; i < delayedCreateTripleCallback.size(); i++) {
+//                Element element = delayedCreateTripleCallback.get(i);
+//
+//                    element.createTriples();
+//                    element.cleanUp();
+//
+//            }
+//            delayedCreateTripleCallback.run();
         }
 
         builder.doComplexTransformElementAtEndOfElement(this);
@@ -291,22 +310,24 @@ public class Element<ResourceType, Datatype> {
 
         element.delayedOutput = true;
 
-        if (delayedCreateTripleCallback == null) {
-            delayedCreateTripleCallback = () -> {
-                element.createTriples();
-                element.cleanUp();
-            };
+        delayedCreateTripleCallback.push( element);
 
-        } else {
-
-            Runnable delayedCallback = delayedCreateTripleCallback;
-
-            delayedCreateTripleCallback = () -> {
-                element.createTriples();
-                element.cleanUp();
-                delayedCallback.run();
-            };
-        }
+//        if (delayedCreateTripleCallback == null) {
+//            delayedCreateTripleCallback = () -> {
+//                element.createTriples();
+//                element.cleanUp();
+//            };
+//
+//        } else {
+//
+//            Runnable delayedCallback = delayedCreateTripleCallback;
+//
+//            delayedCreateTripleCallback = () -> {
+//                element.createTriples();
+//                element.cleanUp();
+//                delayedCallback.run();
+//            };
+//        }
     }
 
     public AdvancedSaxHandler<ResourceType, Datatype> getHandler() {
