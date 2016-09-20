@@ -40,6 +40,7 @@ import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
+import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
@@ -1276,6 +1277,45 @@ public class XmlToRdfTest {
                 .fromAttribute("http://example.org/localId")
                 .mappedTo((elementMap, attributeMap) ->
                     "http://data.org/"+elementMap.get("http://example.org/num")+elementMap.get("http://example.org/name")+attributeMap.get("http://example.org/localId"))
+
+
+            .build());
+
+    }
+
+    @Test
+    public void compositeIdWithDelayedOutput() throws Exception {
+
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+            .compositeId("http://example.org/B")
+            .fromElement("http://example.org/num")
+            .fromElement("http://example.org/name")
+            .fromAttribute("http://example.org/localId")
+            .mappedTo((elementMap, attributeMap) ->
+                "http://data.org/"+elementMap.get("http://example.org/num")+elementMap.get("http://example.org/name")+attributeMap.get("http://example.org/localId"))
+
+            .addComplexElementTransformAtEndOfElement(
+                "http://example.org/notForCompositeId",
+                e ->{
+                    Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
+                    sensitiveElement.hasValue = new StringBuilder("newValue");
+                    sensitiveElement.type = "http://example.org/newElement";
+                    sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
+                    sensitiveElement.parent = e.parent;
+                    e.parent.addDelayedTripleCreation(sensitiveElement);
+                })
+
+            .addComplexElementTransformAtEndOfElement(
+                "http://example.org/newElement",
+                e ->{
+                    Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
+                    sensitiveElement.hasValue = new StringBuilder("newValue2");
+                    sensitiveElement.type = "http://example.org/newNewElement";
+                    sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
+                    sensitiveElement.parent = e.parent;
+                    e.parent.addDelayedTripleCreation(sensitiveElement);
+                })
 
 
             .build());
