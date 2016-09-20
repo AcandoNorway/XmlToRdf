@@ -1,0 +1,18 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+[ a                  <http://test/A> ;
+  xmlToRdf:hasChild  [ a                  <http://test/B> ;
+                       xmlToRdf:hasChild  [ a                         <http://test/name> ;
+                                            xmlToRdf:hasChild         _:b0 ;
+                                            xmlToRdf:hasMixedContent  ( "BOO" _:b0 ) ;
+                                            xmlToRdf:hasValue         "BOO" ;
+                                            <http://test/hurra>       "hello"
+                                          ] ;
+                       <http://test/num>  "1"
+                     ]
+] .
+
+_:b0    a                  <http://test/p> ;
+        xmlToRdf:hasValue  "HUUU" .
