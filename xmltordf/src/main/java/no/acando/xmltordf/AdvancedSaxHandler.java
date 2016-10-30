@@ -16,6 +16,11 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
+import com.sun.xml.internal.xsom.impl.ElementDecl;
+import org.apache.xerces.impl.xs.XSComplexTypeDecl;
+import org.apache.xerces.xs.XSElementDeclaration;
+import org.apache.xerces.xs.XSParticle;
+import org.apache.xerces.xs.XSTypeDefinition;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
@@ -26,6 +31,9 @@ import java.util.*;
 abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler {
 
     private final Deque<Element<ResourceType, Datatype>> elementStack = new ArrayDeque<>(100);
+
+    private final Deque<XSElementDeclaration> xsModelStack = new ArrayDeque<>(100);
+
 
     final static String XSD = "http://www.w3.org/2001/XMLSchema#";
 
@@ -106,6 +114,36 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         if (skipElementUntil != null) {
             elementStack.push(skippableElement);
             return;
+        }
+
+        if(builder.xsModel != null){
+            if(!xsModelStack.isEmpty()){
+                XSElementDeclaration peek = xsModelStack.peek();
+                XSTypeDefinition typeDefinition = peek.getTypeDefinition();
+                if(typeDefinition instanceof XSComplexTypeDecl){
+                    XSComplexTypeDecl typeDefinition1 = (XSComplexTypeDecl) typeDefinition;
+                    XSParticle particle = typeDefinition1.getParticle();
+
+
+                }
+
+            }
+
+            XSElementDeclaration elementDeclaration = builder.xsModel.getElementDeclaration(localName, namespace);
+            xsModelStack.push(elementDeclaration);
+
+            if(elementDeclaration != null){
+
+                XSTypeDefinition typeDefinition = elementDeclaration.getTypeDefinition();
+
+                if(typeDefinition instanceof XSComplexTypeDecl){
+                    System.out.println("complex");
+                }
+                System.out.println(elementDeclaration);
+            }else {
+                System.out.println();
+            }
+
         }
 
         boolean mixedContent = detectMixedContent();

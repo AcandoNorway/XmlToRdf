@@ -18,6 +18,9 @@ package no.acando.xmltordf;
 
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.Node;
+import org.apache.xerces.impl.xs.XMLSchemaLoader;
+import org.apache.xerces.xs.StringList;
+import org.apache.xerces.xs.XSModel;
 import org.openrdf.model.IRI;
 
 import java.util.HashMap;
@@ -485,6 +488,20 @@ public class Builder {
         Map<String, String> skipElementMap = null;
         Map<String, String> forcedMixedContentMap = null;
         Map<String, CompositeId<T>> compositeIdMap;
+
+        XSModel xsModel;
+
+        public T addSchema(String schema) {
+
+            XMLSchemaLoader xsLoader = new XMLSchemaLoader();
+
+            xsModel = xsLoader.loadIRI(schema);
+
+            StringList namespaces = xsModel.getNamespaces();
+
+            namespaces.forEach(System.out::println);
+            return (T) this;
+        }
 
 
         /**

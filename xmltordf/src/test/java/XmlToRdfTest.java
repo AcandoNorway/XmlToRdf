@@ -717,6 +717,16 @@ public class XmlToRdfTest {
     }
 
     @Test
+    public void intialSchemaTest() throws Exception {
+
+        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+            .addSchema(new File("testFiles/intialSchemaTest/input.xsd").toURI().toString())
+            .build());
+
+
+    }
+
+    @Test
     public void specialShallowHandling() throws Exception {
 
         final String ø = "ø";
