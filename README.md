@@ -649,10 +649,6 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
@@ -662,6 +658,10 @@ Builder.getAdvancedBuilderStream()
         a         ex:record ;
         ex:nr     "0000001" ;
         ex:title  "Important record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 ```
 
@@ -752,7 +752,7 @@ Builder.getAdvancedBuilderStream()
 <p>&nbsp;</p>
 ## mapTextInElementToUri(String elementName, String from, Object to)
 
-Map the text inside an element to a URI.
+Map the text inside an element to a IRI.
 
 **XML example**
 ```xml
@@ -762,7 +762,7 @@ Map the text inside an element to a URI.
 </people>
 ```
 
-### Map `married` to a URI
+### Map `married` to a IRI
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
@@ -1323,7 +1323,7 @@ Builder.getAdvancedBuilderStream()
 ## useElementAsPredicate(String elementName)
 
 Create a predicate between the parent and the children elements of an element instead of a node. The element name is used as the
- predicate URI. Elements used as predicates should be complex elements without any attributes (the converter will skip any attributes). It is also
+ predicate IRI. Elements used as predicates should be complex elements without any attributes (the converter will skip any attributes). It is also
  recommended to only use elements as predicates where the child elements are all complex.
 
 **XML example**
@@ -1437,23 +1437,23 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
                        xmlToRdf:hasValue         "Hello, World!"
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 " " _:b1 "!" ) ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1494,7 +1494,7 @@ _:b0    a                  ex:b ;
 
 Use attributes and child elements to create a composite identifier for an element. `compositeId("elementName")` returns
  a builder to list your required elements and attributes followed by a mapping of those to a string which will be used as the
- URI for the RDF resource.
+ IRI for the RDF resource.
 
 **XML example**
 ```xml
@@ -1533,15 +1533,15 @@ Builder.getAdvancedBuilderStream()
         ex:seqnr         "2" ;
         ex:title         "Hi" .
 
-[ a                  ex:documents ;
-  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
-] .
-
 <http://acme.com/Abc1>
         a                ex:document ;
         ex:organisation  "Abc" ;
         ex:seqnr         "1" ;
         ex:title         "Hello" .
+
+[ a                  ex:documents ;
+  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
+] .
 
 ```
 
@@ -1578,7 +1578,7 @@ Builder.getAdvancedBuilderStream()
 <p>&nbsp;</p>
 ## uuidBasedIdInsteadOfBlankNodes(String baseNamespace)
 
-By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
+Generate IRIs for elements by using a UUID instead of using blank nodes.
  Blank nodes are locally unique, while UUIDs are globally unique. UUIDs take time to generate, depending on your system, and will make the conversion
  from XML to RDF considerably slower. UUID based identifiser require a namespace to be used for the final IRI, if the namespace is
  "http://data.example.org/" then the IRI of the resource would be http://data.example.org/94210b03-3000-4064-8675-0303ff9b3c27"
@@ -1604,7 +1604,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-<http://data.example.org/a51bf430-5765-47bd-a0b6-38a8fb7472c6>
+<http://data.example.org/d2ac7dcc-25ae-42af-a5f2-639b6d492c92>
         a        ex:people ;
         ex:name  "John Doe" .
 
@@ -1842,7 +1842,7 @@ Builder.getAdvancedBuilderStream()
 <p>&nbsp;</p>
 ## resolveAsQnameInAttributeValue(boolean enabled)
 
-Will resolve a qname inside an attribute by expanding it to a full URI as a string.
+Will resolve a qname inside an attribute by expanding it to a full IRI as a string.
 
 **XML example**
 ```xml

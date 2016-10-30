@@ -136,8 +136,8 @@ public class Builder {
         }
 
         /**
-         * @param elementFrom The full URI of the element in the XML file
-         * @param to          The new full URI
+         * @param elementFrom The full IRI of the element in the XML file
+         * @param to          The new full IRI
          * @return returns this builder
          * @description Change the name of an element.
          * @xml <people xmlns="http://example.org/">
@@ -161,7 +161,7 @@ public class Builder {
 
         /**
          * @param path The path, where the last element is the one to rename. Create a path with Builder.createPath("", "", ...)
-         * @param to   The new full URI
+         * @param to   The new full IRI
          * @return returns this builder
          * @description Change the name of an element at the end of a specific path. Useful for renaming elements that do not have a unique name, but have local names
          * scoped to their parents. Can also be used to rename elements to more specific types based on their context as in the examples below.
@@ -193,7 +193,7 @@ public class Builder {
 
 
         /**
-         * @param elementFrom The full URI of the element in the XML file
+         * @param elementFrom The full IRI of the element in the XML file
          * @param transform   a function that takes the namespace and element name as attributes and returns a new string.
          * @return returns this builder
          * @description Change the name on the fly using a function. Eg. for capitalizing element names.
@@ -246,8 +246,8 @@ public class Builder {
 
 
         /**
-         * @param elementName   The element name (full URI)
-         * @param attributeName The attribute name (full URI)
+         * @param elementName   The element name (full IRI)
+         * @param attributeName The attribute name (full IRI)
          * @param transform     A function for transforming the value. Eg v -> v.toUpperCase()
          * @return returns this builder
          * @description Run a function on the value of an attribute and use the returned string as the new value.
@@ -290,7 +290,7 @@ public class Builder {
 
 
         /**
-         * @param elementName The element name (full URI)
+         * @param elementName The element name (full IRI)
          * @param transform   A function for transforming the value. Eg v -> v.toUpperCase()
          * @return returns this builder
          * @description Run a function on the value of an element and use the returned string as the new value.
@@ -376,8 +376,8 @@ public class Builder {
         }
 
         /**
-         * @param elementName     Full URI of element name
-         * @param attributeName   Full URI og attribute name
+         * @param elementName     Full IRI of element name
+         * @param attributeName   Full IRI og attribute name
          * @param stringTransform Function for transforming the string value
          * @return returns this builder
          * @description Use an attribute on an element to generate an identifier for the RDF node.
@@ -488,16 +488,16 @@ public class Builder {
 
 
         /**
-         * @param elementName Full URI of element name
+         * @param elementName Full IRI of element name
          * @param from        Original text inside element
          * @param to          New resource
          * @return returns this builder
-         * @description Map the text inside an element to a URI.
+         * @description Map the text inside an element to a IRI.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * <maritalStatus>married</maritalStatus>
          * </people>
-         * @exampleLabel Map `married` to a URI
+         * @exampleLabel Map `married` to a IRI
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .mapTextInElementToUri("http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
          * .build()
@@ -750,7 +750,7 @@ public class Builder {
 
 
         /**
-         * @param predicate The fully URI of the predicate to be inverted.
+         * @param predicate The fully IRI of the predicate to be inverted.
          * @return returns this builder
          * @description Inverts an inserted predicate between two elements, so that the inherit parent -> child relationship is reversed.
          * Remember to insert a predicate before trying to invert it.
@@ -814,7 +814,7 @@ public class Builder {
         }
 
         /**
-         * @param elementName The fully URI of the element.
+         * @param elementName The fully IRI of the element.
          * @return returns this builder
          * @description Skip an element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
          * @xml <people xmlns="http://example.org/">
@@ -842,10 +842,10 @@ public class Builder {
         }
 
         /**
-         * @param elementName The fully URI of the element.
+         * @param elementName The fully IRI of the element.
          * @return returns this builder
          * @description Create a predicate between the parent and the children elements of an element instead of a node. The element name is used as the
-         * predicate URI. Elements used as predicates should be complex elements without any attributes (the converter will skip any attributes). It is also
+         * predicate IRI. Elements used as predicates should be complex elements without any attributes (the converter will skip any attributes). It is also
          * recommended to only use elements as predicates where the child elements are all complex.
          * @xml <people xmlns="http://example.org/">
          * <person>
@@ -880,7 +880,7 @@ public class Builder {
         }
 
         /**
-         * @param elementName The fully URI of the element.
+         * @param elementName The fully IRI of the element.
          * @return returns this builder
          * @description Force mixed content handling for elements, even when they do not
          * contain mixed content.
@@ -908,11 +908,11 @@ public class Builder {
         }
 
         /**
-         * @param elementName The fully URI of the element.
+         * @param elementName The fully IRI of the element.
          * @return returns this builder
          * @description Use attributes and child elements to create a composite identifier for an element. `compositeId("elementName")` returns
          * a builder to list your required elements and attributes followed by a mapping of those to a string which will be used as the
-         * URI for the RDF resource.
+         * IRI for the RDF resource.
          * @xml <documents xmlns="http://example.org/">
          * <document seqnr="1">
          * <organisation>Abc</organisation>
@@ -971,7 +971,7 @@ public class Builder {
         /**
          * @param baseNamespace The namespace that will be used for the UUIDs
          * @return returns this builder
-         * @description By default or elements are converted to blank nodes. Elements can alse be converted to regular RDF nodes with a UUID as the node ID.
+         * @description Generate IRIs for elements by using a UUID instead of using blank nodes.
          * Blank nodes are locally unique, while UUIDs are globally unique. UUIDs take time to generate, depending on your system, and will make the conversion
          * from XML to RDF considerably slower. UUID based identifiser require a namespace to be used for the final IRI, if the namespace is
          * "http://data.example.org/" then the IRI of the resource would be http://data.example.org/94210b03-3000-4064-8675-0303ff9b3c27"
@@ -992,7 +992,7 @@ public class Builder {
         }
 
         /**
-         * @param element  Full URI of element
+         * @param element  Full IRI of element
          * @param datatype Datatype to use. A string when using getAdvancedBuilderStream(), RDFDatatype for Jena and IRI for Sesame.
          * @return returns this builder
          * @description Specify the datatype on a Simple Type element. Use a string with AdvancedBuilderStream as the datatype,
@@ -1041,7 +1041,7 @@ public class Builder {
         }
 
         /**
-         * @param element   Full URI of element
+         * @param element   Full IRI of element
          * @param transform Function that can transform an Element
          * @return returns this builder
          * @description Do any transformation on an element will full access to information about its attributes and children.
@@ -1086,7 +1086,7 @@ public class Builder {
 
 
         /**
-         * @param element   Full URI of element
+         * @param element   Full IRI of element
          * @param transform Function that can transform an Element
          * @return returns this builder
          * @description Do any transformation on an element will full access to information about its attributes but not about it's children.
@@ -1145,7 +1145,7 @@ public class Builder {
         /**
          * @param enabled true for enabled
          * @return returns this builder
-         * @description Will resolve a qname inside an attribute by expanding it to a full URI as a string.
+         * @description Will resolve a qname inside an attribute by expanding it to a full IRI as a string.
          * @xml <people xmlns="http://example.org/" xmlns:test="http://test.com/">
          * <name age="test:old">John Doe</name>
          * </people>
