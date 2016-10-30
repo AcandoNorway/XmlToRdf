@@ -50,45 +50,54 @@ public class GenerateDocs {
 
         List<Method> documentation = new ArrayList<>();
 
+        List<MethodDoc> allMethods = new ArrayList<>();
+
         for (ClassDoc classDoc : classDocs) {
 
             MethodDoc[] methods = classDoc.methods();
 
+            allMethods.addAll(Arrays.asList((MethodDoc[]) methods));
 
-            for (MethodDoc method : methods) {
-                Example currentExample = null;
-                Method currentMethod = new Method();
-                Optional<String> reduce = Arrays.stream(method.parameters()).map(p -> p.typeName() + " " + p.name()).reduce((p1, p2) -> p1 + ", " + p2);
-                String sig = "()";
-                if (reduce.isPresent()) {
-                    sig = "(" + reduce.get() + ")";
-                }
-                currentMethod.name = method.name() + sig;
-                Tag[] tags = method.tags();
-                for (Tag tag : tags) {
 
-                    if (tag.name().equals("@description")) {
-                        currentMethod.description = tag.text().trim();
-                    }
+        }
 
-                    if (tag.name().equals("@xml")) {
-                        currentExample = new Example();
-                        currentMethod.addExample(currentExample);
-                        currentExample.xml = tag.text().trim();
-                    }
+//        allMethods.sort( (a,b)-> a.name().compareTo(b.name()));
 
-                    if (tag.name().equals("@exampleLabel")) {
-                        currentExample.addExampleLabel(tag.text().trim());
-                    }
-                    if (tag.name().equals("@exampleCommand")) {
-                        currentExample.addExampleCommand(tag.text().trim());
-                    }
-                }
-                if (!currentMethod.examples.isEmpty()) {
-                    documentation.add(currentMethod);
-                }
 
+
+        for (MethodDoc method : allMethods) {
+            Example currentExample = null;
+            Method currentMethod = new Method();
+            Optional<String> reduce = Arrays.stream(method.parameters()).map(p -> p.typeName() + " " + p.name()).reduce((p1, p2) -> p1 + ", " + p2);
+            String sig = "()";
+            if (reduce.isPresent()) {
+                sig = "(" + reduce.get() + ")";
             }
+            currentMethod.name = method.name() + sig;
+            Tag[] tags = method.tags();
+            for (Tag tag : tags) {
+
+                if (tag.name().equals("@description")) {
+                    currentMethod.description = tag.text().trim();
+                }
+
+                if (tag.name().equals("@xml")) {
+                    currentExample = new Example();
+                    currentMethod.addExample(currentExample);
+                    currentExample.xml = tag.text().trim();
+                }
+
+                if (tag.name().equals("@exampleLabel")) {
+                    currentExample.addExampleLabel(tag.text().trim());
+                }
+                if (tag.name().equals("@exampleCommand")) {
+                    currentExample.addExampleCommand(tag.text().trim());
+                }
+            }
+            if (!currentMethod.examples.isEmpty()) {
+                documentation.add(currentMethod);
+            }
+
         }
 
 
