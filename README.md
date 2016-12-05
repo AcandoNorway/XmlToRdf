@@ -752,7 +752,7 @@ Builder.getAdvancedBuilderStream()
 <p>&nbsp;</p>
 ## mapTextInElementToUri(String elementName, String from, Object to)
 
-Map the text inside an element to a IRI.
+Map the text inside an element to an IRI.
 
 **XML example**
 ```xml
@@ -762,11 +762,101 @@ Map the text inside an element to a IRI.
 </people>
 ```
 
-### Map `married` to a IRI
+### Map `married` to an IRI
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
    .mapTextInElementToUri("http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                 ex:people ;
+  ex:maritalStatus  <http://someReferenceData.org/married> ;
+  ex:name           "John Doe"
+] .
+
+```
+
+---
+### No mapping
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                 ex:people ;
+  ex:maritalStatus  "married" ;
+  ex:name           "John Doe"
+] .
+
+```
+
+---
+<p>&nbsp;</p>
+## mapTextInElementToUri(String elementName, no.acando.xmltordf.StringTransformToT mapToT)
+
+Map the text inside an element to an IRI.
+
+**XML example**
+```xml
+<people xmlns="http://example.org/">
+  <name>John Doe</name>
+  <maritalStatus>married</maritalStatus>
+</people>
+```
+
+### Map `married` to an IRI
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .mapTextInElementToUri("http://example.org/maritalStatus", value -> "http://someReferenceData.org/"+value)
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                 ex:people ;
+  ex:maritalStatus  <http://someReferenceData.org/married> ;
+  ex:name           "John Doe"
+] .
+
+```
+
+---
+<p>&nbsp;</p>
+## mapTextInAttributeToUri(String elementName, String attributeName, String from, Object to)
+
+Map the text inside an element to an IRI.
+
+**XML example**
+```xml
+<people maritalStatus="married" xmlns="http://example.org/">
+  <name>John Doe</name>
+</people>
+```
+
+### Map `married` to an IRI
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .mapTextInAttributeToUri("http://example.org/people", "http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
    .build()
 ```
 
@@ -1438,9 +1528,6 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
-_:b1    a                  ex:b ;
         xmlToRdf:hasValue  "World" .
 
 [ a                  ex:document ;
@@ -1449,11 +1536,14 @@ _:b1    a                  ex:b ;
                        xmlToRdf:hasValue         "Hello, World!"
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 " " _:b1 "!" ) ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
 
 ```
 
@@ -1471,20 +1561,20 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
 
 ```
 
@@ -1604,7 +1694,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-<http://data.example.org/d2ac7dcc-25ae-42af-a5f2-639b6d492c92>
+<http://data.example.org/0f68a230-9b87-4d7c-bcfe-3a7146116542>
         a        ex:people ;
         ex:name  "John Doe" .
 

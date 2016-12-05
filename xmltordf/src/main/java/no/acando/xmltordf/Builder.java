@@ -496,12 +496,12 @@ public class Builder {
          * @param from        Original text inside element
          * @param to          New resource
          * @return returns this builder
-         * @description Map the text inside an element to a IRI.
+         * @description Map the text inside an element to an IRI.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * <maritalStatus>married</maritalStatus>
          * </people>
-         * @exampleLabel Map `married` to a IRI
+         * @exampleLabel Map `married` to an IRI
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .mapTextInElementToUri("http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
          * .build()
@@ -524,7 +524,20 @@ public class Builder {
             return (T) this;
         }
 
-
+        /**
+         * @param elementName Full IRI of element name
+         * @param mapToT          Function for mapping
+         * @return returns this builder
+         * @description Map the text inside an element to an IRI.
+         * @xml <people xmlns="http://example.org/">
+         * <name>John Doe</name>
+         * <maritalStatus>married</maritalStatus>
+         * </people>
+         * @exampleLabel Map `married` to an IRI
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .mapTextInElementToUri("http://example.org/maritalStatus", value -> "http://someReferenceData.org/"+value)
+         * .build()
+         */
 		public T mapTextInElementToUri(String elementName, StringTransformToT<ResourceType> mapToT) {
 			if (elementTextToUriFunctionMap == null) {
 				elementTextToUriFunctionMap = new HashMapNoOverwriteWithDefault<>();
@@ -544,11 +557,11 @@ public class Builder {
          * @param from        Original text inside element
          * @param to          New resource
          * @return returns this builder
-         * @description Map the text inside an element to a IRI.
+         * @description Map the text inside an element to an IRI.
          * @xml <people xmlns="http://example.org/" maritalStatus="married">
          * <name>John Doe</name>
          * </people>
-         * @exampleLabel Map `married` to a IRI
+         * @exampleLabel Map `married` to an IRI
          * @exampleCommand Builder.getAdvancedBuilderStream()
          * .mapTextInAttributeToUri("http://example.org/people", "http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
          * .build()
