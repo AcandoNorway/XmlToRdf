@@ -21,6 +21,7 @@ import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.*;
 import org.apache.jena.vocabulary.RDFS;
+import org.openrdf.model.impl.SimpleValueFactory;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -150,6 +151,7 @@ public class Main {
             .compositeId("http://brreg.no/Enhet")
             .fromElement("http://brreg.no/orgnr")
             .mappedTo((elementMap, attributeMap) -> "http://brreg.no/"+elementMap.get("http://brreg.no/orgnr"))
+            .mapTextInElementToUri(ns+"hovedenhet", orgnummer -> NodeFactory.createURI(ns+orgnummer))
 
             .mapTextInElementToUri(ns + "forradrland", "Norge", NodeFactory.createURI("http://dbpedia.org/resource/Norway"));
 

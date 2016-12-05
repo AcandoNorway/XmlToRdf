@@ -28,6 +28,7 @@ import org.junit.rules.ErrorCollector;
 import org.openrdf.model.Namespace;
 import org.openrdf.model.Statement;
 import org.openrdf.model.impl.SimpleValueFactory;
+import org.openrdf.model.vocabulary.RDF;
 import org.openrdf.model.vocabulary.XMLSchema;
 import org.openrdf.repository.Repository;
 import org.openrdf.repository.RepositoryConnection;
@@ -1360,6 +1361,21 @@ public class XmlToRdfTest {
             .build());
 
     }
+
+
+    @Test
+    public void mapToUriWithFunction() throws Exception {
+
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+
+            .mapTextInElementToUri("http://", "", RDF.ALT)
+            .mapTextInElementToUri("http://example.org/b", string -> RDF.TYPE)
+
+            .build());
+
+    }
+
 
     private void testAdvancedJena(XmlToRdfAdvancedJena build) throws IOException, ParserConfigurationException, SAXException {
         TestFiles testFiles = getTestFiles();

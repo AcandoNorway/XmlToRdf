@@ -46,7 +46,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.6.0</version>
+    <version>1.6.1</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.6.0.jar \
+    -Dfile=xmltordf/target/xmltordf-1.6.1.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -752,7 +752,7 @@ Builder.getAdvancedBuilderStream()
 <p>&nbsp;</p>
 ## mapTextInElementToUri(String elementName, String from, Object to)
 
-Map the text inside an element to a IRI.
+Map the text inside an element to an IRI.
 
 **XML example**
 ```xml
@@ -762,11 +762,101 @@ Map the text inside an element to a IRI.
 </people>
 ```
 
-### Map `married` to a IRI
+### Map `married` to an IRI
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
    .mapTextInElementToUri("http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                 ex:people ;
+  ex:maritalStatus  <http://someReferenceData.org/married> ;
+  ex:name           "John Doe"
+] .
+
+```
+
+---
+### No mapping
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                 ex:people ;
+  ex:maritalStatus  "married" ;
+  ex:name           "John Doe"
+] .
+
+```
+
+---
+<p>&nbsp;</p>
+## mapTextInElementToUri(String elementName, no.acando.xmltordf.StringTransformToT mapToT)
+
+Map the text inside an element to an IRI.
+
+**XML example**
+```xml
+<people xmlns="http://example.org/">
+  <name>John Doe</name>
+  <maritalStatus>married</maritalStatus>
+</people>
+```
+
+### Map `married` to an IRI
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .mapTextInElementToUri("http://example.org/maritalStatus", value -> "http://someReferenceData.org/"+value)
+   .build()
+```
+
+**RDF output**
+```turtle
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix ex:    <http://example.org/> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+
+[ a                 ex:people ;
+  ex:maritalStatus  <http://someReferenceData.org/married> ;
+  ex:name           "John Doe"
+] .
+
+```
+
+---
+<p>&nbsp;</p>
+## mapTextInAttributeToUri(String elementName, String attributeName, String from, Object to)
+
+Map the text inside an element to an IRI.
+
+**XML example**
+```xml
+<people maritalStatus="married" xmlns="http://example.org/">
+  <name>John Doe</name>
+</people>
+```
+
+### Map `married` to an IRI
+**Java code**
+```java
+Builder.getAdvancedBuilderStream()
+   .mapTextInAttributeToUri("http://example.org/people", "http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
    .build()
 ```
 
@@ -1480,11 +1570,11 @@ Builder.getAdvancedBuilderStream()
   ex:paragraph       "Hello, World!"
 ] .
 
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 _:b0    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1527,6 +1617,10 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+[ a                  ex:documents ;
+  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
+] .
+
 <http://acme.com/Def2>
         a                ex:document ;
         ex:organisation  "Def" ;
@@ -1538,10 +1632,6 @@ Builder.getAdvancedBuilderStream()
         ex:organisation  "Abc" ;
         ex:seqnr         "1" ;
         ex:title         "Hello" .
-
-[ a                  ex:documents ;
-  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
-] .
 
 ```
 
@@ -1604,7 +1694,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-<http://data.example.org/d2ac7dcc-25ae-42af-a5f2-639b6d492c92>
+<http://data.example.org/23b81334-ab92-4d59-b599-26d05f8ca401>
         a        ex:people ;
         ex:name  "John Doe" .
 
