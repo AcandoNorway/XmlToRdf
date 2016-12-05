@@ -182,8 +182,7 @@ public class Element<ResourceType, Datatype> {
 
         if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(type)) {
 
-            hasChild.stream()
-                .forEach(child -> handler.createTriple(parent.uri, type, child.uri));
+            hasChild.forEach(child -> handler.createTriple(parent.uri, type, child.uri));
 
             return;
         }
@@ -259,7 +258,7 @@ public class Element<ResourceType, Datatype> {
 
         }
 
-        properties.stream().filter(property -> property != null).forEach((property) -> {
+        properties.stream().filter(Objects::nonNull).forEach((property) -> {
 
             ResourceType uriForTextInAttribute = builder.getUriForTextInAttribute(type, property.uriAttr + property.qname, property.value);
             if (uriForTextInAttribute != null) {
