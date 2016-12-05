@@ -19,7 +19,6 @@ package no.acando.xmltordf;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.io.OutputStream;
 import java.util.*;
 
 
@@ -86,8 +85,8 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
     }
 
     Optional<ResourceType> mapLiteralToResource(Element pop) {
-        if (builder.literalMap != null) {
-            Map<String, ResourceType> stringResourceTypeMap = builder.literalMap.get(pop.type);
+        if (builder.elementTextToUriMap != null) {
+            Map<String, ResourceType> stringResourceTypeMap = builder.elementTextToUriMap.get(pop.type);
             if (stringResourceTypeMap != null) {
                 ResourceType value = stringResourceTypeMap.get(pop.getHasValue());
                 if (value != null) {
@@ -95,6 +94,14 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
                 }
             }
         }
+
+        if(builder.elementTextToUriFunctionMap != null){
+            StringTransformToT<ResourceType> resourceTypeStringTransformToT = builder.elementTextToUriFunctionMap.get(pop.type);
+            if(resourceTypeStringTransformToT != null){
+                return Optional.of(resourceTypeStringTransformToT.transform(pop.getHasValue()));
+            }
+        }
+
         return Optional.empty();
     }
 

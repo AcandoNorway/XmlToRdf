@@ -472,8 +472,12 @@ public class Builder {
         private Map<String, ParentChild> invertPredicate = null;
         private HashMapNoOverwriteWithDefaultTwoLevels<String, String, String> insertPredicateBetween = null;
         Map<String, DataType> dataTypeOnElement = null;
-        Map<String, Map<String, ResourceType>> literalMap = null;
+        Map<String, Map<String, ResourceType>> elementTextToUriMap = null;
         private HashMapNoOverwriteWithDefaultTwoLevels<String, String, HashMapNoOverwrite<String, ResourceType>> elementAttributeTextToUriMap = null;
+        HashMapNoOverwrite<String, StringTransformToT<ResourceType>> elementTextToUriFunctionMap;
+
+
+
 
         boolean resolveAsQnameInAttributeValue;
         boolean xsiTypeSupport;
@@ -506,20 +510,52 @@ public class Builder {
          * .build()
          */
         public T mapTextInElementToUri(String elementName, String from, ResourceType to) {
-            if (literalMap == null) {
-                literalMap = new HashMapNoOverwriteWithDefault<>();
+            if (elementTextToUriMap == null) {
+                elementTextToUriMap = new HashMapNoOverwriteWithDefault<>();
             }
 
-            if (!literalMap.containsKey(elementName)) {
-                literalMap.put(elementName, new HashMapNoOverwriteWithDefault<String, ResourceType>());
+            if (!elementTextToUriMap.containsKey(elementName)) {
+                elementTextToUriMap.put(elementName, new HashMapNoOverwriteWithDefault<String, ResourceType>());
             }
 
-            literalMap.get(elementName).put(from, to);
+            elementTextToUriMap.get(elementName).put(from, to);
 
 
             return (T) this;
         }
 
+
+		public T mapTextInElementToUri(String elementName, StringTransformToT<ResourceType> mapToT) {
+			if (elementTextToUriFunctionMap == null) {
+				elementTextToUriFunctionMap = new HashMapNoOverwriteWithDefault<>();
+			}
+
+			elementTextToUriFunctionMap.put(elementName, mapToT);
+
+			return (T) this;
+		}
+
+
+
+
+        /**
+         * @param elementName Full IRI of element name
+         * @param attributeName        Full IRI of attribute
+         * @param from        Original text inside element
+         * @param to          New resource
+         * @return returns this builder
+         * @description Map the text inside an element to a IRI.
+         * @xml <people xmlns="http://example.org/" maritalStatus="married">
+         * <name>John Doe</name>
+         * </people>
+         * @exampleLabel Map `married` to a IRI
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .mapTextInAttributeToUri("http://example.org/people", "http://example.org/maritalStatus", "married", "http://someReferenceData.org/married")
+         * .build()
+         * @exampleLabel No mapping
+         * @exampleCommand Builder.getAdvancedBuilderStream()
+         * .build()
+         */
         public T mapTextInAttributeToUri(String elementName, String attributeName, String from, ResourceType to) {
 
             ;
@@ -1224,7 +1260,7 @@ public class Builder {
         }
     }
 
-    private static class HashMapNoOverwrite<Key, Value> extends HashMap<Key, Value> {
+     static class HashMapNoOverwrite<Key, Value> extends HashMap<Key, Value> {
 
         @Override
         public Value put(Key key, Value value) {
