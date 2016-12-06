@@ -27,6 +27,7 @@ import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
 import org.openrdf.model.vocabulary.RDF;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -88,6 +89,20 @@ final class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype>
         jenaThread.start();
     }
 
+    @Override
+    public void fatalError(SAXParseException e) throws SAXException {
+
+        notDone = false;
+        try {
+            queue.put(EndOfFileTriple);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+
+        jenaThread.interrupt();
+
+        super.fatalError(e);
+    }
 
     final public void createTriple(String subject, String predicate, String object) {
 

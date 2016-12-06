@@ -1376,6 +1376,36 @@ public class XmlToRdfTest {
 
     }
 
+    @Test
+    public void killOnError() throws Exception{
+
+        int threadCount = Thread.activeCount();
+
+        try{
+            testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://example/").build());
+
+        }catch (SAXException e){
+
+        }
+
+        try{
+            testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://example/").build());
+
+        }catch (SAXException e){
+
+        }
+
+        try{
+            testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://example/").build());
+
+        }catch (SAXException e){
+
+        }
+
+        assertEquals("Thread count should not increase!", threadCount, Thread.activeCount());
+
+    }
+
 
     private void testAdvancedJena(XmlToRdfAdvancedJena build) throws IOException, ParserConfigurationException, SAXException {
         TestFiles testFiles = getTestFiles();
