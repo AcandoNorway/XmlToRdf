@@ -27,7 +27,7 @@ public class Element<ResourceType, Datatype> {
     public String type;
     public String uri;
     public Element<ResourceType, Datatype> parent;
-    public StringBuilder hasValue;
+    StringBuilder hasValue;
     public ArrayList<Element<ResourceType, Datatype>> hasChild = new ArrayList<>(10);
     public ArrayList<Property> properties = new ArrayList<>(3);
     long index = 0;
@@ -80,6 +80,15 @@ public class Element<ResourceType, Datatype> {
 
     String hasValueString;
     boolean hasValueStringEmpty = false;
+
+    public void setHasValue(String s){
+        setHasValue(new StringBuilder(s));
+    }
+
+    public void setHasValue(StringBuilder s){
+        hasValue = s;
+        hasValueString = null;
+    }
 
     public String getHasValue() {
 

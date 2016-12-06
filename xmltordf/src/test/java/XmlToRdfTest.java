@@ -1339,7 +1339,7 @@ public class XmlToRdfTest {
                 "http://example.org/notForCompositeId",
                 e ->{
                     Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
-                    sensitiveElement.hasValue = new StringBuilder("newValue");
+                    sensitiveElement.setHasValue("newValue");
                     sensitiveElement.type = "http://example.org/newElement";
                     sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
                     sensitiveElement.parent = e.parent;
@@ -1350,7 +1350,7 @@ public class XmlToRdfTest {
                 "http://example.org/newElement",
                 e ->{
                     Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
-                    sensitiveElement.hasValue = new StringBuilder("newValue2");
+                    sensitiveElement.setHasValue("newValue2");
                     sensitiveElement.type = "http://example.org/newNewElement";
                     sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
                     sensitiveElement.parent = e.parent;
