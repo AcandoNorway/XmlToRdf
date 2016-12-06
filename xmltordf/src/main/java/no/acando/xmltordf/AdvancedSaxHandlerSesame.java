@@ -26,6 +26,7 @@ import org.openrdf.repository.sail.SailRepository;
 import org.openrdf.sail.NotifyingSailConnection;
 import org.openrdf.sail.memory.MemoryStore;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -93,6 +94,21 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
         };
 
         repoThread.start();
+    }
+
+    @Override
+    public void fatalError(SAXParseException e) throws SAXException {
+
+        notDone = false;
+        try {
+            queue.put(EndOfFileStatement);
+        } catch (InterruptedException e1) {
+            e1.printStackTrace();
+        }
+
+        repoThread.interrupt();
+
+        super.fatalError(e);
     }
 
     final public void createTriple(String subject, String predicate, String object) {
