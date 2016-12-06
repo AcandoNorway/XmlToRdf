@@ -528,7 +528,8 @@ public class Builder {
          * @param elementName Full IRI of element name
          * @param mapToT          Function for mapping
          * @return returns this builder
-         * @description Map the text inside an element to an IRI.
+         * @description Map the text inside an element to an IRI (URI) by providing a function that takes a String as input and returns a String (for getAdvancedBuilderStream),
+         * a Node (for getAdvancedBuilderJena) or a Resource (for getAdvancedBuilderSesame).
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * <maritalStatus>married</maritalStatus>
