@@ -10,6 +10,12 @@ composite identifiers.
 Output from the conversion can be written directly to file as RDF Turtle or added to a Sesame Repository or Jena Dataset for further
 processing. With Sesame and Jena it is possible to do further, SPARQL based, transformations on the data and outputting to formats such as RDF Turtle and JSON-LD.
 
+## Support forum
+
+https://groups.google.com/forum/#!forum/xmltordf
+
+Post questions about how to use or configure XmlToRdf.
+
 ## Benchmark results
 
 | Method | File size | Time |
@@ -649,14 +655,14 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
+
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
         ex:title  "Other record" .
-
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
 
 <http://acme.com/records/0000001>
         a         ex:record ;
@@ -1529,6 +1535,9 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
+_:b1    a                  ex:b ;
         xmlToRdf:hasValue  "World" .
 
 [ a                  ex:document ;
@@ -1537,14 +1546,11 @@ _:b0    a                  ex:b ;
                        xmlToRdf:hasValue         "Hello, World!"
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 " " _:b1 "!" ) ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
 
 ```
 
@@ -1563,15 +1569,15 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
+        xmlToRdf:hasValue  "Hello" .
 
 _:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
+        xmlToRdf:hasValue  "World" .
 
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
@@ -1624,15 +1630,15 @@ Builder.getAdvancedBuilderStream()
         ex:seqnr         "2" ;
         ex:title         "Hi" .
 
+[ a                  ex:documents ;
+  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
+] .
+
 <http://acme.com/Abc1>
         a                ex:document ;
         ex:organisation  "Abc" ;
         ex:seqnr         "1" ;
         ex:title         "Hello" .
-
-[ a                  ex:documents ;
-  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
-] .
 
 ```
 
@@ -1695,7 +1701,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-<http://data.example.org/83992673-5622-4518-9f0e-e0687481444d>
+<http://data.example.org/53b2f595-3451-4fc7-9b50-2c375c9f4fc2>
         a        ex:people ;
         ex:name  "John Doe" .
 

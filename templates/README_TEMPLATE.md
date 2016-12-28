@@ -10,6 +10,12 @@ composite identifiers.
 Output from the conversion can be written directly to file as RDF Turtle or added to a Sesame Repository or Jena Dataset for further
 processing. With Sesame and Jena it is possible to do further, SPARQL based, transformations on the data and outputting to formats such as RDF Turtle and JSON-LD.
 
+## Support forum
+
+https://groups.google.com/forum/#!forum/xmltordf
+
+Post questions about how to use or configure XmlToRdf.
+
 ## Benchmark results
 
 | Method | File size | Time |
