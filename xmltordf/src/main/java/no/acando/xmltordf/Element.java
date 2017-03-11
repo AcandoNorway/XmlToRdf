@@ -146,6 +146,10 @@ public class Element<ResourceType, Datatype> {
 
     void createTriples() {
 
+        if(parent != null && parent.parent != null && parent.parent.uri != null && parent.compositeId != null && parent.compositeId.parentId){
+            parent.compositeId.resolveElement(XmlToRdfVocabulary.parentId, parent.parent.uri);
+        }
+
         if(parent != null && parent.uri == null){
             // resolve
             parent.compositeId.resolveElement(type, getHasValue());
@@ -157,6 +161,10 @@ public class Element<ResourceType, Datatype> {
                 parent.uri = parent.compositeId.resolveIdentifier();
             }
 
+            if(parent != null && parent.parent != null && parent.parent.uri != null && parent.compositeId != null && parent.compositeId.parentId){
+                parent.compositeId.resolveElement(XmlToRdfVocabulary.parentId, parent.parent.uri);
+            }
+
             return;
         }
 
@@ -164,11 +172,13 @@ public class Element<ResourceType, Datatype> {
 
         if (!delayedCreateTripleCallback.isEmpty()) {
 
+            List<Element> cleanUpList = new ArrayList<>();
             while(!delayedCreateTripleCallback.isEmpty()){
                 Element element = delayedCreateTripleCallback.pop();
                 element.createTriples();
-                element.cleanUp();
+                cleanUpList.add(element);
             }
+            cleanUpList.forEach(Element::cleanUp);
 
 //            for (int i = 0; i < delayedCreateTripleCallback.size(); i++) {
 //                Element element = delayedCreateTripleCallback.get(i);
@@ -311,7 +321,6 @@ public class Element<ResourceType, Datatype> {
         if (builder.addIndex) {
             handler.createTripleLiteral(uri, XmlToRdfVocabulary.index, index);
             handler.createTripleLiteral(uri, XmlToRdfVocabulary.elementIndex, elementIndex);
-
         }
     }
 

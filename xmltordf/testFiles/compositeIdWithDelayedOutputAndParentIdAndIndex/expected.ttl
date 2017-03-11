@@ -1,0 +1,65 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+<http://data.org/___:0__/1/0>
+        a                          <http://example.org/inner> ;
+        xmlToRdf:elementIndex      "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        xmlToRdf:index             "1"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        <http://example.org/name>  "innerName" .
+
+<http://data.org/1hellonotUnique/0>
+        a                             <http://example.org/B> ;
+        xmlToRdf:elementIndex         "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        xmlToRdf:hasChild             <http://data.org/__http://data.org/1hellonotUnique/0__/8/0> ;
+        xmlToRdf:index                "3"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        <http://example.org/localId>  "notUnique" ;
+        <http://example.org/name>     "hello" ;
+        <http://example.org/newElement>
+                "newValue" ;
+        <http://example.org/newNewElement>
+                "newValue2" ;
+        <http://example.org/notForCompositeId>
+                "hurra" ;
+        <http://example.org/num>      "1" ;
+        <http://example.org/other>    "abc1" .
+
+<http://data.org/__http://data.org/1hellonotUnique/0__/8/0>
+        a                          <http://example.org/inner> ;
+        xmlToRdf:elementIndex      "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        xmlToRdf:index             "8"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        <http://example.org/name>  "innerName" .
+
+[ a                      <http://example.org/A> ;
+  xmlToRdf:elementIndex  "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+  xmlToRdf:hasChild      <http://data.org/2hellonotUnique/1> , <http://data.org/1hellonotUnique/0> , <http://data.org/___:0__/1/0> ;
+  xmlToRdf:index         "0"^^<http://www.w3.org/2001/XMLSchema#long>
+] .
+
+<http://data.org/__http://data.org/2hellonotUnique/1__/17/1>
+        a                          <http://example.org/inner> ;
+        xmlToRdf:elementIndex      "1"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        xmlToRdf:index             "17"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        <http://example.org/name>  "innerName" .
+
+<http://data.org/__http://data.org/2hellonotUnique/1__/11/0>
+        a                          <http://example.org/inner> ;
+        xmlToRdf:elementIndex      "0"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        xmlToRdf:index             "11"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        <http://example.org/name>  "innerName" .
+
+<http://data.org/2hellonotUnique/1>
+        a                             <http://example.org/B> ;
+        xmlToRdf:elementIndex         "1"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        xmlToRdf:hasChild             <http://data.org/__http://data.org/2hellonotUnique/1__/17/1> , <http://data.org/__http://data.org/2hellonotUnique/1__/11/0> ;
+        xmlToRdf:index                "10"^^<http://www.w3.org/2001/XMLSchema#long> ;
+        <http://example.org/localId>  "notUnique" ;
+        <http://example.org/name>     "hello" ;
+        <http://example.org/newElement>
+                "newValue" ;
+        <http://example.org/newNewElement>
+                "newValue2" ;
+        <http://example.org/notForCompositeId>
+                "hurra" ;
+        <http://example.org/num>      "2" ;
+        <http://example.org/other>    "abc2" .
