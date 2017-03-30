@@ -151,6 +151,9 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
                 element.elementIndex = parent.indexMap.plusPlus(element.type);
             }
             parent.hasChild.add(element);
+            if(builder.useHashmapForChildren){
+                parent.hasChildMap.put(element.type, element);
+            }
             if (mixedContent) {
                 parent.addMixedContent(element);
             }

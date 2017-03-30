@@ -22,12 +22,14 @@ import java.util.Map;
 import java.util.Set;
 import java.util.function.BiFunction;
 
-public class CompositeId<T> {
+public class CompositeId<T extends UseHashmapForChildren> {
 
     private Set<String> requiredElement = new HashSet<>();
     private Set<String> requiredAttribute = new HashSet<>();
     private Map<String, String> resolvedElement = new HashMap<>();
     private Map<String, String> resolvedAttribute = new HashMap<>();
+     Set<String> requiredElementFromParent = new HashSet<>();
+    private Map<String, String> mapElementNameToOtherNameForParent = new HashMap<>();
 
     private BiFunction<Map<String, String>, Map<String, String>, String> mapFunction;
 
@@ -53,12 +55,18 @@ public class CompositeId<T> {
         elementIndex = from.elementIndex;
         parentId = from.parentId;
 
+        requiredElementFromParent = from.requiredElementFromParent;
+        mapElementNameToOtherNameForParent = from.mapElementNameToOtherNameForParent;
+
+
     }
 
     void resetMaps() {
         resolvedAttribute = new HashMap<>();
         resolvedElement = new HashMap<>();
     }
+
+
 
     public CompositeId<T> fromElement(String elementName) {
         requiredElement.add(elementName);
@@ -94,13 +102,24 @@ public class CompositeId<T> {
 
     boolean completed() {
         return ( resolvedElement.size() + resolvedAttribute.size() ) ==
-            ( requiredElement.size() + requiredAttribute.size() );
+            ( requiredElement.size() + requiredAttribute.size() + requiredElementFromParent.size() );
     }
 
     void resolveElement(String elementName, String value) {
         if(requiredElement.contains(elementName)) {
             resolvedElement.put(elementName, value);
         }
+    }
+
+    void resolveFromParent(Element parent) {
+        requiredElementFromParent.forEach(elementName -> {
+            Element o = (Element) parent.hasChildMap.get(elementName);
+            if(o!= null){
+                String key = mapElementNameToOtherNameForParent.get(elementName);
+                resolvedElement.put(key, o.getHasValue());
+
+            }
+        });
     }
 
     void resolveAttribute(String attributeName, String value) {
@@ -123,5 +142,21 @@ public class CompositeId<T> {
     }
 
 
+    public ParentId<T> fromParent(String elementName) {
+
+        this.that.useHashmapForChildren();
+
+        CompositeId<T> that = this;
+        return newName -> {
+			requiredElementFromParent.add(elementName);
+			mapElementNameToOtherNameForParent.put(elementName, newName);
+			return that;
+		};
+
+    }
+
+    public interface ParentId<T extends UseHashmapForChildren>{
+        CompositeId<T> as(String newName);
+    }
 
 }
