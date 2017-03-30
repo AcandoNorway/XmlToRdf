@@ -149,9 +149,11 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
             parent = elementStack.peek();
             if (builder.addIndex) {
                 element.elementIndex = parent.indexMap.plusPlus(element.type);
-//                element.elementIndex =  parent.hasChild.stream().filter(e -> e.type.equals(element.type)).count();
             }
             parent.hasChild.add(element);
+            if(builder.useHashmapForChildren){
+                parent.hasChildMap.put(element.type, element);
+            }
             if (mixedContent) {
                 parent.addMixedContent(element);
             }
@@ -176,6 +178,11 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
                 calculateNodeId(element);
             } else {
                 element.compositeId = compositeId.simpleClone();
+                if(element.compositeId.elementIndex){
+                    element.compositeId.reolveElementIndex(XmlToRdfVocabulary.index, element.index);
+                    element.compositeId.reolveElementIndex(XmlToRdfVocabulary.elementIndex, element.elementIndex);
+                }
+
             }
 
         } else {
