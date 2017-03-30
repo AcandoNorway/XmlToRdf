@@ -52,7 +52,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
 </dependency>
 ```
 
@@ -63,7 +63,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.7.0.jar \
+    -Dfile=xmltordf/target/xmltordf-1.8.0.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -1534,23 +1534,23 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
                        xmlToRdf:hasValue         "Hello, World!"
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 " " _:b1 "!" ) ;
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
 
 ```
 
@@ -1569,15 +1569,15 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
+        xmlToRdf:hasValue  "World" .
 
 _:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
+        xmlToRdf:hasValue  "Hello" .
 
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 _:b1 " !" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
                        xmlToRdf:hasValue         "!"
                      ] ;
   ex:paragraph       "Hello, World!"
@@ -1630,15 +1630,15 @@ Builder.getAdvancedBuilderStream()
         ex:seqnr         "2" ;
         ex:title         "Hi" .
 
-[ a                  ex:documents ;
-  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
-] .
-
 <http://acme.com/Abc1>
         a                ex:document ;
         ex:organisation  "Abc" ;
         ex:seqnr         "1" ;
         ex:title         "Hello" .
+
+[ a                  ex:documents ;
+  xmlToRdf:hasChild  <http://acme.com/Def2> , <http://acme.com/Abc1>
+] .
 
 ```
 
@@ -1701,7 +1701,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-<http://data.example.org/53b2f595-3451-4fc7-9b50-2c375c9f4fc2>
+<http://data.example.org/b6a7035a-d1ee-4231-9a6b-4734b628baf4>
         a        ex:people ;
         ex:name  "John Doe" .
 
