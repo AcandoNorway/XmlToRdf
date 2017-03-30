@@ -185,7 +185,7 @@ public class Element<ResourceType, Datatype> {
 
                 element.createTriples();
                 cleanUpList.add(element);
-                if (counter-- < 0) {
+                if (counter-- < -1) {
                     throw new RuntimeException("Could not resolve identifier for element in time: " + element.getPath());
                 }
             }
