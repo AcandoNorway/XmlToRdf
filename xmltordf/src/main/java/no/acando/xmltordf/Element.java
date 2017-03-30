@@ -29,8 +29,6 @@ public class Element<ResourceType, Datatype> {
     public Element<ResourceType, Datatype> parent;
     StringBuilder hasValue;
     public ArrayList<Element<ResourceType, Datatype>> hasChild = new ArrayList<>(10);
-    public Map<String, Element<ResourceType, Datatype>> hasChildMap = new HashMap<>();
-
     public ArrayList<Property> properties = new ArrayList<>(3);
     long index = 0;
     long elementIndex = 0;
@@ -148,15 +146,7 @@ public class Element<ResourceType, Datatype> {
 
     void createTriples() {
 
-        if (compositeId != null && compositeId.requiredElementFromParent.size() > 0) {
-            compositeId.resolveFromParent(parent);
-        }
-
-        if (parent != null && parent.parent != null && parent.parent.uri != null && parent.compositeId != null && parent.compositeId.parentId) {
-            parent.compositeId.resolveElement(XmlToRdfVocabulary.parentId, parent.parent.uri);
-        }
-
-        if (parent != null && parent.uri == null) {
+        if(parent != null && parent.uri == null){
             // resolve
             parent.compositeId.resolveElement(type, getHasValue());
 
@@ -167,10 +157,6 @@ public class Element<ResourceType, Datatype> {
                 parent.uri = parent.compositeId.resolveIdentifier();
             }
 
-            if (parent != null && parent.parent != null && parent.parent.uri != null && parent.compositeId != null && parent.compositeId.parentId) {
-                parent.compositeId.resolveElement(XmlToRdfVocabulary.parentId, parent.parent.uri);
-            }
-
             return;
         }
 
@@ -178,18 +164,11 @@ public class Element<ResourceType, Datatype> {
 
         if (!delayedCreateTripleCallback.isEmpty()) {
 
-            List<Element> cleanUpList = new ArrayList<>();
-            int counter = delayedCreateTripleCallback.size();
-            while (!delayedCreateTripleCallback.isEmpty()) {
+            while(!delayedCreateTripleCallback.isEmpty()){
                 Element element = delayedCreateTripleCallback.pop();
-
                 element.createTriples();
-                cleanUpList.add(element);
-                if (counter-- < 0) {
-                    throw new RuntimeException("Could not resolve identifier for element in time: " + element.getPath());
-                }
+                element.cleanUp();
             }
-            cleanUpList.forEach(Element::cleanUp);
 
 //            for (int i = 0; i < delayedCreateTripleCallback.size(); i++) {
 //                Element element = delayedCreateTripleCallback.get(i);
@@ -203,10 +182,11 @@ public class Element<ResourceType, Datatype> {
 
         builder.doComplexTransformElementAtEndOfElement(this);
 
-        if (getHasValue() != null) {
+        if(getHasValue() != null){
             hasValue = new StringBuilder(builder.doTransformForElementValue(type, getHasValue()));
             hasValueString = null;
         }
+
 
 
         if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(type)) {
@@ -220,7 +200,7 @@ public class Element<ResourceType, Datatype> {
             if (builder.convertComplexElementsWithOnlyAttributesToPredicates && hasChild.isEmpty()) {
                 shallow = true;
             } else if (builder.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate) {
-                if (childrenWithAutoDetectedAsLiteralProperty == hasChild.size()) {
+                if(childrenWithAutoDetectedAsLiteralProperty == hasChild.size()){
                     shallow = true;
                 }
             }
@@ -331,6 +311,7 @@ public class Element<ResourceType, Datatype> {
         if (builder.addIndex) {
             handler.createTripleLiteral(uri, XmlToRdfVocabulary.index, index);
             handler.createTripleLiteral(uri, XmlToRdfVocabulary.elementIndex, elementIndex);
+
         }
     }
 
@@ -370,18 +351,6 @@ public class Element<ResourceType, Datatype> {
 
     public Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> getBuilder() {
         return builder;
-    }
-
-    public String getPath() {
-
-        Element temp = this;
-        StringBuilder path = new StringBuilder();
-        do{
-            path.append(temp.type).append(" --> ");
-            temp = temp.parent;
-        }while (temp != null);
-
-        return path.toString();
     }
 }
 

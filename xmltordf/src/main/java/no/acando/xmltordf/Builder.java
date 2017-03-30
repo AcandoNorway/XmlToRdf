@@ -459,7 +459,7 @@ public class Builder {
         }
     }
 
-    static public class Advanced<ResourceType, DataType, T extends Advanced<ResourceType, DataType, T>> extends DefaultWithAddIndex<T> implements UseHashmapForChildren{
+    static public class Advanced<ResourceType, DataType, T extends Advanced<ResourceType, DataType, T>> extends DefaultWithAddIndex<T> {
         boolean convertComplexElementsWithOnlyAttributesToPredicates;
         String baseNamespace;
         AppliesTo baseNamespaceAppliesTo;
@@ -489,7 +489,6 @@ public class Builder {
         Map<String, String> skipElementMap = null;
         Map<String, String> forcedMixedContentMap = null;
         Map<String, CompositeId<T>> compositeIdMap;
-        boolean useHashmapForChildren;
 
 
         /**
@@ -992,11 +991,6 @@ public class Builder {
             }
 
             return new CompositeId<T>((T) this, elementName, compositeIdMap);
-        }
-
-        @Override
-        public void useHashmapForChildren() {
-            useHashmapForChildren = true;
         }
 
         public interface BetweenWithWildcard<TT> {
