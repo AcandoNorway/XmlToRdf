@@ -86,7 +86,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
     Optional<ResourceType> mapLiteralToResource(Element pop) {
         if (builder.elementTextToUriMap != null) {
-            Map<String, ResourceType> stringResourceTypeMap = builder.elementTextToUriMap.get(pop.type);
+            Map<String, ResourceType> stringResourceTypeMap = builder.elementTextToUriMap.get(pop.getType());
             if (stringResourceTypeMap != null) {
                 ResourceType value = stringResourceTypeMap.get(pop.getHasValue());
                 if (value != null) {
@@ -96,7 +96,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         }
 
         if(builder.elementTextToUriFunctionMap != null){
-            StringTransformToT<ResourceType> resourceTypeStringTransformToT = builder.elementTextToUriFunctionMap.get(pop.type);
+            StringTransformToT<ResourceType> resourceTypeStringTransformToT = builder.elementTextToUriFunctionMap.get(pop.getType());
             if(resourceTypeStringTransformToT != null){
                 return Optional.of(resourceTypeStringTransformToT.transform(pop.getHasValue()));
             }
@@ -134,9 +134,9 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
         namespace = calculateNamespace(namespace);
 
-        element.type = namespace + localName;
+        element.setType(namespace + localName);
 
-        if (builder.skipElementMap != null && builder.skipElementMap.containsKey(element.type)) {
+        if (builder.skipElementMap != null && builder.skipElementMap.containsKey(element.getType())) {
             skipElementUntil = element;
             elementStack.push(element);
             return;
@@ -148,11 +148,11 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         if (!elementStack.isEmpty()) {
             parent = elementStack.peek();
             if (builder.addIndex) {
-                element.elementIndex = parent.indexMap.plusPlus(element.type);
+                element.elementIndex = parent.indexMap.plusPlus(element.getType());
             }
             parent.hasChild.add(element);
             if(builder.useHashmapForChildren){
-                parent.hasChildMap.put(element.type, element);
+                parent.hasChildMap.put(element.getType(), element);
             }
             if (mixedContent) {
                 parent.addMixedContent(element);
@@ -165,7 +165,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         renameElement(namespace, localName, element);
 
         if (builder.forcedMixedContentMap != null &&
-            builder.forcedMixedContentMap.containsKey(element.type)) {
+            builder.forcedMixedContentMap.containsKey(element.getType())) {
 
             element.containsMixedContent = true;
         }
@@ -173,7 +173,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
         if (builder.compositeIdMap != null) {
 
-            CompositeId compositeId = builder.compositeIdMap.get(element.type);
+            CompositeId compositeId = builder.compositeIdMap.get(element.getType());
             if (compositeId == null) {
                 calculateNodeId(element);
             } else {
@@ -191,7 +191,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
         handleAttributes(namespace, attributes, element);
 
-        if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(element.type)) {
+        if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(element.getType())) {
             element.useElementAsPredicate = true;
         }
 
@@ -215,7 +215,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
             uriAttr = calculateNamespaceForAttribute(elementNamespace, uriAttr);
 
-            valueAttr = builder.doTransformForAttribute(element.type, uriAttr + nameAttr, valueAttr);
+            valueAttr = builder.doTransformForAttribute(element.getType(), uriAttr + nameAttr, valueAttr);
 
             if (builder.resolveAsQnameInAttributeValue && valueAttr.contains(":")) {
                 String[] split = valueAttr.split(":");
@@ -223,7 +223,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
                 valueAttr = String.join("", split);
             }
 
-            builder.getIdByUseAttributeForId(element.type, uriAttr + nameAttr, valueAttr, element);
+            builder.getIdByUseAttributeForId(element.getType(), uriAttr + nameAttr, valueAttr, element);
 
             Property property = new Property(uriAttr, nameAttr, valueAttr);
             element.properties.add(property);
@@ -271,7 +271,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         if (builder.renameElementPathMap != null) {
             String newElementName = builder.renameElementPathMap.get(element);
             if (newElementName != null) {
-                element.type = newElementName;
+                element.setType(newElementName);
                 return;
             }
         }
@@ -279,7 +279,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         if (builder.renameElementMap != null) {
             String newElementName = builder.renameElementMap.get(uri + localName);
             if (newElementName != null) {
-                element.type = newElementName;
+                element.setType(newElementName);
                 return;
             }
 
@@ -287,7 +287,7 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
         if (builder.renameElementFunctionMap != null) {
             StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
             if (stringTransformTwoValue != null) {
-                element.type = stringTransformTwoValue.transform(uri, localName);
+                element.setType(stringTransformTwoValue.transform(uri, localName));
             }
         }
     }

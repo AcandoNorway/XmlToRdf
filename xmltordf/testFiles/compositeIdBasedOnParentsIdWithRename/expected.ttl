@@ -1,0 +1,38 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+[ a                               <http://example.org/A> ;
+  xmlToRdf:hasChild               <http://example.com/2/123> , <http://example.com/1/123> ;
+  <http://example.org/id2>        "234" ;
+  <http://example.org/id3>        "567" ;
+  <http://example.org/id4>        "678" ;
+  <http://example.org/renamedId>  "123"
+] .
+
+<http://example.com/2/123>
+        a                             <http://example.org/B> ;
+        xmlToRdf:hasChild             [ a                          <http://example.org/inner> ;
+                                        <http://example.org/name>  "innerName"
+                                      ] ;
+        xmlToRdf:hasChild             [ a                          <http://example.org/inner> ;
+                                        <http://example.org/name>  "innerName"
+                                      ] ;
+        <http://example.org/localId>  "notUnique" ;
+        <http://example.org/name>     "hello" ;
+        <http://example.org/notForCompositeId>
+                "hurra" ;
+        <http://example.org/num>      "2" ;
+        <http://example.org/other>    "abc2" .
+
+<http://example.com/1/123>
+        a                             <http://example.org/B> ;
+        xmlToRdf:hasChild             [ a                          <http://example.org/inner> ;
+                                        <http://example.org/name>  "innerName"
+                                      ] ;
+        <http://example.org/localId>  "notUnique" ;
+        <http://example.org/name>     "hello" ;
+        <http://example.org/notForCompositeId>
+                "hurra" ;
+        <http://example.org/num>      "1" ;
+        <http://example.org/other>    "abc1" .

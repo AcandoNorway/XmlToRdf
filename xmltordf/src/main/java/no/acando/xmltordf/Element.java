@@ -24,7 +24,7 @@ public class Element<ResourceType, Datatype> {
     private final AdvancedSaxHandler<ResourceType, Datatype> handler;
     private final Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
 
-    public String type;
+    private String type;
     public String uri;
     public Element<ResourceType, Datatype> parent;
     StringBuilder hasValue;
@@ -39,6 +39,7 @@ public class Element<ResourceType, Datatype> {
     CountingMap indexMap = new CountingMap();
 
 
+
     public ArrayList<Object> mixedContent = new ArrayList<>();
     public StringBuilder tempMixedContentString = new StringBuilder("");
     public boolean useElementAsPredicate;
@@ -51,14 +52,28 @@ public class Element<ResourceType, Datatype> {
     public CompositeId compositeId;
 
 
-    public boolean getContainsMixedContent() {
-        return containsMixedContent;
-    }
-
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         this.handler = handler;
         this.builder = builder;
 
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        if(builder.useHashmapForChildren && parent != null){
+            parent.hasChildMap.remove(this.type);
+            parent.hasChildMap.put(type, this);
+        }
+
+
+        this.type = type;
+    }
+
+    public boolean getContainsMixedContent() {
+        return containsMixedContent;
     }
 
     public void appendValue(char[] ch, int start, int length) {
@@ -334,6 +349,7 @@ public class Element<ResourceType, Datatype> {
 
     private void cleanUp() {
         hasChild = null;
+        hasChildMap = null;
         parent = null;
         properties = null;
     }

@@ -1130,7 +1130,7 @@ public class XmlToRdfTest {
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
                 if (element.hasChild.size() == 0) {
-                    element.type = "http://example.org/HELLO";
+                    element.setType("http://example.org/HELLO");
 
                 }
             })
@@ -1140,7 +1140,7 @@ public class XmlToRdfTest {
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
                 if (element.hasChild.size() == 0) {
-                    element.type = "http://example.org/HELLO";
+                    element.setType("http://example.org/HELLO");
 
                 }
             })
@@ -1149,7 +1149,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
                 if (element.hasChild.size() == 0) {
-                    element.type = "http://example.org/HELLO";
+                    element.setType("http://example.org/HELLO");
 
                 }
             })
@@ -1163,7 +1163,7 @@ public class XmlToRdfTest {
         testAdvancedSesame(Builder.getAdvancedBuilderSesame()
             .addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
                 if (element.hasChild.size() > 0) {
-                    element.type = "http://example.org/HELLO";
+                    element.setType("http://example.org/HELLO");
 
                 }
             })
@@ -1173,7 +1173,7 @@ public class XmlToRdfTest {
         testAdvancedJena(Builder.getAdvancedBuilderJena()
             .addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
                 if (element.hasChild.size() > 0) {
-                    element.type = "http://example.org/HELLO";
+                    element.setType("http://example.org/HELLO");
 
                 }
             })
@@ -1182,7 +1182,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
                 if (element.hasChild.size() > 0) {
-                    element.type = "http://example.org/HELLO";
+                    element.setType("http://example.org/HELLO");
 
                 }
             })
@@ -1340,7 +1340,7 @@ public class XmlToRdfTest {
                 e ->{
                     Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
                     sensitiveElement.setHasValue("newValue");
-                    sensitiveElement.type = "http://example.org/newElement";
+                    sensitiveElement.setType("http://example.org/newElement");
                     sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
                     sensitiveElement.parent = e.parent;
                     e.parent.addDelayedTripleCreation(sensitiveElement);
@@ -1351,7 +1351,7 @@ public class XmlToRdfTest {
                 e ->{
                     Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
                     sensitiveElement.setHasValue("newValue2");
-                    sensitiveElement.type = "http://example.org/newNewElement";
+                    sensitiveElement.setType("http://example.org/newNewElement");
                     sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
                     sensitiveElement.parent = e.parent;
                     e.parent.addDelayedTripleCreation(sensitiveElement);
@@ -1398,7 +1398,7 @@ public class XmlToRdfTest {
                 e ->{
                     Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
                     sensitiveElement.setHasValue("newValue");
-                    sensitiveElement.type = "http://example.org/newElement";
+                    sensitiveElement.setType("http://example.org/newElement");
                     sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
                     sensitiveElement.parent = e.parent;
                     e.parent.addDelayedTripleCreation(sensitiveElement);
@@ -1409,7 +1409,7 @@ public class XmlToRdfTest {
                 e ->{
                     Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
                     sensitiveElement.setHasValue("newValue2");
-                    sensitiveElement.type = "http://example.org/newNewElement";
+                    sensitiveElement.setType("http://example.org/newNewElement");
                     sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
                     sensitiveElement.parent = e.parent;
                     e.parent.addDelayedTripleCreation(sensitiveElement);
@@ -1443,6 +1443,25 @@ public class XmlToRdfTest {
 			.build());
 
 	}
+
+    @Test
+    public void compositeIdBasedOnParentsIdWithRename() throws Exception {
+
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+
+            .renameElement("http://example.org/id", "http://example.org/renamedId")
+
+            .compositeId("http://example.org/B")
+            .fromElement("http://example.org/num")
+
+            .fromParent("http://example.org/renamedId").as("parent.id")
+
+            .mappedTo((elementMap, attributeMap) -> "http://example.com/"+elementMap.get("http://example.org/num")+"/"+elementMap.get("parent.id"))
+
+            .build());
+
+    }
 
     @Test(expected = RuntimeException.class)
     public void compositeIdBasedOnParentsIdCanNotResolveInTime() throws Exception {

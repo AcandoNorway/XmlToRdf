@@ -49,7 +49,7 @@ class ReverseElementTree {
 
     public String get(Element element) {
         for (Node root : roots) {
-            if(root.elementName.equals(element.type)){
+            if(root.elementName.equals(element.getType())){
                 if(element.parent !=null){
                     return  root.get(element.parent);
                 } else{
@@ -102,7 +102,7 @@ class Node{
 
 
         for (Node node : next) {
-            if(node.elementName.equals(parent.type)){
+            if(node.elementName.equals(parent.getType())){
                 if(parent.parent == null){
                     return node.newElementName;
                 }

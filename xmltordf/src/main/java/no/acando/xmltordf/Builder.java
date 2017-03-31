@@ -50,7 +50,7 @@ public class Builder {
                     return false;
                 }
 
-                if (!current.type.equals(path[i])) {
+                if (!current.getType().equals(path[i])) {
                     return false;
                 }
 
@@ -1134,7 +1134,7 @@ public class Builder {
             if (complexElementTransformAtEndOfElement == null) {
                 return;
             }
-            ComplexClassTransform complexClassTransform = complexElementTransformAtEndOfElement.get(element.type);
+            ComplexClassTransform complexClassTransform = complexElementTransformAtEndOfElement.get(element.getType());
             if (complexClassTransform != null) {
                 complexClassTransform.transform(element);
             }
@@ -1192,7 +1192,7 @@ public class Builder {
             if (complexElementTransformAtStartOfElement == null) {
                 return;
             }
-            ComplexClassTransform complexClassTransform = complexElementTransformAtStartOfElement.get(element.type);
+            ComplexClassTransform complexClassTransform = complexElementTransformAtStartOfElement.get(element.getType());
             if (complexClassTransform != null) {
                 complexClassTransform.transform(element);
             }
