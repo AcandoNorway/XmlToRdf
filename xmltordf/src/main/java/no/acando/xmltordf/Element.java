@@ -180,25 +180,23 @@ public class Element<ResourceType, Datatype> {
 
             List<Element> cleanUpList = new ArrayList<>();
             int counter = delayedCreateTripleCallback.size();
+            Element prev = null;
             while (!delayedCreateTripleCallback.isEmpty()) {
                 Element element = delayedCreateTripleCallback.pop();
 
+                if(prev != null && element == prev){
+                    throw new RuntimeException("Could not resolve identifier for an element on the following path in time: " + element.getPath());
+                }
+
                 element.createTriples();
                 cleanUpList.add(element);
-                if (counter-- < -1) {
-                    throw new RuntimeException("Could not resolve identifier for element in time: " + element.getPath());
+                if (counter-- < -10) {
+                    // start infinite loop detection for elements that repeatedly can't resolve their parents IRI
+                    prev = element;
                 }
             }
             cleanUpList.forEach(Element::cleanUp);
 
-//            for (int i = 0; i < delayedCreateTripleCallback.size(); i++) {
-//                Element element = delayedCreateTripleCallback.get(i);
-//
-//                    element.createTriples();
-//                    element.cleanUp();
-//
-//            }
-//            delayedCreateTripleCallback.run();
         }
 
         builder.doComplexTransformElementAtEndOfElement(this);
@@ -377,11 +375,11 @@ public class Element<ResourceType, Datatype> {
         Element temp = this;
         StringBuilder path = new StringBuilder();
         do{
-            path.append(temp.type).append(" --> ");
+            path.append(temp.type).append(" (").append(temp.uri).append(") --> ");
             temp = temp.parent;
         }while (temp != null);
 
-        return path.toString();
+        return path.substring(0, path.length()-5);
     }
 }
 

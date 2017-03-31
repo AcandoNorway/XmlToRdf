@@ -1444,6 +1444,24 @@ public class XmlToRdfTest {
 
 	}
 
+    @Test(expected = RuntimeException.class)
+    public void compositeIdBasedOnParentsIdCanNotResolveInTime() throws Exception {
+
+
+        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+
+
+            .compositeId("http://example.org/B")
+            .fromElement("http://example.org/num")
+
+            .fromParent("http://example.org/id3").as("parent.id")
+
+            .mappedTo((elementMap, attributeMap) -> "http://example.com/"+elementMap.get("http://example.org/num")+"/"+elementMap.get("parent.id"))
+
+            .build());
+
+    }
+
     @Test
     public void killOnError() throws Exception{
 
