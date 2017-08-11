@@ -39,6 +39,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -84,8 +85,15 @@ public class JsonJavadocExampleRunner {
         String javadocMarkdown = javadoc + ".md";
         PrintWriter printWriter = new PrintWriter(new File(javadocMarkdown));
 
+        list.sort(Comparator.comparing(m -> m.name));
+
         for (Method method : list) {
-            printWriter.println(" - ["+method.name+"](#"+method.name.toLowerCase().replace(" ", "-")+")");
+            String anchor = method.name.toLowerCase()
+                    .replace(" ", "-")
+                    .replace("(", "")
+                    .replace(")", "")
+                    .replace(",", "");
+            printWriter.println(" - ["+method.name+"](#"+ anchor +")");
         }
 
 
