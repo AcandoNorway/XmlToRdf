@@ -84,6 +84,10 @@ public class JsonJavadocExampleRunner {
         String javadocMarkdown = javadoc + ".md";
         PrintWriter printWriter = new PrintWriter(new File(javadocMarkdown));
 
+        for (Method method : list) {
+            printWriter.println(" - ["+method.name+"](#"+method.name.toLowerCase().replace(" ", "-")+")");
+        }
+
 
         for (Method method : list) {
 
@@ -142,7 +146,7 @@ public class JsonJavadocExampleRunner {
                     printWriter.println("---");
 
                 }
-                printWriter.println("<p>&nbsp;</p>");
+                printWriter.println("<p>&nbsp;</p>\n");
 
             }
 

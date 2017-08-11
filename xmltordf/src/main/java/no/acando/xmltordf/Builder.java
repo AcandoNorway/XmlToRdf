@@ -1108,10 +1108,10 @@ public class Builder {
          * </person>
          * @exampleLabel
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .addComplexElementTransformAtEndOfElement("http://example.org/name", element -> element.type = element.type.toUpperCase())
+         * .addComplexElementTransformAtEndOfElement("http://example.org/name", element -> element.setType(element.getType().toUpperCase()))
          * .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> {
          * if(element.hasChild.size() > 1){
-         * element.type = "http://example.org/people";
+         * element.setType("http://example.org/people");
          * }
          * })
          * .build()
@@ -1166,14 +1166,14 @@ public class Builder {
          * </people>
          * @exampleLabel All transforms run before insertPredicate
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .addComplexElementTransformAtStartOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
-         * .addComplexElementTransformAtStartOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
+         * .addComplexElementTransformAtStartOfElement("http://example.org/people", element -> element.setType(element.getType().toUpperCase()))
+         * .addComplexElementTransformAtStartOfElement("http://example.org/person", element -> element.setType(element.getType().toUpperCase()))
          * .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
          * .build()
          * @exampleLabel Transform on `<people>` runs after insertPredicate
          * @exampleCommand Builder.getAdvancedBuilderStream()
-         * .addComplexElementTransformAtEndOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
-         * .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
+         * .addComplexElementTransformAtEndOfElement("http://example.org/people", element -> element.setType(element.getType().toUpperCase()))
+         * .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> element.setType(element.getType().toUpperCase()))
          * .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
          * .build()
          */

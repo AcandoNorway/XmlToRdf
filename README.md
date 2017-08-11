@@ -52,7 +52,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.8.0</version>
+    <version>1.9.0</version>
 </dependency>
 ```
 
@@ -63,7 +63,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.8.0.jar \
+    -Dfile=xmltordf/target/xmltordf-1.9.0.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -185,6 +185,36 @@ evaluated as mixed content by adding `.forceMixedContent("http://example.org/par
 
 # Java docs
 
+ - [overrideNamespace(String namespace)](#overridenamespace(string-namespace))
+ - [renameElement(String elementFrom, String to)](#renameelement(string-elementfrom,-string-to))
+ - [renameElement(Builder.XmlPath path, String to)](#renameelement(builder.xmlpath-path,-string-to))
+ - [renameElement(String elementFrom, StringTransformTwoValue transform)](#renameelement(string-elementfrom,-stringtransformtwovalue-transform))
+ - [simpleTypePolicy(SimpleTypePolicy policy)](#simpletypepolicy(simpletypepolicy-policy))
+ - [transformAttributeValue(String elementName, String attributeName, StringTransform transform)](#transformattributevalue(string-elementname,-string-attributename,-stringtransform-transform))
+ - [transformElementValue(String elementName, StringTransform transform)](#transformelementvalue(string-elementname,-stringtransform-transform))
+ - [addIndex(boolean enabled)](#addindex(boolean-enabled))
+ - [useAttributeForId(String elementName, String attributeName, StringTransform stringTransform)](#useattributeforid(string-elementname,-string-attributename,-stringtransform-stringtransform))
+ - [autoAddSuffixToNamespace(String sign)](#autoaddsuffixtonamespace(string-sign))
+ - [mapTextInElementToUri(String elementName, String from, Object to)](#maptextinelementtouri(string-elementname,-string-from,-object-to))
+ - [mapTextInElementToUri(String elementName, no.acando.xmltordf.StringTransformToT mapToT)](#maptextinelementtouri(string-elementname,-no.acando.xmltordf.stringtransformtot-maptot))
+ - [mapTextInAttributeToUri(String elementName, String attributeName, String from, Object to)](#maptextinattributetouri(string-elementname,-string-attributename,-string-from,-object-to))
+ - [convertComplexElementsWithOnlyAttributesToPredicate(boolean enabled)](#convertcomplexelementswithonlyattributestopredicate(boolean-enabled))
+ - [autoAttributeNamespace(boolean enabled)](#autoattributenamespace(boolean-enabled))
+ - [setBaseNamespace(String namespace, Builder.AppliesTo which)](#setbasenamespace(string-namespace,-builder.appliesto-which))
+ - [convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(boolean enabled)](#convertcomplexelementswithonlyattributesandsimpletypechildrentopredicate(boolean-enabled))
+ - [autoTypeLiterals(boolean enabled)](#autotypeliterals(boolean-enabled))
+ - [insertPredicate(String predicate)](#insertpredicate(string-predicate))
+ - [invertPredicate(String predicate)](#invertpredicate(string-predicate))
+ - [skipElement(String elementName)](#skipelement(string-elementname))
+ - [useElementAsPredicate(String elementName)](#useelementaspredicate(string-elementname))
+ - [forceMixedContent(String elementName)](#forcemixedcontent(string-elementname))
+ - [compositeId(String elementName)](#compositeid(string-elementname))
+ - [uuidBasedIdInsteadOfBlankNodes(String baseNamespace)](#uuidbasedidinsteadofblanknodes(string-basenamespace))
+ - [setDatatype(String element, Object datatype)](#setdatatype(string-element,-object-datatype))
+ - [addComplexElementTransformAtEndOfElement(String element, ComplexClassTransform transform)](#addcomplexelementtransformatendofelement(string-element,-complexclasstransform-transform))
+ - [addComplexElementTransformAtStartOfElement(String element, ComplexClassTransform transform)](#addcomplexelementtransformatstartofelement(string-element,-complexclasstransform-transform))
+ - [resolveAsQnameInAttributeValue(boolean enabled)](#resolveasqnameinattributevalue(boolean-enabled))
+ - [xsiTypeSupport(boolean enabled)](#xsitypesupport(boolean-enabled))
 ## overrideNamespace(String namespace)
 
 Override all namespaces in the XML with a new namespace.
@@ -245,6 +275,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## renameElement(String elementFrom, String to)
 
 Change the name of an element.
@@ -278,6 +309,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## renameElement(Builder.XmlPath path, String to)
 
 Change the name of an element at the end of a specific path. Useful for renaming elements that do not have a unique name, but have local names
@@ -326,6 +358,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## renameElement(String elementFrom, StringTransformTwoValue transform)
 
 Change the name on the fly using a function. Eg. for capitalizing element names.
@@ -359,6 +392,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## simpleTypePolicy(SimpleTypePolicy policy)
 
 XML elements with only text inside and no attributes (known as Simple Type elements)
@@ -417,6 +451,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## transformAttributeValue(String elementName, String attributeName, StringTransform transform)
 
 Run a function on the value of an attribute and use the returned string as the new value.
@@ -469,6 +504,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## transformElementValue(String elementName, StringTransform transform)
 
 Run a function on the value of an element and use the returned string as the new value.
@@ -523,6 +559,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## addIndex(boolean enabled)
 
 Add the index of the element as a predicate to the RDF. `xmlToRdf:index` is a
@@ -623,6 +660,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## useAttributeForId(String elementName, String attributeName, StringTransform stringTransform)
 
 Use an attribute on an element to generate an identifier for the RDF node.
@@ -655,14 +693,14 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
         ex:title  "Other record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 <http://acme.com/records/0000001>
         a         ex:record ;
@@ -700,6 +738,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## autoAddSuffixToNamespace(String sign)
 
 Namespaces in RDF typically end in either `/` or `#` unlike in XML where a
@@ -756,6 +795,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## mapTextInElementToUri(String elementName, String from, Object to)
 
 Map the text inside an element to an IRI.
@@ -812,6 +852,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## mapTextInElementToUri(String elementName, no.acando.xmltordf.StringTransformToT mapToT)
 
 Map the text inside an element to an IRI (URI) by providing a function that takes a String as input and returns a String (for getAdvancedBuilderStream),
@@ -848,6 +889,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## mapTextInAttributeToUri(String elementName, String attributeName, String from, Object to)
 
 Map the text inside an element to an IRI.
@@ -903,6 +945,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## convertComplexElementsWithOnlyAttributesToPredicate(boolean enabled)
 
 Use element name as predicate instead of the rdf:type on complex elements that only contain attributes.
@@ -962,6 +1005,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## autoAttributeNamespace(boolean enabled)
 
 Uses the namespace for the element as the namespace for any attributes that lack namespaces. Default: true.
@@ -1024,6 +1068,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## setBaseNamespace(String namespace, Builder.AppliesTo which)
 
 Sets a namespace for elements and attributes that lack their own namespace. This is recommended to use
@@ -1079,12 +1124,12 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/people> ;
+[ a                  <file:///Users/havardottestad/Documents/Java/xmlToRdf2/people> ;
   xmlToRdf:hasChild  [ a                       <http://other.org/name> ;
                        xmlToRdf:hasValue       "Unknown" ;
                        <http://other.org/age>  "2"
                      ] ;
-  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Jobb/Acando/XmlToRdf2/name> ;
+  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Java/xmlToRdf2/name> ;
                        xmlToRdf:hasValue       "John Doe" ;
                        <http://other.org/age>  "1"
                      ]
@@ -1094,6 +1139,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(boolean enabled)
 
 Use the element name as the predicate rather than the rdf:type of elements that are complex type, but
@@ -1158,6 +1204,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## autoTypeLiterals(boolean enabled)
 
 Detects the datatype of simple elements by analyzing their content. Currently support for long, int, double, date and datetime.
@@ -1233,6 +1280,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## insertPredicate(String predicate)
 
 Uses the specified predicate between the parent and the child. Order of application:
@@ -1300,6 +1348,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## invertPredicate(String predicate)
 
 Inverts an inserted predicate between two elements, so that the inherit parent -> child relationship is reversed.
@@ -1362,6 +1411,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## skipElement(String elementName)
 
 Skip an element and all contained elements. Includes the element named, and continues skipping until the closing tag is reached.
@@ -1417,6 +1467,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## useElementAsPredicate(String elementName)
 
 Create a predicate between the parent and the children elements of an element instead of a node. The element name is used as the
@@ -1505,6 +1556,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## forceMixedContent(String elementName)
 
 Force mixed content handling for elements, even when they do not
@@ -1534,23 +1586,23 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
                        xmlToRdf:hasValue         "Hello, World!"
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
+                       xmlToRdf:hasChild         _:b1 , _:b0 ;
+                       xmlToRdf:hasMixedContent  ( _:b0 " " _:b1 "!" ) ;
                        xmlToRdf:hasValue         "!"
                      ]
 ] .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
 _:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
+        xmlToRdf:hasValue  "World" .
 
 ```
 
@@ -1587,6 +1639,7 @@ _:b1    a                  ex:b ;
 
 ---
 <p>&nbsp;</p>
+
 ## compositeId(String elementName)
 
 Use attributes and child elements to create a composite identifier for an element. `compositeId("elementName")` returns
@@ -1673,6 +1726,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## uuidBasedIdInsteadOfBlankNodes(String baseNamespace)
 
 Generate IRIs for elements by using a UUID instead of using blank nodes.
@@ -1701,7 +1755,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-<http://data.example.org/b6a7035a-d1ee-4231-9a6b-4734b628baf4>
+<http://data.example.org/fef056e5-af3d-4f87-b239-04f94889973c>
         a        ex:people ;
         ex:name  "John Doe" .
 
@@ -1729,6 +1783,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## setDatatype(String element, Object datatype)
 
 Specify the datatype on a Simple Type element. Use a string with AdvancedBuilderStream as the datatype,
@@ -1786,6 +1841,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## addComplexElementTransformAtEndOfElement(String element, ComplexClassTransform transform)
 
 Do any transformation on an element will full access to information about its attributes and children.
@@ -1807,10 +1863,10 @@ Do any transformation on an element will full access to information about its at
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .addComplexElementTransformAtEndOfElement("http://example.org/name", element -> element.type = element.type.toUpperCase())
+   .addComplexElementTransformAtEndOfElement("http://example.org/name", element -> element.setType(element.getType().toUpperCase()))
    .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> {
    if(element.hasChild.size() > 1){
-   element.type = "http://example.org/people";
+   element.setType("http://example.org/people");
    }
    })
    .build()
@@ -1860,6 +1916,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## addComplexElementTransformAtStartOfElement(String element, ComplexClassTransform transform)
 
 Do any transformation on an element will full access to information about its attributes but not about it's children.
@@ -1890,8 +1947,8 @@ Do any transformation on an element will full access to information about its at
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .addComplexElementTransformAtStartOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
-   .addComplexElementTransformAtStartOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
+   .addComplexElementTransformAtStartOfElement("http://example.org/people", element -> element.setType(element.getType().toUpperCase()))
+   .addComplexElementTransformAtStartOfElement("http://example.org/person", element -> element.setType(element.getType().toUpperCase()))
    .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
    .build()
 ```
@@ -1915,8 +1972,8 @@ Builder.getAdvancedBuilderStream()
 **Java code**
 ```java
 Builder.getAdvancedBuilderStream()
-   .addComplexElementTransformAtEndOfElement("http://example.org/people", element -> element.type = element.type.toUpperCase())
-   .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> element.type = element.type.toUpperCase())
+   .addComplexElementTransformAtEndOfElement("http://example.org/people", element -> element.setType(element.getType().toUpperCase()))
+   .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> element.setType(element.getType().toUpperCase()))
    .insertPredicate("http://example.org/hasPerson").between("HTTP://EXAMPLE.ORG/PEOPLE", "HTTP://EXAMPLE.ORG/PERSON")
    .build()
 ```
@@ -1937,6 +1994,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## resolveAsQnameInAttributeValue(boolean enabled)
 
 Will resolve a qname inside an attribute by expanding it to a full IRI as a string.
@@ -1997,6 +2055,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 ## xsiTypeSupport(boolean enabled)
 
 Detects and uses the value in xsi:type attributes as the rdf:type.
@@ -2070,6 +2129,7 @@ Builder.getAdvancedBuilderStream()
 
 ---
 <p>&nbsp;</p>
+
 
 
 
