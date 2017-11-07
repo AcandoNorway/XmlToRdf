@@ -1,20 +1,22 @@
 @prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
 @prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xmlTodRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 
-_:b0    a                  <http://test/name> ;
-        xmlToRdf:hasValue  "hello" .
+_:b0    a                   <http://test/name> ;
+        xmlTodRdf:hasValue  "hello" .
 
-_:b1    a                         <http://test/B> ;
-        xmlToRdf:hasChild         _:b0 , _:b2 ;
-        xmlToRdf:hasMixedContent  ( "Hva skal man si?" _:b2 "\n        " _:b0 "\n    " ) ;
-        xmlToRdf:hasValue         "Hva skal man si?" .
+_:b1    a                          <http://test/B> ;
+        xmlTodRdf:hasChild         _:b0 , _:b2 ;
+        xmlTodRdf:hasMixedContent  ( "Hva skal man si?" _:b2 "\n" _:b0 "\n    " ) ;
+        xmlTodRdf:hasValue         "Hva skal man si?\n\n    " .
 
-_:b2    a                  <http://test/num> ;
-        xmlToRdf:hasValue  "1" .
+_:b2    a                   <http://test/num> ;
+        xmlTodRdf:hasValue  "1" .
 
-[ a                         <http://test/A> ;
-  xmlToRdf:hasChild         _:b1 ;
-  xmlToRdf:hasMixedContent  ( "Hurra" _:b1 "\n" ) ;
-  xmlToRdf:hasValue         "Hurra"
+[ a                          <http://test/A> ;
+  xmlTodRdf:hasChild         _:b1 ;
+  xmlTodRdf:hasMixedContent  ( "Hurra" _:b1 "\n" ) ;
+  xmlTodRdf:hasValue         "Hurra\n"
 ] .

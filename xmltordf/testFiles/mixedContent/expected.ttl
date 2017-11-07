@@ -10,7 +10,7 @@ _:b0    a                  <http://test/span> ;
                        xmlToRdf:hasChild  [ a                         <http://test/name> ;
                                             xmlToRdf:hasChild         _:b1 , _:b0 ;
                                             xmlToRdf:hasMixedContent  ( "hello " _:b0 " this is " _:b1 ) ;
-                                            xmlToRdf:hasValue         "hello  this is"
+                                            xmlToRdf:hasValue         "hello  this is "
                                           ] ;
                        <http://test/num>  "1"
                      ]

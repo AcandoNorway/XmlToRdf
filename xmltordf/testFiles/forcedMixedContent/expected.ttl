@@ -15,13 +15,13 @@ _:b1    a                  <http://example.org/pnavn> ;
                                             xmlToRdf:hasValue         "a string"
                                           ] ;
                        xmlToRdf:hasChild  [ a                         <http://example.org/name2> ;
-                                            xmlToRdf:hasChild         _:b1 ;
-                                            xmlToRdf:hasMixedContent  ( _:b1 )
+                                            xmlToRdf:hasChild         _:b0 ;
+                                            xmlToRdf:hasMixedContent  ( _:b0 )
                                           ] ;
                        xmlToRdf:hasChild  [ a                         <http://example.org/name> ;
-                                            xmlToRdf:hasChild         _:b0 ;
-                                            xmlToRdf:hasMixedContent  ( _:b0 " more text" ) ;
-                                            xmlToRdf:hasValue         "more text"
+                                            xmlToRdf:hasChild         _:b1 ;
+                                            xmlToRdf:hasMixedContent  ( _:b1 " more text" ) ;
+                                            xmlToRdf:hasValue         " more text"
                                           ]
                      ]
 ] .

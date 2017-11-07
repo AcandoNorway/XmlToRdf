@@ -113,8 +113,11 @@ public class Element<ResourceType, Datatype> {
             return null;
         }
         if (hasValueString == null) {
-            hasValueString = hasValue.toString().trim();
-            hasValueStringEmpty = hasValueString.isEmpty();
+            hasValueString = hasValue.toString();//.trim();
+            if(hasValueString.trim().isEmpty()){
+                hasValueString = "";
+                hasValueStringEmpty = hasValueString.isEmpty();
+            }
         }
 
         if (hasValueStringEmpty) {

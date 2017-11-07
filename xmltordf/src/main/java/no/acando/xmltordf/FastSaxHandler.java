@@ -128,7 +128,10 @@ public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
         final String nodeId = nodeIdStack.pop();
         final String typePop = typeStack.pop();
-        String value = stringBuilderStack.pop().toString().trim();
+        String value = stringBuilderStack.pop().toString();
+        if(value.trim().isEmpty()){
+            value = "";
+        }
 
         if (value != null) {
             value = builder.doTransformForElementValue(typePop, value);

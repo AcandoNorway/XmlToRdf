@@ -8,5 +8,5 @@ _:b0    a                  <http://test/A> ;
 [ a                         <http://test/A> ;
   xmlToRdf:hasChild         _:b0 ;
   xmlToRdf:hasMixedContent  ( "yay\n    " _:b0 "\n" ) ;
-  xmlToRdf:hasValue         "yay"
+  xmlToRdf:hasValue         "yay\n    \n"
 ] .
