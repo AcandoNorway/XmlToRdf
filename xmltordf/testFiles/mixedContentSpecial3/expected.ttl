@@ -1,0 +1,30 @@
+@prefix xmlToRdf: <http://acandonorway.github.com/XmlToRdf/ontology.ttl#> .
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+
+_:b0    a                  <http://example.org/PNAVN> ;
+        xmlToRdf:hasValue  "b c " .
+
+[ a                          <http://example.org/A> ;
+  xmlToRdf:hasChild          [ a                         <http://example.org/JP.OFFINNHOLD> ;
+                               xmlToRdf:hasChild         _:b1 , _:b2 ;
+                               xmlToRdf:hasMixedContent  ( "A" _:b2 " " _:b1 "d" ) ;
+                               xmlToRdf:hasValue         "A d"
+                             ] ;
+  xmlToRdf:hasChild          [ a                         <http://example.org/JP.OFFINNHOLD> ;
+                               xmlToRdf:hasChild         _:b0 ;
+                               xmlToRdf:hasMixedContent  ( "A " _:b0 "e f " ) ;
+                               xmlToRdf:hasValue         "A e f "
+                             ] ;
+  xmlToRdf:hasChild          [ a                         <http://example.org/JP.OFFINNHOLD> ;
+                               xmlToRdf:hasMixedContent  ( "hello space " ) ;
+                               xmlToRdf:hasValue         "hello space "
+                             ] ;
+  <http://example.org/test>  "yay space             "
+] .
+
+_:b1    a                  <http://example.org/PNAVN> ;
+        xmlToRdf:hasValue  "c" .
+
+_:b2    a                  <http://example.org/PNAVN> ;
+        xmlToRdf:hasValue  "b" .

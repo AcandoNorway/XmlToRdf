@@ -3,10 +3,10 @@
 @prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
 
 _:b0    a                  <http://example.org/pnavn> ;
-        xmlToRdf:hasValue  "a name" .
+        xmlToRdf:hasValue  "another name" .
 
 _:b1    a                  <http://example.org/pnavn> ;
-        xmlToRdf:hasValue  "another name" .
+        xmlToRdf:hasValue  "a name" .
 
 _:b2    a                  <http://example.org/pnavn> ;
         xmlToRdf:hasValue  "a name" .
@@ -14,18 +14,18 @@ _:b2    a                  <http://example.org/pnavn> ;
 [ a                  <http://example.org/A> ;
   xmlToRdf:hasChild  [ a                         <http://example.org/B> ;
                        xmlToRdf:hasChild         [ a                         <http://example.org/name> ;
-                                                   xmlToRdf:hasChild         _:b0 ;
-                                                   xmlToRdf:hasMixedContent  ( "text " _:b0 ) ;
-                                                   xmlToRdf:hasValue         "text"
+                                                   xmlToRdf:hasChild         _:b3 ;
+                                                   xmlToRdf:hasMixedContent  ( "text " _:b3 ) ;
+                                                   xmlToRdf:hasValue         "text "
                                                  ] ;
                        xmlToRdf:hasChild         [ a                         <http://example.org/name> ;
-                                                   xmlToRdf:hasChild         _:b1 , _:b3 ;
-                                                   xmlToRdf:hasMixedContent  ( "text " _:b3 " more text " _:b1 ) ;
-                                                   xmlToRdf:hasValue         "text  more text"
+                                                   xmlToRdf:hasChild         _:b0 , _:b2 ;
+                                                   xmlToRdf:hasMixedContent  ( "text " _:b2 " more text " _:b0 ) ;
+                                                   xmlToRdf:hasValue         "text  more text "
                                                  ] ;
                        xmlToRdf:hasChild         [ a                         <http://example.org/name> ;
-                                                   xmlToRdf:hasChild         _:b2 ;
-                                                   xmlToRdf:hasMixedContent  ( "text " _:b2 " more text" ) ;
+                                                   xmlToRdf:hasChild         _:b1 ;
+                                                   xmlToRdf:hasMixedContent  ( "text " _:b1 " more text" ) ;
                                                    xmlToRdf:hasValue         "text  more text"
                                                  ] ;
                        <http://example.org/num>  "1"
