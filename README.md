@@ -52,7 +52,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.9.0</version>
+    <version>1.9.1</version>
 </dependency>
 ```
 
@@ -63,7 +63,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.9.0.jar \
+    -Dfile=xmltordf/target/xmltordf-1.9.1.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -907,10 +907,10 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
+        xmlToRdf:hasValue  "World" .
 
 _:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
+        xmlToRdf:hasValue  "Hello" .
 
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
@@ -918,9 +918,9 @@ _:b1    a                  ex:b ;
                        xmlToRdf:hasValue         "Hello, World!"
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b0 " " _:b1 "!" ) ;
-                       xmlToRdf:hasValue         "!"
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
+                       xmlToRdf:hasValue         " !"
                      ]
 ] .
 
@@ -943,17 +943,16 @@ Builder.getAdvancedBuilderStream()
 _:b0    a                  ex:b ;
         xmlToRdf:hasValue  "World" .
 
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" ) ;
-                       xmlToRdf:hasValue         "!"
+                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" )
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
 
 ```
 
