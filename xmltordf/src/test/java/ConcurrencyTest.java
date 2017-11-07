@@ -47,7 +47,7 @@ public class ConcurrencyTest {
     @Test
     public void testJena() {
 
-        final int TRIPLES_PER_FILE = 217872;
+        final int TRIPLES_PER_FILE = 217227;
 
         ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
