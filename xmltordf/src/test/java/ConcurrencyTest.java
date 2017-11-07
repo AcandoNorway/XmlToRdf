@@ -42,13 +42,12 @@ public class ConcurrencyTest {
     }
 
     final static int NUMBER_OF_THREADS = 8;
+    final int TRIPLES_PER_FILE = 217227;
 
 
     @Test
     public void testJena() {
-
-        final int TRIPLES_PER_FILE = 217227;
-
+        
         ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
         XmlToRdfAdvancedJena build = Builder.getAdvancedBuilderJena().build();
@@ -79,7 +78,6 @@ public class ConcurrencyTest {
 
     @Test
     public void testSesame() {
-        final int TRIPLES_PER_FILE = 217872;
 
         ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
