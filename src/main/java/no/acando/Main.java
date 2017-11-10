@@ -12,9 +12,10 @@ public class Main {
     public static void main(String[] args) throws RunnerException {
         Options opt = new OptionsBuilder()
             .include(BigFileBenchmark.class.getSimpleName())
-            .warmupIterations(10)
-            .measurementIterations(10)
-            .forks(3)
+            .warmupIterations(1)
+            .measurementIterations(1)
+            .forks(1)
+            .addProfiler("stack", "lines=20;period=1;top=20")
             .build();
 
         new Runner(opt).run();

@@ -18,7 +18,7 @@ public class BigFileBenchmark {
     @Setup(Level.Iteration)
     public void setUp() throws IOException {
         String s = IOUtils.toString(new FileInputStream("100mb.xml"));
-        byteArrayInputStream = new ByteArrayInputStream(s.getBytes());
+        byteArrayInputStream = new ByteArrayInputStream(s.getBytes("utf-8"));
     }
 
     @TearDown(Level.Iteration)
@@ -30,21 +30,21 @@ public class BigFileBenchmark {
         Thread.sleep(5000);
     }
 
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    public void fastConvert() throws IOException, SAXException, ParserConfigurationException {
-
-        XmlToRdfFast build = Builder.getFastBuilder().build();
-        build.convertToStream(byteArrayInputStream, new OutputStream() {
-            @Override
-            public void write(int b) throws IOException {
-
-            }
-        });
-
-
-    }
+//    @Benchmark
+//    @BenchmarkMode(Mode.AverageTime)
+//    @OutputTimeUnit(TimeUnit.SECONDS)
+//    public void fastConvert() throws IOException, SAXException, ParserConfigurationException {
+//
+//        XmlToRdfFast build = Builder.getFastBuilder().build();
+//        build.convertToStream(byteArrayInputStream, new OutputStream() {
+//            @Override
+//            public void write(int b) throws IOException {
+//
+//            }
+//        });
+//
+//
+//    }
 
 
     @Benchmark
@@ -88,29 +88,29 @@ public class BigFileBenchmark {
 
     }
 
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    public void advancedConvertJena() throws IOException, SAXException, ParserConfigurationException {
-
-        XmlToRdfAdvancedJena build = Builder.getAdvancedBuilderJena()
-            .build();
-
-        build.convertToDataset(byteArrayInputStream);
-
-    }
-
-
-    @Benchmark
-    @BenchmarkMode(Mode.AverageTime)
-    @OutputTimeUnit(TimeUnit.SECONDS)
-    public void advancedConvertSesame() throws IOException, SAXException, ParserConfigurationException {
-
-        XmlToRdfAdvancedSesame build = Builder.getAdvancedBuilderSesame()
-            .build();
-
-        build.convertToRepository(byteArrayInputStream);
-
-    }
+//    @Benchmark
+//    @BenchmarkMode(Mode.AverageTime)
+//    @OutputTimeUnit(TimeUnit.SECONDS)
+//    public void advancedConvertJena() throws IOException, SAXException, ParserConfigurationException {
+//
+//        XmlToRdfAdvancedJena build = Builder.getAdvancedBuilderJena()
+//            .build();
+//
+//        build.convertToDataset(byteArrayInputStream);
+//
+//    }
+//
+//
+//    @Benchmark
+//    @BenchmarkMode(Mode.AverageTime)
+//    @OutputTimeUnit(TimeUnit.SECONDS)
+//    public void advancedConvertSesame() throws IOException, SAXException, ParserConfigurationException {
+//
+//        XmlToRdfAdvancedSesame build = Builder.getAdvancedBuilderSesame()
+//            .build();
+//
+//        build.convertToRepository(byteArrayInputStream);
+//
+//    }
 
 }
