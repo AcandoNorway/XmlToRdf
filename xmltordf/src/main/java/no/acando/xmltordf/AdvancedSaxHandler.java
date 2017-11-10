@@ -28,6 +28,8 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
     final static String XSD = "http://www.w3.org/2001/XMLSchema#";
 
+    private final Deque<StringBuilder> stringBuilders = new ArrayDeque<>(100);
+
 
     Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
 
@@ -352,6 +354,23 @@ abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.he
 
         prefixUriMap.put(prefix, uri);
 
+    }
+
+     StringBuilder getStringBuilder(){
+        if(stringBuilders.size() > 0){
+            return stringBuilders.pop();
+        }
+
+        return new StringBuilder();
+
+    }
+
+     void returnStringBuilder(StringBuilder stringBuilder){
+        if(stringBuilder == null) return;
+        if(stringBuilders.size() < 100){
+            stringBuilder.setLength(0);
+            stringBuilders.push(stringBuilder);
+        }
     }
 
 }

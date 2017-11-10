@@ -16,7 +16,13 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 
 public class Element<ResourceType, Datatype> {
@@ -41,7 +47,7 @@ public class Element<ResourceType, Datatype> {
 
 
     public ArrayList<Object> mixedContent = new ArrayList<>();
-    public StringBuilder tempMixedContentString = new StringBuilder("");
+    public StringBuilder tempMixedContentString;
     public boolean useElementAsPredicate;
     boolean containsMixedContent;
     private boolean delayedOutput;
@@ -55,7 +61,7 @@ public class Element<ResourceType, Datatype> {
     public Element(AdvancedSaxHandler<ResourceType, Datatype> handler, Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
         this.handler = handler;
         this.builder = builder;
-
+        tempMixedContentString = handler.getStringBuilder();
     }
 
     public String getType() {
@@ -86,7 +92,7 @@ public class Element<ResourceType, Datatype> {
         }
 
         if (hasValue == null) {
-            hasValue = new StringBuilder(new String(ch, start, length));
+            hasValue = handler.getStringBuilder().append(new String(ch, start, length));
         } else {
             hasValue.append(ch, start, length);
         }
@@ -350,12 +356,20 @@ public class Element<ResourceType, Datatype> {
         }
     }
 
-    private void cleanUp() {
-        hasChild = null;
-        hasChildMap = null;
-        parent = null;
-        properties = null;
-    }
+	private void cleanUp() {
+    	if(hasChild != null){
+			hasChild.forEach(child -> {
+				handler.returnStringBuilder(child.tempMixedContentString);
+				handler.returnStringBuilder(child.hasValue);
+			});
+		}
+
+		hasChild = null;
+		hasChildMap = null;
+		parent = null;
+		properties = null;
+
+	}
 
     public void addDelayedTripleCreation(Element element) {
 
