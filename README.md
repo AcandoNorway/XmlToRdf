@@ -52,7 +52,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.9.1</version>
+    <version>1.10.0</version>
 </dependency>
 ```
 
@@ -63,7 +63,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.9.1.jar \
+    -Dfile=xmltordf/target/xmltordf-1.10.0.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 

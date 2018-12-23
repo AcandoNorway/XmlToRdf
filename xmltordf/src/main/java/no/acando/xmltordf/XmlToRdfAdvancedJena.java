@@ -37,6 +37,7 @@ public class XmlToRdfAdvancedJena {
     public Dataset convertToDataset(InputStream in) throws ParserConfigurationException, SAXException, IOException {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
+        Security.secureSaxParser(factory);
 
         SAXParser saxParser = factory.newSAXParser();
 
