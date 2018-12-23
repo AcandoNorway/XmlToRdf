@@ -17,6 +17,8 @@ limitations under the License.
 package no.acando.xmltordf;
 
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -38,6 +40,9 @@ public class XmlToRdfAdvancedStream {
         SAXParserFactory factory = SAXParserFactory.newInstance();
         factory.setNamespaceAware(true);
 
+        Security.secureSaxParser(factory);
+
+
         SAXParser saxParser = factory.newSAXParser();
 
         AdvancedSaxHandlerString handler = new AdvancedSaxHandlerString(out, builder);
@@ -45,5 +50,6 @@ public class XmlToRdfAdvancedStream {
         saxParser.parse(in, handler);
 
     }
+
 
 }

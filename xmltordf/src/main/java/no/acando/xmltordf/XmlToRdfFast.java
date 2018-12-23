@@ -28,22 +28,26 @@ import java.io.OutputStream;
 
 public class XmlToRdfFast {
 
-    Builder.Fast builder;
+	Builder.Fast builder;
 
-    public XmlToRdfFast(Builder.Fast builder) {
-        this.builder = builder;
-    }
+	public XmlToRdfFast(Builder.Fast builder) {
+		this.builder = builder;
+	}
 
-    public void convertToStream(InputStream in, OutputStream out) throws ParserConfigurationException, SAXException, IOException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setNamespaceAware(true);
+	public void convertToStream(InputStream in, OutputStream out) throws ParserConfigurationException, SAXException, IOException {
+		SAXParserFactory factory = SAXParserFactory.newInstance();
+		factory.setNamespaceAware(true);
 
-        SAXParser saxParser = factory.newSAXParser();
 
-        FastSaxHandler handler = new FastSaxHandler(out, builder);
+		Security.secureSaxParser(factory);
 
-        saxParser.parse(in, handler);
 
-    }
+		SAXParser saxParser = factory.newSAXParser();
+
+		FastSaxHandler handler = new FastSaxHandler(out, builder);
+
+		saxParser.parse(in, handler);
+
+	}
 
 }
