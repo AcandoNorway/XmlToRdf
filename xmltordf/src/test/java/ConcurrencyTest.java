@@ -16,10 +16,10 @@ limitations under the License.
 
 import no.acando.xmltordf.Builder;
 import no.acando.xmltordf.XmlToRdfAdvancedJena;
-import no.acando.xmltordf.XmlToRdfAdvancedSesame;
+import no.acando.xmltordf.XmlToRdfAdvancedRDF4J;
 import org.apache.jena.query.Dataset;
 import org.junit.Test;
-import org.openrdf.repository.Repository;
+import org.eclipse.rdf4j.repository.Repository;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -77,11 +77,11 @@ public class ConcurrencyTest {
     }
 
     @Test
-    public void testSesame() {
+    public void testRDF4J() {
 
         ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-        XmlToRdfAdvancedSesame build = Builder.getAdvancedBuilderSesame().build();
+        XmlToRdfAdvancedRDF4J build = Builder.getAdvancedBuilderRDF4J().build();
 
         for (int i = 0; i < NUMBER_OF_THREADS; i++) {
             executor.execute(() -> {

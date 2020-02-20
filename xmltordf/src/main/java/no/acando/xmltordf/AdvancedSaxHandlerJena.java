@@ -25,7 +25,7 @@ import org.apache.jena.graph.Triple;
 import org.apache.jena.graph.impl.GraphWithPerform;
 import org.apache.jena.query.Dataset;
 import org.apache.jena.query.DatasetFactory;
-import org.openrdf.model.vocabulary.RDF;
+import org.apache.jena.vocabulary.RDF;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -34,15 +34,14 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
 
 final class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
-    private static final Node RDF_REST = NodeFactory.createURI(RDF.REST.toString());
-    private static final Node RDF_FIRST = NodeFactory.createURI(RDF.FIRST.toString());
-    private static final Node RDF_NIL = NodeFactory.createURI(RDF.NIL.toString());
+    private static final Node RDF_REST = NodeFactory.createURI(RDF.rest.toString());
+    private static final Node RDF_FIRST = NodeFactory.createURI(RDF.first.toString());
+    private static final Node RDF_NIL = NodeFactory.createURI(RDF.nil.toString());
     private Graph graph;
 
     Dataset dataset;

@@ -25,17 +25,17 @@ import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
-import org.openrdf.model.Namespace;
-import org.openrdf.model.Statement;
-import org.openrdf.model.impl.SimpleValueFactory;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.RepositoryConnection;
-import org.openrdf.repository.RepositoryResult;
-import org.openrdf.rio.RDFFormat;
-import org.openrdf.rio.RDFWriter;
-import org.openrdf.rio.Rio;
+import org.eclipse.rdf4j.model.Namespace;
+import org.eclipse.rdf4j.model.Statement;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.RepositoryConnection;
+import org.eclipse.rdf4j.repository.RepositoryResult;
+import org.eclipse.rdf4j.rio.RDFFormat;
+import org.eclipse.rdf4j.rio.RDFWriter;
+import org.eclipse.rdf4j.rio.Rio;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -65,7 +65,7 @@ public class XmlToRdfTest {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
 
@@ -74,7 +74,7 @@ public class XmlToRdfTest {
     @Test
     public void mixedContent() throws Exception {
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
     }
@@ -88,7 +88,7 @@ public class XmlToRdfTest {
                 .renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
                 .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
             .renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
             .build());
@@ -109,7 +109,7 @@ public class XmlToRdfTest {
                 .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
                 .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
             .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
             .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
@@ -127,7 +127,7 @@ public class XmlToRdfTest {
     public void simpleWithAttrs() throws Exception {
 
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).build());
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).build());
@@ -150,7 +150,7 @@ public class XmlToRdfTest {
             .uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
             .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .overrideNamespace(HTTP_TEST)
             .uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
             .build());
@@ -168,7 +168,7 @@ public class XmlToRdfTest {
     public void inLineData() throws Exception {
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).build());
 
         //TODO: make new test for fast that doesn't do mixed content
 //        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").build());
@@ -178,7 +178,7 @@ public class XmlToRdfTest {
     @Test
     public void specialCharacters() throws Exception {
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).build());
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).build());
@@ -189,7 +189,7 @@ public class XmlToRdfTest {
     public void insertPredicateMatchingDefault() throws ParserConfigurationException, SAXException, IOException {
         String xmlNameSpace = "http://www.arkivverket.no/standarder/noark5/arkivstruktur/";
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .autoAddSuffixToNamespace("/")
             .renameElement(xmlNameSpace + "arkiv", xmlNameSpace + "Arkiv")
             .renameElement(xmlNameSpace + "arkivskaper", xmlNameSpace + "Arkivskaper")
@@ -200,8 +200,8 @@ public class XmlToRdfTest {
 
     @Test
     public void useElementAsPredicate() throws ParserConfigurationException, SAXException, IOException {
-        testAdvancedSesame(
-            Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(
+            Builder.getAdvancedBuilderRDF4J()
                 .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
                 .convertComplexElementsWithOnlyAttributesToPredicate(true)
                 .useElementAsPredicate("http://example.org/friends")
@@ -235,8 +235,8 @@ public class XmlToRdfTest {
             .setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
 
-        testAdvancedSesame(Builder
-            .getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder
+            .getAdvancedBuilderRDF4J()
             .autoAttributeNamespace(false)
             .setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
@@ -254,8 +254,8 @@ public class XmlToRdfTest {
             .getAdvancedBuilderJena()
             .build());
 
-        testAdvancedSesame(Builder
-            .getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder
+            .getAdvancedBuilderRDF4J()
             .build());
 
         testAdvancedStream(Builder
@@ -270,8 +270,8 @@ public class XmlToRdfTest {
             .autoAddSuffixToNamespace(false)
             .build());
 
-        testAdvancedSesame(Builder
-            .getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder
+            .getAdvancedBuilderRDF4J()
             .autoAddSuffixToNamespace(false)
             .build());
 
@@ -288,8 +288,8 @@ public class XmlToRdfTest {
             .getAdvancedBuilderJena()
             .build());
 
-        testAdvancedSesame(Builder
-            .getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder
+            .getAdvancedBuilderRDF4J()
             .build());
 
         testAdvancedStream(Builder
@@ -305,8 +305,8 @@ public class XmlToRdfTest {
             .autoAddSuffixToNamespace("/")
             .build());
 
-        testAdvancedSesame(Builder
-            .getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder
+            .getAdvancedBuilderRDF4J()
             .autoAddSuffixToNamespace("/")
             .build());
 
@@ -320,7 +320,7 @@ public class XmlToRdfTest {
     public void checkIndexes() throws Exception {
 
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).addIndex(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).addIndex(true).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).addIndex(true).build());
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).addIndex(true).build());
 
     }
@@ -329,7 +329,7 @@ public class XmlToRdfTest {
     public void checkIndexesFalse() throws Exception {
 
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).addIndex(false).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).addIndex(false).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).addIndex(false).build());
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).addIndex(false).build());
 
     }
@@ -345,7 +345,7 @@ public class XmlToRdfTest {
             .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
             .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
             .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
             .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
             .build());
@@ -368,7 +368,7 @@ public class XmlToRdfTest {
             .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
             .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
@@ -388,7 +388,7 @@ public class XmlToRdfTest {
 
             .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
             .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
             .build());
@@ -409,7 +409,7 @@ public class XmlToRdfTest {
             .renameElement(HTTP_TEST + "A", "http://hurra/A2")
             .renameElement(HTTP_TEST + "B", "http://hurra/B2")
             .build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .overrideNamespace(HTTP_TEST)
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .renameElement(HTTP_TEST + "A", "http://hurra/A2")
@@ -443,7 +443,7 @@ public class XmlToRdfTest {
             .renameElement(HTTP_TEST + "name", (u, v) -> u + v.toUpperCase())
             .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .overrideNamespace(HTTP_TEST)
             .simpleTypePolicy(SimpleTypePolicy.compact)
             .renameElement(HTTP_TEST + "A", "http://hurra/A2")
@@ -474,7 +474,7 @@ public class XmlToRdfTest {
     public void detectLiteralProperties() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
@@ -485,7 +485,7 @@ public class XmlToRdfTest {
     public void detectLiteralPropertiesWithAttributes() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
@@ -496,7 +496,7 @@ public class XmlToRdfTest {
     public void detectLiteralPropertiesWithAttributesEdgeCaseWithRdfType() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
@@ -507,7 +507,7 @@ public class XmlToRdfTest {
     public void detectLiteralPropertiesEdgeCaseWithoutParent() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
@@ -519,7 +519,7 @@ public class XmlToRdfTest {
     public void detectLiteralPropertiesEdgeCaseWithoutParent2() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
 //        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").simpleTypePolicy(SimpleTypePolicy.compact).build());
@@ -530,7 +530,7 @@ public class XmlToRdfTest {
     public void detectLiteralPropertiesWithAttributesEdgeCaseWithoutParent() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
@@ -541,7 +541,7 @@ public class XmlToRdfTest {
     public void tesAautoDetectLiteralPropertiesSetToFalse() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
@@ -552,7 +552,7 @@ public class XmlToRdfTest {
     public void withEmptyElements() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
@@ -563,7 +563,7 @@ public class XmlToRdfTest {
     public void withSpecialAmp() throws Exception {
 
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
         testFast(Builder.getFastBuilder().overrideNamespace("http://test/").simpleTypePolicy(SimpleTypePolicy.compact).build());
@@ -576,7 +576,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
             .transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
@@ -597,7 +597,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
             .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
@@ -618,7 +618,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
             .transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
@@ -637,7 +637,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
             .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
@@ -661,7 +661,7 @@ public class XmlToRdfTest {
             .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
             .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
             .transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
@@ -684,7 +684,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .transformElementValue(null,  (val) -> val.toUpperCase())
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
             .transformElementValue(null,  (val) -> val.toUpperCase())
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
@@ -704,7 +704,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
             .transformElementValue(null,  (val) -> val.toUpperCase())
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace(HTTP_TEST)
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
             .transformElementValue(null,  (val) -> val.toUpperCase())
             .simpleTypePolicy(SimpleTypePolicy.compact).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
@@ -731,7 +731,7 @@ public class XmlToRdfTest {
                 (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
             .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
             .build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .transformAttributeValue(null, RDF_NODE_ID,
@@ -752,7 +752,7 @@ public class XmlToRdfTest {
         testAdvancedStream(Builder.getAdvancedBuilderStream()
             .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
             .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
             .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
         testAdvancedJena(Builder.getAdvancedBuilderJena()
@@ -768,7 +768,7 @@ public class XmlToRdfTest {
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
@@ -793,7 +793,7 @@ public class XmlToRdfTest {
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate(hasB).between(a, aB)
             .build());
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate(hasB).between(a, aB)
@@ -824,7 +824,7 @@ public class XmlToRdfTest {
             .build());
 
 
-//        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+//        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 //            .convertComplexElementsWithOnlyAttributesToPredicate(true)
 //            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
 //            .insertPredicate(hasB).between(a, aB)
@@ -868,7 +868,7 @@ public class XmlToRdfTest {
             .invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
             .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
@@ -892,7 +892,7 @@ public class XmlToRdfTest {
 
             .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .autoTypeLiterals(true)
 
             .build());
@@ -911,7 +911,7 @@ public class XmlToRdfTest {
             .overrideNamespace("http://example.org")
             .build());
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .overrideNamespace("http://example.org")
             .build());
 
@@ -927,7 +927,7 @@ public class XmlToRdfTest {
     @Test
     public void specifyDatatype() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setDatatype("http://a/num", XMLSchema.INTEGER)
@@ -953,7 +953,7 @@ public class XmlToRdfTest {
     @Test
     public void specifyDatatype2() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
             .convertComplexElementsWithOnlyAttributesToPredicate(false)
             .simpleTypePolicy(SimpleTypePolicy.expand)
@@ -985,7 +985,7 @@ public class XmlToRdfTest {
     @Test
     public void literalOnPropertyTests() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
@@ -1008,7 +1008,7 @@ public class XmlToRdfTest {
     @Test
     public void literalOnPropertyShallowTests() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .simpleTypePolicy(SimpleTypePolicy.expand)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
@@ -1034,7 +1034,7 @@ public class XmlToRdfTest {
     @Test
     public void literalOnPropertyTestWithAutoDetectLiteral() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .simpleTypePolicy(SimpleTypePolicy.compact)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
@@ -1057,7 +1057,7 @@ public class XmlToRdfTest {
     @Test
     public void literalOnPropertyNullPointer() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .simpleTypePolicy(SimpleTypePolicy.compact)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
@@ -1080,7 +1080,7 @@ public class XmlToRdfTest {
     @Test
     public void qnameInAttributeValue() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .simpleTypePolicy(SimpleTypePolicy.compact)
             .resolveAsQnameInAttributeValue(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
@@ -1104,7 +1104,7 @@ public class XmlToRdfTest {
     @Test
     public void xsiTypeSupport() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .simpleTypePolicy(SimpleTypePolicy.compact)
             .xsiTypeSupport(true)
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
@@ -1127,7 +1127,7 @@ public class XmlToRdfTest {
     @Test
     public void complexTransformStart() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
                 if (element.hasChild.size() == 0) {
                     element.setType("http://example.org/HELLO");
@@ -1160,7 +1160,7 @@ public class XmlToRdfTest {
     @Test
     public void complexTransformEnd() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
                 if (element.hasChild.size() > 0) {
                     element.setType("http://example.org/HELLO");
@@ -1194,7 +1194,7 @@ public class XmlToRdfTest {
     @Test
     public void setQueueSize() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
             .setBuffer(1)
             .build());
@@ -1209,7 +1209,7 @@ public class XmlToRdfTest {
     @Test
     public void skipElement() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .skipElement("http://example.org/B")
             .build());
 
@@ -1225,7 +1225,7 @@ public class XmlToRdfTest {
     @Test
     public void mapAttributeTextToResource() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", SimpleValueFactory.getInstance().createIRI("http://http://example.org/c"))
             .build());
 
@@ -1242,7 +1242,7 @@ public class XmlToRdfTest {
     @Test
     public void mixedContentSpecial() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .build());
 
 
@@ -1256,7 +1256,7 @@ public class XmlToRdfTest {
     @Test
     public void mixedContentSpecial2() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             //.forceMixedContent("http://example.org/test")
             .build());
 
@@ -1271,7 +1271,7 @@ public class XmlToRdfTest {
     @Test
     public void mixedContentSpecial3() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .forceMixedContent("http://example.org/JP.OFFINNHOLD")
             .build());
 
@@ -1288,7 +1288,7 @@ public class XmlToRdfTest {
     @Test
     public void forcedMixedContent() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .forceMixedContent("http://example.org/name")
             .forceMixedContent("http://example.org/name2")
             .renameElement("http://example.org/name3","http://example.org/name2")
@@ -1315,7 +1315,7 @@ public class XmlToRdfTest {
 
         String xmlNameSpace = "http://example.org/";
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .convertComplexElementsWithOnlyAttributesToPredicate(true)
             .setBaseNamespace(xmlNameSpace, Builder.AppliesTo.bothElementsAndAttributes)
             .forceMixedContent(xmlNameSpace+"b").build());
@@ -1327,7 +1327,7 @@ public class XmlToRdfTest {
     public void compositeId() throws Exception {
 
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .compositeId("http://example.org/B")
                 .fromElement("http://example.org/num")
                 .fromElement("http://example.org/name")
@@ -1344,7 +1344,7 @@ public class XmlToRdfTest {
     public void compositeIdWithDelayedOutput() throws Exception {
 
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .compositeId("http://example.org/B")
             .fromElement("http://example.org/num")
             .fromElement("http://example.org/name")
@@ -1384,7 +1384,7 @@ public class XmlToRdfTest {
     public void mapToUriWithFunction() throws Exception {
 
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 
             .mapTextInElementToUri("http://", "", RDF.ALT)
             .mapTextInElementToUri("http://example.org/b", string -> RDF.TYPE)
@@ -1398,7 +1398,7 @@ public class XmlToRdfTest {
     public void compositeIdWithDelayedOutputAndParentIdAndIndex() throws Exception {
 
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 
             .addIndex(true)
 
@@ -1447,7 +1447,7 @@ public class XmlToRdfTest {
 	public void compositeIdBasedOnParentsId() throws Exception {
 
 
-		testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 
 
 			.compositeId("http://example.org/B")
@@ -1465,7 +1465,7 @@ public class XmlToRdfTest {
     public void compositeIdBasedOnParentsIdWithRename() throws Exception {
 
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 
             .renameElement("http://example.org/id", "http://example.org/renamedId")
 
@@ -1484,7 +1484,7 @@ public class XmlToRdfTest {
     public void compositeIdBasedOnParentsIdCanNotResolveInTime() throws Exception {
 
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 
 
             .compositeId("http://example.org/B")
@@ -1511,7 +1511,7 @@ public class XmlToRdfTest {
         }
 
         try{
-            testAdvancedSesame(Builder.getAdvancedBuilderSesame().overrideNamespace("http://example/").build());
+            testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace("http://example/").build());
 
         }catch (SAXException e){
 
@@ -1532,7 +1532,7 @@ public class XmlToRdfTest {
     @Ignore
     public void autodetectMixedContentWhitespace() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .build());
 
     }
@@ -1540,7 +1540,7 @@ public class XmlToRdfTest {
     @Test
     public void mediumLargeFile() throws Exception {
 
-        testAdvancedSesame(Builder.getAdvancedBuilderSesame()
+        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
             .build());
 
         testAdvancedJena(Builder.getAdvancedBuilderJena()
@@ -1615,19 +1615,19 @@ public class XmlToRdfTest {
 
     }
 
-    private void testAdvancedSesame(XmlToRdfAdvancedSesame build) throws IOException, ParserConfigurationException, SAXException {
+    private void testAdvancedRDF4J(XmlToRdfAdvancedRDF4J build) throws IOException, ParserConfigurationException, SAXException {
         TestFiles testFiles = getTestFiles();
 
         Repository repository = build.convertToRepository(new FileInputStream(testFiles.xml));
 
         String rdf = repositoryToString(repository, RDFFormat.JSONLD);
-        Model actualModelSesame = ModelFactory.createDefaultModel().read(new ByteArrayInputStream(rdf.getBytes("UTF-8")), "", RDFLanguages.strLangJSONLD);
+        Model actualModelRDF4J = ModelFactory.createDefaultModel().read(new ByteArrayInputStream(rdf.getBytes("UTF-8")), "", RDFLanguages.strLangJSONLD);
 
         Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
 
-        if (!expectedModel.isIsomorphicWith(actualModelSesame)) {
+        if (!expectedModel.isIsomorphicWith(actualModelRDF4J)) {
             try {
-                assertEquals("Not isomorphic for object method with sesame repository.", modelToString(expectedModel), modelToString(actualModelSesame));
+                assertEquals("Not isomorphic for object method with RDF4J repository.", modelToString(expectedModel), modelToString(actualModelRDF4J));
 
             } catch (AssertionError error) {
                 collector.addError(error);

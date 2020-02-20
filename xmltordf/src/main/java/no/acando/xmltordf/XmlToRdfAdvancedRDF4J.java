@@ -16,7 +16,7 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.openrdf.repository.Repository;
+import org.eclipse.rdf4j.repository.Repository;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -26,11 +26,11 @@ import java.io.IOException;
 import java.io.InputStream;
 
 
-public class XmlToRdfAdvancedSesame {
+public class XmlToRdfAdvancedRDF4J {
 
-    Builder.AdvancedSesame builder;
+    Builder.AdvancedRDF4J builder;
 
-    public XmlToRdfAdvancedSesame(Builder.AdvancedSesame builder) {
+    public XmlToRdfAdvancedRDF4J(Builder.AdvancedRDF4J builder) {
         this.builder = builder;
     }
 
@@ -41,15 +41,15 @@ public class XmlToRdfAdvancedSesame {
 
         SAXParser saxParser = factory.newSAXParser();
 
-        AdvancedSaxHandlerSesame handler = new AdvancedSaxHandlerSesame(builder);
+        AdvancedSaxHandlerRDF4J handler = new AdvancedSaxHandlerRDF4J(builder);
 
         saxParser.parse(in, handler);
         return handler.repository;
     }
 
-    public PostProcessingSesame convertForPostProcessing(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
+    public PostProcessingRDF4J convertForPostProcessing(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
         Repository repository = convertToRepository(inputStream);
         inputStream.close();
-        return new PostProcessingSesame(repository);
+        return new PostProcessingRDF4J(repository);
     }
 }
