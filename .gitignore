@@ -5,10 +5,13 @@ testFiles/testSparqlTransform2/intermediary/
 actualObject.n3
 actualFast.n3
 actualObject.jsonld
-actualSesame.jsonld
+actualRDF4J.jsonld
 actualFast.ttl
 dependency-reduced-pom.xml
 *.iml
 javadoc.json
 javadoc.md
 brregOutput
+deploy.sh
+release.properties
+settings.xml

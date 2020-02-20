@@ -7,8 +7,8 @@ XmlToRdf offers incredibly fast conversion by using the built in Java SAX parser
 A vast selection of configurations (with sane defaults) makes it simple to adjust the conversion for your needs, including element renaming and advanced IRI generation with 
 composite identifiers. 
 
-Output from the conversion can be written directly to file as RDF Turtle or added to a Sesame Repository or Jena Dataset for further
-processing. With Sesame and Jena it is possible to do further, SPARQL based, transformations on the data and outputting to formats such as RDF Turtle and JSON-LD.
+Output from the conversion can be written directly to file as RDF Turtle or added to a RDF4J Repository or Jena Dataset for further
+processing. With RDF4J and Jena it is possible to do further, SPARQL based, transformations on the data and outputting to formats such as RDF Turtle and JSON-LD.
 
 ## Support forum
 
@@ -23,7 +23,7 @@ Post questions about how to use or configure XmlToRdf.
 |Fast convert | 100 MB | ~ 1.8 seconds |
 |Advanced convert | 100 MB |  ~ 3.1 seconds |
 |Jena convert | 100 MB |  ~ 11 seconds |
-|Sesame convert | 100 MB |  ~ 10 seconds |
+|RDF4J convert | 100 MB |  ~ 10 seconds |
 
 
 ### Memory usage
@@ -33,7 +33,7 @@ Post questions about how to use or configure XmlToRdf.
 |Fast convert | 100 MB | Min: 3 MB; Comfort: 20 MB |
 |Advanced convert | 100 MB |  Min: 15 MB; Comfort: 50MB |
 |Jena convert | 100 MB |  Min: 1600 MB; Comfort:  *Not measured yet* |
-|Sesame convert | 100 MB | Min: 1100 MB; Comfort: *Not measured yet* |
+|RDF4J convert | 100 MB | Min: 1100 MB; Comfort: *Not measured yet* |
 
 > <p>Min: Minimum required memory<br /> Comfort: Amount of memory required to get close to benchmark speeds</p>
 
@@ -52,9 +52,11 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>1.10.0</version>
+    <version>2.0.0</version>
 </dependency>
 ```
+
+Support for older versions of Jena and Sesame has been removed. The last version to support Sesame is: ```1.10.0```
 
 <!--
 It is also possible to install the jar file in a specified local repo, for instance inside a directory in your own project.
@@ -63,7 +65,7 @@ Two steps are required for this. First you need to install the jar file in your 
 ```
  mvn \
     install:install-file \
-    -Dfile=xmltordf/target/xmltordf-1.10.0.jar \
+    -Dfile=xmltordf/target/xmltordf-2.0.0.jar \
     -DpomFile=xmltordf/pom.xml \
     -DlocalRepositoryPath=/INSTALL_DIRECTORY
 
@@ -137,7 +139,7 @@ You should get the equivalent (though not as pretty) output as follows:
 
 ```
 
-If you want to keep working with the RDF data you can choose between Jena or Sesame.
+If you want to keep working with the RDF data you can choose between Jena or RDF4J.
 Both of these methods are somewhat slower than using direct to stream, however they are faster
  than first outputting to stream and then parsing back in again.
 
@@ -148,11 +150,11 @@ BufferedInputStream in = new BufferedInputStream(new FileInputStream("data.xml")
 Dataset dataset = Builder.getAdvancedBuilderJena().build().convertToDataset(in);
  ```
 
- And for Sesame you can do like this:
+ And for RDF4J you can do like this:
 
  ```java
 BufferedInputStream in = new BufferedInputStream(new FileInputStream("data.xml"));
-Repository repository = Builder.getAdvancedBuilderSesame().build().convertToRepository(in);
+Repository repository = Builder.getAdvancedBuilderRDF4J().build().convertToRepository(in);
  ```
  
 ## Mixed content
@@ -906,12 +908,6 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
-
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
@@ -919,10 +915,20 @@ _:b1    a                  ex:b ;
                      ] ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasChild         _:b0 , _:b1 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 " " _:b0 "!" ) ;
+                       xmlToRdf:hasMixedContent  ( _:b1
+                                                   " "
+                                                   _:b0
+                                                   "!"
+                                                 ) ;
                        xmlToRdf:hasValue         " !"
                      ]
 ] .
+
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
+_:b1    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
 
 ```
 
@@ -941,18 +947,21 @@ Builder.getAdvancedBuilderStream()
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
 _:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "Hello" .
+
+_:b1    a                  ex:b ;
         xmlToRdf:hasValue  "World" .
 
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
-                       xmlToRdf:hasChild         _:b1 , _:b0 ;
-                       xmlToRdf:hasMixedContent  ( _:b1 _:b0 " !" )
+                       xmlToRdf:hasChild         _:b0 , _:b1 ;
+                       xmlToRdf:hasMixedContent  ( _:b0
+                                                   _:b1
+                                                   " !"
+                                                 )
                      ] ;
   ex:paragraph       "Hello, World!"
 ] .
-
-_:b1    a                  ex:b ;
-        xmlToRdf:hasValue  "Hello" .
 
 ```
 
@@ -1206,7 +1215,7 @@ Builder.getAdvancedBuilderStream()
 ## mapTextInElementToUri(String elementName, no.acando.xmltordf.StringTransformToT mapToT)
 
 Map the text inside an element to an IRI (URI) by providing a function that takes a String as input and returns a String (for getAdvancedBuilderStream),
- a Node (for getAdvancedBuilderJena) or a Resource (for getAdvancedBuilderSesame).
+ a Node (for getAdvancedBuilderJena) or a Resource (for getAdvancedBuilderRDF4J).
 
 **XML example**
 ```xml
@@ -1534,12 +1543,12 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  <file:///Users/havardottestad/Documents/Java/xmlToRdf2/people> ;
+[ a                  <file:///Users/havardottestad/Documents/Programming/XmlToRdf2/people> ;
   xmlToRdf:hasChild  [ a                       <http://other.org/name> ;
                        xmlToRdf:hasValue       "Unknown" ;
                        <http://other.org/age>  "2"
                      ] ;
-  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Java/xmlToRdf2/name> ;
+  xmlToRdf:hasChild  [ a                       <file:///Users/havardottestad/Documents/Programming/XmlToRdf2/name> ;
                        xmlToRdf:hasValue       "John Doe" ;
                        <http://other.org/age>  "1"
                      ]
@@ -1553,7 +1562,7 @@ Builder.getAdvancedBuilderStream()
 ## setDatatype(String element, Object datatype)
 
 Specify the datatype on a Simple Type element. Use a string with AdvancedBuilderStream as the datatype,
- and the respective Sesame or Jena types with AdvancedBuilderSesame and AdvancedBuilderJena.
+ and the respective RDF4J or Jena types with AdvancedBuilderRDF4J and AdvancedBuilderJena.
 
 **XML example**
 ```xml
@@ -1863,14 +1872,14 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
+
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
         ex:title  "Other record" .
-
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
 
 <http://acme.com/records/0000001>
         a         ex:record ;
@@ -2026,7 +2035,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-<http://data.example.org/b093bc97-a69a-48c3-8b89-2b28cfb50b68>
+<http://data.example.org/d5877ce7-35b4-478d-96dc-831c6720cb17>
         a        ex:people ;
         ex:name  "John Doe" .
 

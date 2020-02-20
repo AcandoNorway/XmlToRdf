@@ -18,7 +18,7 @@ package no.acando.xmltordf;
 
 import org.apache.jena.datatypes.RDFDatatype;
 import org.apache.jena.graph.Node;
-import org.openrdf.model.IRI;
+import org.eclipse.rdf4j.model.IRI;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,8 +91,8 @@ public class Builder {
         return new AdvancedJena();
     }
 
-    static public AdvancedSesame getAdvancedBuilderSesame() {
-        return new AdvancedSesame();
+    static public AdvancedRDF4J getAdvancedBuilderRDF4J() {
+        return new AdvancedRDF4J();
     }
 
     static public AdvancedStream getAdvancedBuilderStream() {
@@ -530,7 +530,7 @@ public class Builder {
          * @param mapToT          Function for mapping
          * @return returns this builder
          * @description Map the text inside an element to an IRI (URI) by providing a function that takes a String as input and returns a String (for getAdvancedBuilderStream),
-         * a Node (for getAdvancedBuilderJena) or a Resource (for getAdvancedBuilderSesame).
+         * a Node (for getAdvancedBuilderJena) or a Resource (for getAdvancedBuilderRDF4J).
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * <maritalStatus>married</maritalStatus>
@@ -1049,10 +1049,10 @@ public class Builder {
 
         /**
          * @param element  Full IRI of element
-         * @param datatype Datatype to use. A string when using getAdvancedBuilderStream(), RDFDatatype for Jena and IRI for Sesame.
+         * @param datatype Datatype to use. A string when using getAdvancedBuilderStream(), RDFDatatype for Jena and IRI for RDF4J.
          * @return returns this builder
          * @description Specify the datatype on a Simple Type element. Use a string with AdvancedBuilderStream as the datatype,
-         * and the respective Sesame or Jena types with AdvancedBuilderSesame and AdvancedBuilderJena.
+         * and the respective RDF4J or Jena types with AdvancedBuilderRDF4J and AdvancedBuilderJena.
          * @xml <people xmlns="http://example.org/">
          * <name>John Doe</name>
          * <age>1</age>
@@ -1252,7 +1252,7 @@ public class Builder {
         /**
          * @param size size of buffer *default: 1000*
          * @return returns this builder
-         * @description Set the size of the buffer used to write RDF statements into a Jena Dataset or Sesame Repository.
+         * @description Set the size of the buffer used to write RDF statements into a Jena Dataset or RDF4J Repository.
          * Adjusting the buffer size may affect performance.
          */
         public T setBuffer(int size) {
@@ -1268,9 +1268,9 @@ public class Builder {
         }
     }
 
-    static public class AdvancedSesame extends AdvancedWithBuffer<IRI, IRI, AdvancedSesame> {
-        public XmlToRdfAdvancedSesame build() {
-            return new XmlToRdfAdvancedSesame(this);
+    static public class AdvancedRDF4J extends AdvancedWithBuffer<IRI, IRI, AdvancedRDF4J> {
+        public XmlToRdfAdvancedRDF4J build() {
+            return new XmlToRdfAdvancedRDF4J(this);
         }
     }
 

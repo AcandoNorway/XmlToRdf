@@ -19,9 +19,12 @@ import no.acando.xmltordf.ComplexClassTransform;
 import org.apache.commons.io.IOUtils;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.NodeFactory;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.Statement;
+import org.apache.jena.rdf.model.StmtIterator;
 import org.apache.jena.vocabulary.RDFS;
-import org.openrdf.model.impl.SimpleValueFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 

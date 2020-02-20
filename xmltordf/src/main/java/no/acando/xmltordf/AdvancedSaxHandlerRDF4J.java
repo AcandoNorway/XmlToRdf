@@ -16,15 +16,15 @@ limitations under the License.
 
 package no.acando.xmltordf;
 
-import org.openrdf.IsolationLevels;
-import org.openrdf.model.*;
-import org.openrdf.model.impl.SimpleValueFactory;
-import org.openrdf.model.vocabulary.RDF;
-import org.openrdf.model.vocabulary.XMLSchema;
-import org.openrdf.repository.Repository;
-import org.openrdf.repository.sail.SailRepository;
-import org.openrdf.sail.NotifyingSailConnection;
-import org.openrdf.sail.memory.MemoryStore;
+import org.eclipse.rdf4j.IsolationLevels;
+import org.eclipse.rdf4j.model.*;
+import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
+import org.eclipse.rdf4j.model.vocabulary.RDF;
+import org.eclipse.rdf4j.model.vocabulary.XMLSchema;
+import org.eclipse.rdf4j.repository.Repository;
+import org.eclipse.rdf4j.repository.sail.SailRepository;
+import org.eclipse.rdf4j.sail.NotifyingSailConnection;
+import org.eclipse.rdf4j.sail.memory.MemoryStore;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
@@ -34,10 +34,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
-import java.util.stream.Collectors;
 
 
-final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
+final class AdvancedSaxHandlerRDF4J extends AdvancedSaxHandler<IRI, IRI> {
 
     Repository repository;
     private BlockingQueue<Statement> queue;
@@ -52,7 +51,7 @@ final class AdvancedSaxHandlerSesame extends AdvancedSaxHandler<IRI, IRI> {
     );
 
 
-    AdvancedSaxHandlerSesame(Builder.AdvancedSesame builder) {
+    AdvancedSaxHandlerRDF4J(Builder.AdvancedRDF4J builder) {
         super(builder);
 
         queue = new CustomBlockingQueue<>(builder.buffer);

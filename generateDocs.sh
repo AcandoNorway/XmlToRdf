@@ -5,6 +5,7 @@ mkdir xmltordf/documentation
 
 mvn clean
 mvn install -DskipTests=true &&
+mvn install -DskipTests=true &&
 mvn site -Dmpir.skip=true -DskipTests=true
 javadoc -doclet no.acando.xmltordf.doclet.GenerateDocs -docletpath doclet/target/xmltordf_doclet-1.0.jar  -sourcepath xmltordf/src/main/java -subpackages no.acando.xmltordf
 mv javadoc.json xmltordf/documentation/javadoc.json
