@@ -1,6 +1,8 @@
 <A>
     <B>
         <num>1</num>
-        <name>hello <span>world</span> this is <em>FUN</em></name>
+        <name>hello <span>world</span> this is
+            <em>FUN</em>
+        </name>
     </B>
 </A>

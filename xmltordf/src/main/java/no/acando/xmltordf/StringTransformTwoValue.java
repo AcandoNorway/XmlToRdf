@@ -17,5 +17,5 @@ limitations under the License.
 package no.acando.xmltordf;
 
 public interface StringTransformTwoValue {
-    String transform(String namespace, String name);
+	String transform(String namespace, String name);
 }

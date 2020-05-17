@@ -21,12 +21,12 @@ import java.util.List;
 
 class Method {
 
-    String name;
-    String description;
+	String name;
+	String description;
 
-    List<Example> examples = new ArrayList<>();
+	List<Example> examples = new ArrayList<>();
 
-    void addExample(Example currentExample) {
-        examples.add(currentExample);
-    }
+	void addExample(Example currentExample) {
+		examples.add(currentExample);
+	}
 }

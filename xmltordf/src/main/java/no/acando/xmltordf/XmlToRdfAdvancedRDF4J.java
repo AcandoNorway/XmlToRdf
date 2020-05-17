@@ -28,28 +28,28 @@ import java.io.InputStream;
 
 public class XmlToRdfAdvancedRDF4J {
 
-    Builder.AdvancedRDF4J builder;
+	Builder.AdvancedRDF4J builder;
 
-    public XmlToRdfAdvancedRDF4J(Builder.AdvancedRDF4J builder) {
-        this.builder = builder;
-    }
+	public XmlToRdfAdvancedRDF4J(Builder.AdvancedRDF4J builder) {
+		this.builder = builder;
+	}
 
-    public Repository convertToRepository(InputStream in) throws ParserConfigurationException, SAXException, IOException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-        Security.secureSaxParser(factory);
+	public Repository convertToRepository(InputStream in) throws ParserConfigurationException, SAXException, IOException {
+		SAXParserFactory factory = SAXParserFactory.newInstance();
+		factory.setNamespaceAware(true);
+		Security.secureSaxParser(factory);
 
-        SAXParser saxParser = factory.newSAXParser();
+		SAXParser saxParser = factory.newSAXParser();
 
-        AdvancedSaxHandlerRDF4J handler = new AdvancedSaxHandlerRDF4J(builder);
+		AdvancedSaxHandlerRDF4J handler = new AdvancedSaxHandlerRDF4J(builder);
 
-        saxParser.parse(in, handler);
-        return handler.repository;
-    }
+		saxParser.parse(in, handler);
+		return handler.repository;
+	}
 
-    public PostProcessingRDF4J convertForPostProcessing(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
-        Repository repository = convertToRepository(inputStream);
-        inputStream.close();
-        return new PostProcessingRDF4J(repository);
-    }
+	public PostProcessingRDF4J convertForPostProcessing(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
+		Repository repository = convertToRepository(inputStream);
+		inputStream.close();
+		return new PostProcessingRDF4J(repository);
+	}
 }

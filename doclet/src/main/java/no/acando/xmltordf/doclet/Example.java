@@ -20,33 +20,33 @@ import java.util.LinkedList;
 
 
 class Example {
-    String xml;
+	String xml;
 
-    LinkedList<InnerExample> innerExamples = new LinkedList<>();
+	LinkedList<InnerExample> innerExamples = new LinkedList<>();
 
-    void addExampleCommand(String s) {
-        InnerExample last = innerExamples.getLast();
+	void addExampleCommand(String s) {
+		InnerExample last = innerExamples.getLast();
 
-        if (last == null) {
-            throw new RuntimeException("addExampleCommand could not add '" + s + "' to an empty list.");
-        }
-        if (last.exampleCommand != null) {
-            throw new RuntimeException("addExampleCommand tried to overwrite'" + last.exampleCommand + "' with '" + s + "'");
+		if (last == null) {
+			throw new RuntimeException("addExampleCommand could not add '" + s + "' to an empty list.");
+		}
+		if (last.exampleCommand != null) {
+			throw new RuntimeException("addExampleCommand tried to overwrite'" + last.exampleCommand + "' with '" + s + "'");
 
-        }
+		}
 
-        last.exampleCommand = s;
-    }
+		last.exampleCommand = s;
+	}
 
-    void addExampleLabel(String s) {
-        InnerExample innerExample = new InnerExample();
-        innerExample.exampleLabel = s;
-        innerExamples.addLast(innerExample);
-    }
+	void addExampleLabel(String s) {
+		InnerExample innerExample = new InnerExample();
+		innerExample.exampleLabel = s;
+		innerExamples.addLast(innerExample);
+	}
 
-    class InnerExample {
-        String exampleLabel;
-        String exampleCommand;
+	class InnerExample {
+		String exampleLabel;
+		String exampleCommand;
 
-    }
+	}
 }

@@ -36,7 +36,15 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -45,184 +53,214 @@ import java.util.List;
 
 public class JsonJavadocExampleRunner {
 
-    private static String classString = "package mypackage;\n" +
-        "import no.acando.xmltordf.doclet.ExampleInterface;\n" +
-        "import org.xml.sax.SAXException;\n" +
-        "import java.io.*;\n" +
-        "import java.nio.charset.Charset;\n"+
-        "import no.acando.xmltordf.Builder;\n" +
-        "import javax.xml.parsers.ParserConfigurationException;\n" +
-        "import java.io.ByteArrayInputStream;\n" +
-        "import java.io.IOException;\n" +
-        "import java.io.StringWriter;\n" +
-        "import no.acando.xmltordf.SimpleTypePolicy;\n" +
-        "\n" +
-        "\n" +
-        "public class TempCOUNTER implements ExampleInterface{\n" +
-        "\t\n" +
-        "\tpublic String toString(String xml) {\n" +
-        " ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();\n" +
-        "\t\t\ttry {\n" +
-        "\t\t\t\tBUILDER.convertToStream(new ByteArrayInputStream(xml.getBytes(\"UTF-8\")), byteArrayOutputStream);\n" +
-        "\t\t\t\tString s = new String(byteArrayOutputStream.toByteArray(), Charset.forName(\"UTF-8\"));\n" +
-        "\t\t\t\treturn s;\n" +
-        "\t\t\t} catch (Exception e) {\n" +
-        "\t\t\t\te.printStackTrace();\n" +
-        "\t\t\t} return \"\";" +
-        "\t}\n" +
-        "}\n";
+	private static String classString = "package mypackage;\n" +
+		"import no.acando.xmltordf.doclet.ExampleInterface;\n" +
+		"import org.xml.sax.SAXException;\n" +
+		"import java.io.*;\n" +
+		"import java.nio.charset.Charset;\n" +
+		"import no.acando.xmltordf.Builder;\n" +
+		"import javax.xml.parsers.ParserConfigurationException;\n" +
+		"import java.io.ByteArrayInputStream;\n" +
+		"import java.io.IOException;\n" +
+		"import java.io.StringWriter;\n" +
+		"import no.acando.xmltordf.SimpleTypePolicy;\n" +
+		"\n" +
+		"\n" +
+		"public class TempCOUNTER implements ExampleInterface{\n" +
+		"\t\n" +
+		"\tpublic String toString(String xml) {\n" +
+		" ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();\n" +
+		"\t\t\ttry {\n" +
+		"\t\t\t\tBUILDER.convertToStream(new ByteArrayInputStream(xml.getBytes(\"UTF-8\")), byteArrayOutputStream);\n" +
+		"\t\t\t\tString s = new String(byteArrayOutputStream.toByteArray(), Charset.forName(\"UTF-8\"));\n" +
+		"\t\t\t\treturn s;\n" +
+		"\t\t\t} catch (Exception e) {\n" +
+		"\t\t\t\te.printStackTrace();\n" +
+		"\t\t\t} return \"\";" +
+		"\t}\n" +
+		"}\n";
 
-    public static void main(String[] args) throws ClassNotFoundException, IOException, IllegalAccessException, InstantiationException, ParserConfigurationException, SAXException {
+	public static void main(String[] args) throws ClassNotFoundException, IOException, IllegalAccessException, InstantiationException, ParserConfigurationException, SAXException {
 
-        String javadoc = "xmltordf/documentation/javadoc";
-        String json = FileUtils.readFileToString(new File(javadoc + ".json"));
-        Type listType = new TypeToken<ArrayList<Method>>() {
-        }.getType();
-        List<Method> list = new Gson().fromJson(json, listType);
+		String javadoc = "xmltordf/documentation/javadoc";
+		String json = FileUtils.readFileToString(new File(javadoc + ".json"));
+		Type listType = new TypeToken<ArrayList<Method>>() {
+		}.getType();
+		List<Method> list = new Gson().fromJson(json, listType);
 
-        int counter = 0;
+		int counter = 0;
 
-        String javadocMarkdown = javadoc + ".md";
-        PrintWriter printWriter = new PrintWriter(new File(javadocMarkdown));
+		String javadocMarkdown = javadoc + ".md";
+		PrintWriter printWriter = new PrintWriter(new File(javadocMarkdown));
 
-        list.sort(Comparator.comparing(m -> m.name));
+		list.sort(Comparator.comparing(m -> m.name));
 
-        for (Method method : list) {
-            String anchor = method.name.toLowerCase()
-                    .replace(" ", "-")
-                    .replace("(", "")
-                    .replace(")", "")
-                    .replace(",", "");
-            printWriter.println(" - ["+method.name+"](#"+ anchor +")");
-        }
-
-
-        for (Method method : list) {
-
-            printWriter.println("## " + method.name);
-
-            printWriter.println();
-            printWriter.println(method.description);
-            printWriter.println();
+		for (Method method : list) {
+			String anchor = method.name.toLowerCase()
+				.replace(" ", "-")
+				.replace("(", "")
+				.replace(")", "")
+				.replace(",", "");
+			printWriter.println(" - [" + method.name + "](#" + anchor + ")");
+		}
 
 
-            for (Example example : method.examples) {
+		for (Method method : list) {
+
+			printWriter.println("## " + method.name);
+
+			printWriter.println();
+			printWriter.println(method.description);
+			printWriter.println();
 
 
-                printWriter.println("**XML example**\n```xml");
-                printWriter.println(formatXml(example.xml));
-                printWriter.println("```\n");
-
-                for (Example.InnerExample innerExample : example.innerExamples) {
-                    counter++;
-                    String builder = classString
-                        .replace("BUILDER", innerExample.exampleCommand)
-                        .replace("COUNTER", "" + counter);
+			for (Example example : method.examples) {
 
 
-                    printWriter.println("### " + innerExample.exampleLabel);
-                    printWriter.println("**Java code**\n```java");
-                    printWriter.println(formatJava(innerExample.exampleCommand));
-                    printWriter.println("```\n");
+				printWriter.println("**XML example**\n```xml");
+				printWriter.println(formatXml(example.xml));
+				printWriter.println("```\n");
+
+				for (Example.InnerExample innerExample : example.innerExamples) {
+					counter++;
+					String builder = classString
+						.replace("BUILDER", innerExample.exampleCommand)
+						.replace("COUNTER", "" + counter);
 
 
-                    try {
-                        Class aClass = CompilerUtils.CACHED_COMPILER.loadFromJava(Builder.getAdvancedBuilderStream().getClass().getClassLoader(), "mypackage.Temp" + counter, builder);
-
-                        String s = ((ExampleInterface) aClass.newInstance()).toString(example.xml);
-
-
-                        Model defaultModel = ModelFactory.createDefaultModel();
-
-                        defaultModel.read(new ByteArrayInputStream(s.getBytes("UTF-8")), "", "TTL");
-
-                        defaultModel.setNsPrefix("ex", "http://example.org/");
-                        defaultModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
-                        defaultModel.setNsPrefix("xsd", "http://www.w3.org/2001/XMLSchema#");
-                        StringWriter stringWriter = new StringWriter();
-                        defaultModel.write(stringWriter, "TTL");
-
-                        printWriter.println("**RDF output**\n```turtle");
-                        printWriter.println(stringWriter.toString());
-                        printWriter.println("```\n");
-
-                    } catch (Exception e) {
-                        System.out.println(builder);
-                        throw e;
-                    }
-
-                    printWriter.println("---");
-
-                }
-                printWriter.println("<p>&nbsp;</p>\n");
-
-            }
+					printWriter.println("### " + innerExample.exampleLabel);
+					printWriter.println("**Java code**\n```java");
+					printWriter.println(formatJava(innerExample.exampleCommand));
+					printWriter.println("```\n");
 
 
-        }
-        printWriter.close();
+					try {
+						Class aClass = CompilerUtils.CACHED_COMPILER.loadFromJava(Builder.getAdvancedBuilderStream().getClass().getClassLoader(), "mypackage.Temp" + counter, builder);
+
+						String s = ((ExampleInterface) aClass.newInstance()).toString(example.xml);
 
 
-        org.jsoup.nodes.Document doc = Jsoup.parse(new File("xmltordf/pom.xml"), "utf-8");
+						Model defaultModel = ModelFactory.createDefaultModel();
 
-        String version = doc.select("project > version").text();
+						defaultModel.read(new ByteArrayInputStream(s.getBytes("UTF-8")), "", "TTL");
 
+						defaultModel.setNsPrefix("ex", "http://example.org/");
+						defaultModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
+						defaultModel.setNsPrefix("xsd", "http://www.w3.org/2001/XMLSchema#");
+						StringWriter stringWriter = new StringWriter();
+						defaultModel.write(stringWriter, "TTL");
 
-        String javadocMarkdownString = FileUtils.readFileToString(new File(javadocMarkdown));
+						printWriter.println("**RDF output**\n```turtle");
+						printWriter.println(stringWriter.toString());
+						printWriter.println("```\n");
 
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mustache = mf.compile(new InputStreamReader(new FileInputStream("templates/README_TEMPLATE.md")), "");
-        StringWriter stringWriter = new StringWriter();
-        mustache.execute(stringWriter, new Object() {
-            String javadocs = javadocMarkdownString;
-            String pomVersion = version;
-        }).flush();
-        FileUtils.write(new File("README.md"), stringWriter.toString());
+					} catch (Exception e) {
+						System.out.println(builder);
+						throw e;
+					}
 
+					printWriter.println("---");
 
-    }
+				}
+				printWriter.println("<p>&nbsp;</p>\n");
 
-    private static String formatJava(String exampleCommand) {
-        String[] split = exampleCommand.split("\n");
-        split[0] = split[0].trim();
-        for (int i = 1; i < split.length; i++) {
-            split[i] = "  " + split[i];
-        }
-        return String.join("\n", split);
-
-    }
+			}
 
 
-    public static String formatXml(String unformattedXml) {
-        try {
-            final Document document = parseXmlFile(unformattedXml);
+		}
+		printWriter.close();
 
-            OutputFormat format = new OutputFormat(document);
-            format.setLineWidth(65);
-            format.setIndenting(true);
-            format.setIndent(2);
-            Writer out = new StringWriter();
-            XMLSerializer serializer = new XMLSerializer(out, format);
-            serializer.serialize(document);
 
-            return out.toString().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "").trim();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		org.jsoup.nodes.Document doc = Jsoup.parse(new File("xmltordf/pom.xml"), "utf-8");
 
-    private static Document parseXmlFile(String in) {
-        try {
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder db = dbf.newDocumentBuilder();
-            InputSource is = new InputSource(new StringReader(in));
-            return db.parse(is);
-        } catch (ParserConfigurationException e) {
-            throw new RuntimeException(e);
-        } catch (SAXException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
+		String version = doc.select("project > version").text();
+
+
+		String javadocMarkdownString = FileUtils.readFileToString(new File(javadocMarkdown));
+
+		MustacheFactory mf = new DefaultMustacheFactory();
+		Mustache mustache = mf.compile(new InputStreamReader(new FileInputStream("templates/README_TEMPLATE.md")), "");
+		StringWriter stringWriter = new StringWriter();
+		mustache.execute(stringWriter, new Object() {
+			String javadocs = javadocMarkdownString;
+			String pomVersion = version;
+		}).flush();
+		FileUtils.write(new File("README.md"), stringWriter.toString());
+
+
+	}
+
+	private static String formatJava(String exampleCommand) {
+		{
+			String[] split = exampleCommand.split("\n");
+			split[0] = split[0].trim();
+			for (int i = 1; i < split.length; i++) {
+				split[i] = "  " + split[i];
+			}
+			exampleCommand = String.join("\n", split);
+		}
+
+		{
+			String[] split = exampleCommand.split("\n");
+			int depth = 0;
+			for (int i = 1; i < split.length; i++) {
+				if (split[i].trim().startsWith("}")) {
+					depth--;
+				}
+				split[i] = getIndent(depth) + split[i];
+				if (split[i].trim().endsWith("{")) {
+					depth++;
+				}
+
+			}
+			exampleCommand = String.join("\n", split);
+
+		}
+
+		return exampleCommand;
+
+	}
+
+	private static String getIndent(int depth) {
+		StringBuilder sb = new StringBuilder();
+		while (depth > 0) {
+			depth--;
+			sb.append("  ");
+		}
+		return sb.toString();
+	}
+
+
+	public static String formatXml(String unformattedXml) {
+		try {
+			final Document document = parseXmlFile(unformattedXml);
+
+			OutputFormat format = new OutputFormat(document);
+			format.setLineWidth(65);
+			format.setIndenting(true);
+			format.setIndent(2);
+			Writer out = new StringWriter();
+			XMLSerializer serializer = new XMLSerializer(out, format);
+			serializer.serialize(document);
+
+			return out.toString().replace("<?xml version=\"1.0\" encoding=\"UTF-8\"?>", "").trim();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	private static Document parseXmlFile(String in) {
+		try {
+			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+			DocumentBuilder db = dbf.newDocumentBuilder();
+			InputSource is = new InputSource(new StringReader(in));
+			return db.parse(is);
+		} catch (ParserConfigurationException e) {
+			throw new RuntimeException(e);
+		} catch (SAXException e) {
+			throw new RuntimeException(e);
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
 }

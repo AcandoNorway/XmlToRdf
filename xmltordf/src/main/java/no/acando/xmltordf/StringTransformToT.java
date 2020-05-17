@@ -17,5 +17,5 @@ limitations under the License.
 package no.acando.xmltordf;
 
 public interface StringTransformToT<T> {
-    T transform(String input);
+	T transform(String input);
 }

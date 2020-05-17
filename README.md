@@ -52,36 +52,11 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 <dependency>
     <groupId>no.acando</groupId>
     <artifactId>xmltordf</artifactId>
-    <version>2.0.0</version>
+    <version>2.1.0</version>
 </dependency>
 ```
 
-Support for older versions of Jena and Sesame has been removed. The last version to support Sesame is: ```1.10.0```
-
-<!--
-It is also possible to install the jar file in a specified local repo, for instance inside a directory in your own project.
-Two steps are required for this. First you need to install the jar file in your required directory:
-
-```
- mvn \
-    install:install-file \
-    -Dfile=xmltordf/target/xmltordf-2.0.0.jar \
-    -DpomFile=xmltordf/pom.xml \
-    -DlocalRepositoryPath=/INSTALL_DIRECTORY
-
-```
-
-And then you need to use that directory as a local repository in your project:
-
-```
-<repositories>
-    <repository>
-        <id>local-repo</id>
-        <url>file://${basedir}/libs</url>
-    </repository>
-</repositories>
-```
--->
+Looking for Sesame support? The last version to support Sesame is: ```1.10.0```
 
 # Example
 
@@ -240,9 +215,9 @@ Do any transformation on an element will full access to information about its at
 Builder.getAdvancedBuilderStream()
    .addComplexElementTransformAtEndOfElement("http://example.org/name", element -> element.setType(element.getType().toUpperCase()))
    .addComplexElementTransformAtEndOfElement("http://example.org/person", element -> {
-   if(element.hasChild.size() > 1){
-   element.setType("http://example.org/people");
-   }
+     if(element.hasChild.size() > 1){
+       element.setType("http://example.org/people");
+     }
    })
    .build()
 ```
@@ -908,6 +883,9 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
+_:b0    a                  ex:b ;
+        xmlToRdf:hasValue  "World" .
+
 [ a                  ex:document ;
   xmlToRdf:hasChild  [ a                         ex:paragraph ;
                        xmlToRdf:hasMixedContent  ( "Hello, World!" ) ;
@@ -923,9 +901,6 @@ Builder.getAdvancedBuilderStream()
                        xmlToRdf:hasValue         " !"
                      ]
 ] .
-
-_:b0    a                  ex:b ;
-        xmlToRdf:hasValue  "World" .
 
 _:b1    a                  ex:b ;
         xmlToRdf:hasValue  "Hello" .
@@ -1872,14 +1847,14 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-[ a                  ex:archive ;
-  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
-] .
-
 <http://acme.com/records/0000002>
         a         ex:record ;
         ex:nr     "0000002" ;
         ex:title  "Other record" .
+
+[ a                  ex:archive ;
+  xmlToRdf:hasChild  <http://acme.com/records/0000002> , <http://acme.com/records/0000001>
+] .
 
 <http://acme.com/records/0000001>
         a         ex:record ;
@@ -2035,7 +2010,7 @@ Builder.getAdvancedBuilderStream()
 @prefix ex:    <http://example.org/> .
 @prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
 
-<http://data.example.org/d5877ce7-35b4-478d-96dc-831c6720cb17>
+<http://data.example.org/7a32b784-5da8-4128-9fe7-655590447e07>
         a        ex:people ;
         ex:name  "John Doe" .
 

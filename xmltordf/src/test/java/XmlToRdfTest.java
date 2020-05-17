@@ -14,17 +14,20 @@ See the License for the specific language governing permissions and
 limitations under the License.
  */
 
-import no.acando.xmltordf.*;
+import no.acando.xmltordf.Builder;
+import no.acando.xmltordf.Element;
+import no.acando.xmltordf.SimpleTypePolicy;
+import no.acando.xmltordf.XmlToRdfAdvancedJena;
+import no.acando.xmltordf.XmlToRdfAdvancedRDF4J;
+import no.acando.xmltordf.XmlToRdfAdvancedStream;
+import no.acando.xmltordf.XmlToRdfFast;
+import no.acando.xmltordf.XmlToRdfVocabulary;
 import org.apache.jena.datatypes.xsd.XSDDatatype;
 import org.apache.jena.graph.NodeFactory;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.ModelFactory;
 import org.apache.jena.riot.RDFLanguages;
 import org.apache.jena.util.FileManager;
-import org.junit.Ignore;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ErrorCollector;
 import org.eclipse.rdf4j.model.Namespace;
 import org.eclipse.rdf4j.model.Statement;
 import org.eclipse.rdf4j.model.impl.SimpleValueFactory;
@@ -36,10 +39,19 @@ import org.eclipse.rdf4j.repository.RepositoryResult;
 import org.eclipse.rdf4j.rio.RDFFormat;
 import org.eclipse.rdf4j.rio.RDFWriter;
 import org.eclipse.rdf4j.rio.Rio;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ErrorCollector;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.UUID;
 
 import static junit.framework.TestCase.assertEquals;
@@ -47,781 +59,781 @@ import static junit.framework.TestCase.assertTrue;
 
 public class XmlToRdfTest {
 
-    static final String HELLO = "hello";
-    static final String HTTP_A = "http://a/";
-    static final String HTTP_TEST = "http://test/";
-    static final String HTTP_A_NAME = "http://a/name";
-    static final String ID = "id";
-    static final String LL = "ll";
-    static final String QQ = "qq";
-    static final String ELEMENT_NAME = "name";
-    static final String RDF_NODE_ID = org.apache.jena.vocabulary.RDF.uri + "nodeID";
+	static final String HELLO = "hello";
+	static final String HTTP_A = "http://a/";
+	static final String HTTP_TEST = "http://test/";
+	static final String HTTP_A_NAME = "http://a/name";
+	static final String ID = "id";
+	static final String LL = "ll";
+	static final String QQ = "qq";
+	static final String ELEMENT_NAME = "name";
+	static final String RDF_NODE_ID = org.apache.jena.vocabulary.RDF.uri + "nodeID";
 
-    @Rule
-    public ErrorCollector collector = new ErrorCollector();
+	@Rule
+	public ErrorCollector collector = new ErrorCollector();
 
-    @Test
-    public void simple() throws Exception {
+	@Test
+	public void simple() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
 
-    }
+	}
 
-    @Test
-    public void mixedContent() throws Exception {
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+	@Test
+	public void mixedContent() throws Exception {
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
 
-    @Test
-    public void renameOnPath() throws Exception {
-        testAdvancedJena(
-            Builder.getAdvancedBuilderJena()
-                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
-                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
-                .build());
+	@Test
+	public void renameOnPath() throws Exception {
+		testAdvancedJena(
+			Builder.getAdvancedBuilderJena()
+				.renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
+				.renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
+				.build());
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
-            .build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
+			.build());
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
-            .build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/RENAMED1")
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/c", "http://example.org/b"), "http://example.org/RENAMED2")
+			.build());
 
-    }
+	}
 
-    @Test
-    public void renameOnPathLongest() throws Exception {
-        testAdvancedJena(
-            Builder.getAdvancedBuilderJena()
-                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
-                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
-                .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
-                .build());
+	@Test
+	public void renameOnPathLongest() throws Exception {
+		testAdvancedJena(
+			Builder.getAdvancedBuilderJena()
+				.renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
+				.renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
+				.renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
+				.build());
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
-            .build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
+			.build());
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
-            .renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
-            .build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/b"), "http://example.org/SHORT")
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/LONG")
+			.renameElement(Builder.createPath("http://example.org/a", "http://example.org/a", "http://example.org/a", "http://example.org/b"), "http://example.org/NONE")
+			.build());
 
-    }
+	}
 
-    @Test
-    public void simpleWithAttrs() throws Exception {
+	@Test
+	public void simpleWithAttrs() throws Exception {
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).build());
 
-    }
+	}
 
-    @Test
-    public void simpleWithAttrsUUID() throws Exception {
+	@Test
+	public void simpleWithAttrsUUID() throws Exception {
 
-        boolean[] errorOccured = {false};
-        collector = new ErrorCollector() {
-            @Override
-            public void addError(Throwable error) {
-                errorOccured[0] = true;
-            }
-        };
+		boolean[] errorOccured = {false};
+		collector = new ErrorCollector() {
+			@Override
+			public void addError(Throwable error) {
+				errorOccured[0] = true;
+			}
+		};
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .overrideNamespace(HTTP_TEST)
-            .uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
-            .build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.overrideNamespace(HTTP_TEST)
+			.uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
+			.build());
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .overrideNamespace(HTTP_TEST)
-            .uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
-            .build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.overrideNamespace(HTTP_TEST)
+			.uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
+			.build());
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .overrideNamespace(HTTP_TEST)
-            .uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
-            .build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.overrideNamespace(HTTP_TEST)
+			.uuidBasedIdInsteadOfBlankNodes(HTTP_TEST)
+			.build());
 
-        assertTrue("This test just tests that the results are NOT isomorphic, which they will be when you don't use blank nodes anymore.", errorOccured[0]);
+		assertTrue("This test just tests that the results are NOT isomorphic, which they will be when you don't use blank nodes anymore.", errorOccured[0]);
 
-    }
+	}
 
-    @Test
-    public void inLineData() throws Exception {
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).build());
+	@Test
+	public void inLineData() throws Exception {
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).build());
 
-        //TODO: make new test for fast that doesn't do mixed content
+		//TODO: make new test for fast that doesn't do mixed content
 //        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").build());
 
-    }
-
-    @Test
-    public void specialCharacters() throws Exception {
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
-
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).build());
-
-    }
-
-    @Test
-    public void insertPredicateMatchingDefault() throws ParserConfigurationException, SAXException, IOException {
-        String xmlNameSpace = "http://www.arkivverket.no/standarder/noark5/arkivstruktur/";
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .autoAddSuffixToNamespace("/")
-            .renameElement(xmlNameSpace + "arkiv", xmlNameSpace + "Arkiv")
-            .renameElement(xmlNameSpace + "arkivskaper", xmlNameSpace + "Arkivskaper")
-            .insertPredicate(xmlNameSpace + "arkivskaper").betweenAnyParentAndSpecificChild(xmlNameSpace + "Arkivskaper")
-            .insertPredicate(xmlNameSpace + "parent").between(xmlNameSpace + "Arkiv", xmlNameSpace + "Arkiv")
-            .build());
-    }
-
-    @Test
-    public void useElementAsPredicate() throws ParserConfigurationException, SAXException, IOException {
-        testAdvancedRDF4J(
-            Builder.getAdvancedBuilderRDF4J()
-                .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-                .convertComplexElementsWithOnlyAttributesToPredicate(true)
-                .useElementAsPredicate("http://example.org/friends")
-                .build()
-        );
-
-        testAdvancedJena(
-            Builder.getAdvancedBuilderJena()
-                .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-                .convertComplexElementsWithOnlyAttributesToPredicate(true)
-                .useElementAsPredicate("http://example.org/friends")
-                .build()
-        );
-
-        testAdvancedStream(
-            Builder.getAdvancedBuilderStream()
-                .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-                .convertComplexElementsWithOnlyAttributesToPredicate(true)
-                .useElementAsPredicate("http://example.org/friends")
-                .build()
-        );
-    }
-
-    //TODO: actually create test data
-    @Ignore
-    @Test
-    public void namespaces() throws Exception {
-        testAdvancedStream(Builder
-            .getAdvancedBuilderStream()
-            .autoAttributeNamespace(false)
-            .setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-
-        testAdvancedRDF4J(Builder
-            .getAdvancedBuilderRDF4J()
-            .autoAttributeNamespace(false)
-            .setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-
-        testAdvancedJena(Builder
-            .getAdvancedBuilderJena()
-            .autoAttributeNamespace(false)
-            .setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-    }
-
-    @Test
-    public void namespacesAutoSuffix() throws Exception {
-        testAdvancedJena(Builder
-            .getAdvancedBuilderJena()
-            .build());
-
-        testAdvancedRDF4J(Builder
-            .getAdvancedBuilderRDF4J()
-            .build());
-
-        testAdvancedStream(Builder
-            .getAdvancedBuilderStream()
-            .build());
-    }
-
-    @Test
-    public void namespacesAutoSuffix2() throws Exception {
-        testAdvancedStream(Builder
-            .getAdvancedBuilderStream()
-            .autoAddSuffixToNamespace(false)
-            .build());
-
-        testAdvancedRDF4J(Builder
-            .getAdvancedBuilderRDF4J()
-            .autoAddSuffixToNamespace(false)
-            .build());
+	}
+
+	@Test
+	public void specialCharacters() throws Exception {
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).build());
+
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).build());
+
+	}
+
+	@Test
+	public void insertPredicateMatchingDefault() throws ParserConfigurationException, SAXException, IOException {
+		String xmlNameSpace = "http://www.arkivverket.no/standarder/noark5/arkivstruktur/";
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.autoAddSuffixToNamespace("/")
+			.renameElement(xmlNameSpace + "arkiv", xmlNameSpace + "Arkiv")
+			.renameElement(xmlNameSpace + "arkivskaper", xmlNameSpace + "Arkivskaper")
+			.insertPredicate(xmlNameSpace + "arkivskaper").betweenAnyParentAndSpecificChild(xmlNameSpace + "Arkivskaper")
+			.insertPredicate(xmlNameSpace + "parent").between(xmlNameSpace + "Arkiv", xmlNameSpace + "Arkiv")
+			.build());
+	}
+
+	@Test
+	public void useElementAsPredicate() throws ParserConfigurationException, SAXException, IOException {
+		testAdvancedRDF4J(
+			Builder.getAdvancedBuilderRDF4J()
+				.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+				.convertComplexElementsWithOnlyAttributesToPredicate(true)
+				.useElementAsPredicate("http://example.org/friends")
+				.build()
+		);
+
+		testAdvancedJena(
+			Builder.getAdvancedBuilderJena()
+				.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+				.convertComplexElementsWithOnlyAttributesToPredicate(true)
+				.useElementAsPredicate("http://example.org/friends")
+				.build()
+		);
+
+		testAdvancedStream(
+			Builder.getAdvancedBuilderStream()
+				.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+				.convertComplexElementsWithOnlyAttributesToPredicate(true)
+				.useElementAsPredicate("http://example.org/friends")
+				.build()
+		);
+	}
+
+	//TODO: actually create test data
+	@Ignore
+	@Test
+	public void namespaces() throws Exception {
+		testAdvancedStream(Builder
+			.getAdvancedBuilderStream()
+			.autoAttributeNamespace(false)
+			.setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+
+		testAdvancedRDF4J(Builder
+			.getAdvancedBuilderRDF4J()
+			.autoAttributeNamespace(false)
+			.setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+
+		testAdvancedJena(Builder
+			.getAdvancedBuilderJena()
+			.autoAttributeNamespace(false)
+			.setBaseNamespace(HTTP_TEST, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+	}
+
+	@Test
+	public void namespacesAutoSuffix() throws Exception {
+		testAdvancedJena(Builder
+			.getAdvancedBuilderJena()
+			.build());
+
+		testAdvancedRDF4J(Builder
+			.getAdvancedBuilderRDF4J()
+			.build());
+
+		testAdvancedStream(Builder
+			.getAdvancedBuilderStream()
+			.build());
+	}
+
+	@Test
+	public void namespacesAutoSuffix2() throws Exception {
+		testAdvancedStream(Builder
+			.getAdvancedBuilderStream()
+			.autoAddSuffixToNamespace(false)
+			.build());
+
+		testAdvancedRDF4J(Builder
+			.getAdvancedBuilderRDF4J()
+			.autoAddSuffixToNamespace(false)
+			.build());
 
-        testAdvancedJena(Builder
-            .getAdvancedBuilderJena()
-            .autoAddSuffixToNamespace(false)
-            .build());
+		testAdvancedJena(Builder
+			.getAdvancedBuilderJena()
+			.autoAddSuffixToNamespace(false)
+			.build());
 
-    }
+	}
 
-    @Test
-    public void namespacesAutoSuffix3() throws Exception {
-        testAdvancedJena(Builder
-            .getAdvancedBuilderJena()
-            .build());
+	@Test
+	public void namespacesAutoSuffix3() throws Exception {
+		testAdvancedJena(Builder
+			.getAdvancedBuilderJena()
+			.build());
 
-        testAdvancedRDF4J(Builder
-            .getAdvancedBuilderRDF4J()
-            .build());
+		testAdvancedRDF4J(Builder
+			.getAdvancedBuilderRDF4J()
+			.build());
 
-        testAdvancedStream(Builder
-            .getAdvancedBuilderStream()
-            .build());
+		testAdvancedStream(Builder
+			.getAdvancedBuilderStream()
+			.build());
 
-    }
+	}
 
-    @Test
-    public void namespacesAutoSuffixSlash() throws Exception {
-        testAdvancedStream(Builder
-            .getAdvancedBuilderStream()
-            .autoAddSuffixToNamespace("/")
-            .build());
+	@Test
+	public void namespacesAutoSuffixSlash() throws Exception {
+		testAdvancedStream(Builder
+			.getAdvancedBuilderStream()
+			.autoAddSuffixToNamespace("/")
+			.build());
 
-        testAdvancedRDF4J(Builder
-            .getAdvancedBuilderRDF4J()
-            .autoAddSuffixToNamespace("/")
-            .build());
+		testAdvancedRDF4J(Builder
+			.getAdvancedBuilderRDF4J()
+			.autoAddSuffixToNamespace("/")
+			.build());
 
-        testAdvancedJena(Builder
-            .getAdvancedBuilderJena()
-            .autoAddSuffixToNamespace("/")
-            .build());
-    }
-
-    @Test
-    public void checkIndexes() throws Exception {
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).addIndex(true).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).addIndex(true).build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).addIndex(true).build());
-
-    }
-
-    @Test
-    public void checkIndexesFalse() throws Exception {
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).addIndex(false).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).addIndex(false).build());
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).addIndex(false).build());
-
-    }
-
-    @Test
-    public void attributeForId() throws Exception {
-
-        final String a = "A";
-        final String b = "B";
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .build());
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
-            .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
-            .build());
-
-    }
-
-    @Test
-    public void attributeForIdWithNs() throws Exception {
-
-        final String a = "http://example.com/A";
-        final String b = "http://example2.com/B";
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
-            .build());
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
-            .build());
-    }
-
-    @Test
-    public void attributeForId2() throws Exception {
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
-
-            .build());
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
-            .useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
-            .build());
-    }
-
-    @Test
-    public void classMapping() throws Exception {
-
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .overrideNamespace(HTTP_TEST)
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .renameElement(HTTP_TEST + "A", "http://hurra/A2")
-            .renameElement(HTTP_TEST + "B", "http://hurra/B2")
-            .build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .overrideNamespace(HTTP_TEST)
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .renameElement(HTTP_TEST + "A", "http://hurra/A2")
-            .renameElement(HTTP_TEST + "B", "http://hurra/B2")
-            .build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .overrideNamespace(HTTP_TEST)
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .renameElement(HTTP_TEST + "A", "http://hurra/A2")
-            .renameElement(HTTP_TEST + "B", "http://hurra/B2")
-            .build());
+		testAdvancedJena(Builder
+			.getAdvancedBuilderJena()
+			.autoAddSuffixToNamespace("/")
+			.build());
+	}
+
+	@Test
+	public void checkIndexes() throws Exception {
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).addIndex(true).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).addIndex(true).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).addIndex(true).build());
+
+	}
+
+	@Test
+	public void checkIndexesFalse() throws Exception {
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).addIndex(false).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).addIndex(false).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).addIndex(false).build());
+
+	}
+
+	@Test
+	public void attributeForId() throws Exception {
+
+		final String a = "A";
+		final String b = "B";
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+			.useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+			.useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+			.build());
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
+			.useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+			.useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
+			.useAttributeForId(HTTP_TEST + a, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+			.useAttributeForId(HTTP_TEST + b, HTTP_TEST + ID, (var) -> HTTP_TEST + var)
+			.build());
+
+	}
+
+	@Test
+	public void attributeForIdWithNs() throws Exception {
+
+		final String a = "http://example.com/A";
+		final String b = "http://example2.com/B";
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+			.useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+			.build());
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+			.useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.useAttributeForId(a, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+			.useAttributeForId(b, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+			.build());
+	}
+
+	@Test
+	public void attributeForId2() throws Exception {
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+			.useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+
+			.build());
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+			.useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.useAttributeForId(null, "http://example.com/" + ID, (var) -> HTTP_TEST + var)
+			.useAttributeForId(null, "http://example2.com/" + ID, (var) -> HTTP_TEST + var)
+			.build());
+	}
+
+	@Test
+	public void classMapping() throws Exception {
+
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.overrideNamespace(HTTP_TEST)
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.renameElement(HTTP_TEST + "A", "http://hurra/A2")
+			.renameElement(HTTP_TEST + "B", "http://hurra/B2")
+			.build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.overrideNamespace(HTTP_TEST)
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.renameElement(HTTP_TEST + "A", "http://hurra/A2")
+			.renameElement(HTTP_TEST + "B", "http://hurra/B2")
+			.build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.overrideNamespace(HTTP_TEST)
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.renameElement(HTTP_TEST + "A", "http://hurra/A2")
+			.renameElement(HTTP_TEST + "B", "http://hurra/B2")
+			.build());
 
-        testFast(Builder.getFastBuilder()
-            .overrideNamespace(HTTP_TEST)
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .renameElement(HTTP_TEST + "A", "http://hurra/A2")
-            .renameElement(HTTP_TEST + "B", "http://hurra/B2")
-            .build());
+		testFast(Builder.getFastBuilder()
+			.overrideNamespace(HTTP_TEST)
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.renameElement(HTTP_TEST + "A", "http://hurra/A2")
+			.renameElement(HTTP_TEST + "B", "http://hurra/B2")
+			.build());
 
-    }
+	}
 
-    @Test
-    public void classMappingWithFunction() throws Exception {
+	@Test
+	public void classMappingWithFunction() throws Exception {
 
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .overrideNamespace(HTTP_TEST)
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .renameElement(HTTP_TEST + "A", "http://hurra/A2")
-            .renameElement(null, (u, v) -> u + v.toLowerCase())
-            .renameElement(HTTP_TEST + "name", (u, v) -> u + v.toUpperCase())
-            .build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.overrideNamespace(HTTP_TEST)
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.renameElement(HTTP_TEST + "A", "http://hurra/A2")
+			.renameElement(null, (u, v) -> u + v.toLowerCase())
+			.renameElement(HTTP_TEST + "name", (u, v) -> u + v.toUpperCase())
+			.build());
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .overrideNamespace(HTTP_TEST)
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .renameElement(HTTP_TEST + "A", "http://hurra/A2")
-            .renameElement(null, (u, v) -> u + v.toLowerCase())
-            .renameElement(HTTP_TEST + "name", (u, v) -> u + v.toUpperCase())
-            .build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.overrideNamespace(HTTP_TEST)
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.renameElement(HTTP_TEST + "A", "http://hurra/A2")
+			.renameElement(null, (u, v) -> u + v.toLowerCase())
+			.renameElement(HTTP_TEST + "name", (u, v) -> u + v.toUpperCase())
+			.build());
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .overrideNamespace(HTTP_TEST)
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .renameElement(HTTP_TEST + "A", "http://hurra/A2")
-            .renameElement(null, (u, v) -> u + v.toLowerCase())
-            .renameElement(HTTP_TEST + "name", (u, v) -> u + v.toUpperCase())
-            .build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.overrideNamespace(HTTP_TEST)
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.renameElement(HTTP_TEST + "A", "http://hurra/A2")
+			.renameElement(null, (u, v) -> u + v.toLowerCase())
+			.renameElement(HTTP_TEST + "name", (u, v) -> u + v.toUpperCase())
+			.build());
 
-        testFast(Builder.getFastBuilder()
-            .overrideNamespace(HTTP_TEST)
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .renameElement(HTTP_TEST + "A", "http://hurra/A2")
-            .renameElement(null, (u, v) -> u + v.toLowerCase())
-            .renameElement(HTTP_TEST + "name", (u, v) -> u + v.toUpperCase())
-            .build());
+		testFast(Builder.getFastBuilder()
+			.overrideNamespace(HTTP_TEST)
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.renameElement(HTTP_TEST + "A", "http://hurra/A2")
+			.renameElement(null, (u, v) -> u + v.toLowerCase())
+			.renameElement(HTTP_TEST + "name", (u, v) -> u + v.toUpperCase())
+			.build());
 
 
-    }
+	}
 
-    @Test
-    public void detectLiteralProperties() throws Exception {
+	@Test
+	public void detectLiteralProperties() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
-    @Test
-    public void detectLiteralPropertiesWithAttributes() throws Exception {
+	@Test
+	public void detectLiteralPropertiesWithAttributes() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
-    @Test
-    public void detectLiteralPropertiesWithAttributesEdgeCaseWithRdfType() throws Exception {
+	@Test
+	public void detectLiteralPropertiesWithAttributesEdgeCaseWithRdfType() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
-    @Test
-    public void detectLiteralPropertiesEdgeCaseWithoutParent() throws Exception {
+	@Test
+	public void detectLiteralPropertiesEdgeCaseWithoutParent() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
-    //TODO: make test for unmixed content
-    @Test
-    public void detectLiteralPropertiesEdgeCaseWithoutParent2() throws Exception {
+	//TODO: make test for unmixed content
+	@Test
+	public void detectLiteralPropertiesEdgeCaseWithoutParent2() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
 //        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
-    @Test
-    public void detectLiteralPropertiesWithAttributesEdgeCaseWithoutParent() throws Exception {
+	@Test
+	public void detectLiteralPropertiesWithAttributesEdgeCaseWithoutParent() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
-    @Test
-    public void tesAautoDetectLiteralPropertiesSetToFalse() throws Exception {
+	@Test
+	public void tesAautoDetectLiteralPropertiesSetToFalse() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.expand).build());
 
-    }
+	}
 
-    @Test
-    public void withEmptyElements() throws Exception {
+	@Test
+	public void withEmptyElements() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
-    @Test
-    public void withSpecialAmp() throws Exception {
+	@Test
+	public void withSpecialAmp() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST).simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace("http://test/").simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testFast(Builder.getFastBuilder().overrideNamespace("http://test/").simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
-    @Test
-    public void attrValueTransform() throws Exception {
+	@Test
+	public void attrValueTransform() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(null, null, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
+	}
 
-    @Test
-    public void attrValueTransform2() throws Exception {
+	@Test
+	public void attrValueTransform2() throws Exception {
 
-        final String hurrah = HTTP_TEST + "hurra";
+		final String hurrah = HTTP_TEST + "hurra";
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, hurrah, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-    }
-
-    @Test
-    public void attrValueTransform3() throws Exception {
+	}
+
+	@Test
+	public void attrValueTransform3() throws Exception {
 
-        final String hurrah = HTTP_TEST + "hurra";
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
+		final String hurrah = HTTP_TEST + "hurra";
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
 
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-
-    }
-
-    @Test
-    public void attrValueTransform4() throws Exception {
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-
-    }
-
-    @Test
-    public void attrValueTransform5() throws Exception {
-
-        final String test = HTTP_TEST + "test";
-        final String lala = "lala";
-        final String dada = "dada";
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
-            .transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
-            .transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
-            .transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
-            .transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
-            .transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-
-    }
-
-
-    @Test
-    public void elementValueTransform() throws Exception {
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .transformElementValue(null,  (val) -> val.toUpperCase())
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
-            .transformElementValue(null,  (val) -> val.toUpperCase())
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .transformElementValue(null,  (val) -> val.toUpperCase())
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
-            .transformElementValue(null,  (val) -> val.toUpperCase())
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-
-    }
-
-    @Test
-    @Ignore // not supported yet
-    public void elementValueTransformMixedContent() throws Exception {
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
-            .transformElementValue(null,  (val) -> val.toUpperCase())
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
-            .transformElementValue(null,  (val) -> val.toUpperCase())
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
-            .transformElementValue(null,  (val) -> val.toUpperCase())
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-
-        testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
-            .transformElementValue(null,  (val) -> val.toUpperCase())
-            .simpleTypePolicy(SimpleTypePolicy.compact).build());
-
-    }
-
-    @Test
-    public void specialShallowHandling() throws Exception {
-
-        final String ø = "ø";
-        final String æ = "æ";
-
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .transformAttributeValue(null, RDF_NODE_ID,
-                (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
-            .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
-            .build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .transformAttributeValue(null, RDF_NODE_ID,
-                (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
-            .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
-            .build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .transformAttributeValue(null, RDF_NODE_ID,
-                (val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
-            .useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
-            .build());
-    }
-
-    @Test
-    public void skosFromLexaurus() throws Exception {
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
-            .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
-            .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
-            .convertComplexElementsWithOnlyAttributesToPredicate(true).build());
-    }
-
-    @Test
-    public void convertShallowElementsToPropertiesWithAutoDetectLiteralProperties() throws Exception {
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-    }
-
-
-    @Test
-    public void insertPropertyBetween() throws Exception {
-
-        final String hasB = "http://a/hasB";
-        final String a = "http://a/A";
-        final String aB = "http://a/B";
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .insertPredicate(hasB).between(a, aB)
-            .build());
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .insertPredicate(hasB).between(a, aB)
-            .build());
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .insertPredicate(hasB).between(a, aB)
-            .build());
-
-    }
-
-    @Test
-    public void insertPropertyBetweenWildcard() throws Exception {
-
-        final String hasB = "http://example.org/hasB";
-        final String hasC = "http://example.org/hasC";
-        final String hasD = "http://example.org/hasD";
-
-        final String A = "http://example.org/A";
-        final String B = "http://example.org/B";
-        final String C = "http://example.org/C";
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .insertPredicate(hasB).betweenAnyParentAndSpecificChild(B)
-            .insertPredicate(hasC).betweenSpecificParentAndAnyChild(A)
-            .insertPredicate(hasD).betweenAny()
-            .build());
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(null, hurrah, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+	}
+
+	@Test
+	public void attrValueTransform4() throws Exception {
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+	}
+
+	@Test
+	public void attrValueTransform5() throws Exception {
+
+		final String test = HTTP_TEST + "test";
+		final String lala = "lala";
+		final String dada = "dada";
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+			.transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+			.transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+			.transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
+			.transformAttributeValue(HTTP_TEST + ELEMENT_NAME, null, (val) -> val.replaceAll(LL, QQ))
+			.transformAttributeValue(null, test, (val) -> val.replaceAll(lala, dada))
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+	}
+
+
+	@Test
+	public void elementValueTransform() throws Exception {
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+			.transformElementValue(null, (val) -> val.toUpperCase())
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
+			.transformElementValue(null, (val) -> val.toUpperCase())
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
+			.transformElementValue(null, (val) -> val.toUpperCase())
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
+			.transformElementValue(null, (val) -> val.toUpperCase())
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+	}
+
+	@Test
+	@Ignore // not supported yet
+	public void elementValueTransformMixedContent() throws Exception {
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace(HTTP_TEST)
+			.transformElementValue(null, (val) -> val.toUpperCase())
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace(HTTP_TEST)
+			.transformElementValue(null, (val) -> val.toUpperCase())
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace(HTTP_TEST)
+			.transformElementValue(null, (val) -> val.toUpperCase())
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+		testFast(Builder.getFastBuilder().overrideNamespace(HTTP_TEST)
+			.transformElementValue(null, (val) -> val.toUpperCase())
+			.simpleTypePolicy(SimpleTypePolicy.compact).build());
+
+	}
+
+	@Test
+	public void specialShallowHandling() throws Exception {
+
+		final String ø = "ø";
+		final String æ = "æ";
+
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.transformAttributeValue(null, RDF_NODE_ID,
+				(val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
+			.useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
+			.build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.transformAttributeValue(null, RDF_NODE_ID,
+				(val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
+			.useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
+			.build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.transformAttributeValue(null, RDF_NODE_ID,
+				(val) -> val.replaceAll("%C3%B8", ø).replaceAll("%C3%A6", æ))
+			.useAttributeForId(null, RDF_NODE_ID, (val) -> "http://example.com/" + val)
+			.build());
+	}
+
+	@Test
+	public void skosFromLexaurus() throws Exception {
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
+			.convertComplexElementsWithOnlyAttributesToPredicate(true).build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
+			.convertComplexElementsWithOnlyAttributesToPredicate(true).build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.useAttributeForId(null, RDF_NODE_ID, (var) -> HTTP_TEST + var)
+			.convertComplexElementsWithOnlyAttributesToPredicate(true).build());
+	}
+
+	@Test
+	public void convertShallowElementsToPropertiesWithAutoDetectLiteralProperties() throws Exception {
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+	}
+
+
+	@Test
+	public void insertPropertyBetween() throws Exception {
+
+		final String hasB = "http://a/hasB";
+		final String a = "http://a/A";
+		final String aB = "http://a/B";
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.insertPredicate(hasB).between(a, aB)
+			.build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.insertPredicate(hasB).between(a, aB)
+			.build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.insertPredicate(hasB).between(a, aB)
+			.build());
+
+	}
+
+	@Test
+	public void insertPropertyBetweenWildcard() throws Exception {
+
+		final String hasB = "http://example.org/hasB";
+		final String hasC = "http://example.org/hasC";
+		final String hasD = "http://example.org/hasD";
+
+		final String A = "http://example.org/A";
+		final String B = "http://example.org/B";
+		final String C = "http://example.org/C";
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.insertPredicate(hasB).betweenAnyParentAndSpecificChild(B)
+			.insertPredicate(hasC).betweenSpecificParentAndAnyChild(A)
+			.insertPredicate(hasD).betweenAny()
+			.build());
 
 
 //        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
@@ -835,613 +847,614 @@ public class XmlToRdfTest {
 //            .insertPredicate(hasB).between(a, aB)
 //            .build());
 
-    }
+	}
 
-    @Test(expected = RuntimeException.class)
-    public void insertPropertyBetween2() throws Exception {
+	@Test(expected = RuntimeException.class)
+	public void insertPropertyBetween2() throws Exception {
 
-        Builder.getAdvancedBuilderJena()
-            .insertPredicate("http://a/hasB").between("http://a/A", "http://a/B")
-            .insertPredicate("http://a/hasC").between("http://a/A", "http://a/B");
+		Builder.getAdvancedBuilderJena()
+			.insertPredicate("http://a/hasB").between("http://a/A", "http://a/B")
+			.insertPredicate("http://a/hasC").between("http://a/A", "http://a/B");
 
-    }
+	}
 
 
-    @Test()
-    public void insertPropertyBetweenWithShallow() throws Exception {
+	@Test()
+	public void insertPropertyBetweenWithShallow() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .insertPredicate("http://example.org/hasB").between("http://example.org/A", "http://example.org/B")
-            .build()
-        );
-    }
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.insertPredicate("http://example.org/hasB").between("http://example.org/A", "http://example.org/B")
+			.build()
+		);
+	}
 
-    @Test
-    public void invertPropertyBetween() throws Exception {
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
-            .invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
-            .build());
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
-            .invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
-            .invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
-            .build());
-
-    }
-
-    @Test
-    public void autoTypedLiterals() throws Exception {
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .autoTypeLiterals(true)
-
-            .build());
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .autoTypeLiterals(true)
-
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .autoTypeLiterals(true)
-
-            .build());
-
-    }
-
-    @Test
-    public void longLiteral() throws ParserConfigurationException, SAXException, IOException {
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .overrideNamespace("http://example.org")
-            .build());
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .overrideNamespace("http://example.org")
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .overrideNamespace("http://example.org")
-            .build());
-
-        testFast(Builder.getFastBuilder()
-            .overrideNamespace("http://example.org")
-            .build());
-    }
-
-    @Test
-    public void specifyDatatype() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .setDatatype("http://a/num", XMLSchema.INTEGER)
-            .setDatatype("http://a/date", XMLSchema.DATE)
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .setDatatype("http://a/num", XSDDatatype.XSDinteger)
-            .setDatatype("http://a/date", XSDDatatype.XSDdate)
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .setDatatype("http://a/num", XMLSchema.INTEGER.toString())
-            .setDatatype("http://a/date", XMLSchema.DATE.toString())
-            .build());
-
-    }
-
-    @Test
-    public void specifyDatatype2() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
-            .convertComplexElementsWithOnlyAttributesToPredicate(false)
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .setDatatype("http://a/num", XMLSchema.INTEGER)
-            .setDatatype("http://a/date", XMLSchema.DATE)
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
-            .convertComplexElementsWithOnlyAttributesToPredicate(false)
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .setDatatype("http://a/num", XSDDatatype.XSDinteger)
-            .setDatatype("http://a/date", XSDDatatype.XSDdate)
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
-            .convertComplexElementsWithOnlyAttributesToPredicate(false)
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .setDatatype("http://a/num", XMLSchema.INTEGER.toString())
-            .setDatatype("http://a/date", XMLSchema.DATE.toString())
-            .build());
-
-    }
-
-    @Test
-    public void literalOnPropertyTests() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, HTTP_TEST)
-            .build());
-
-    }
-
-    @Test
-    public void literalOnPropertyShallowTests() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .simpleTypePolicy(SimpleTypePolicy.expand)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, HTTP_TEST)
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .build());
-
-    }
-
-    @Test
-    public void literalOnPropertyTestWithAutoDetectLiteral() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, HTTP_TEST)
-            .build());
-
-    }
-
-    @Test
-    public void literalOnPropertyNullPointer() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .mapTextInElementToUri(HTTP_A_NAME, HELLO, HTTP_TEST)
-            .build());
-
-    }
-
-    @Test
-    public void qnameInAttributeValue() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .resolveAsQnameInAttributeValue(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .resolveAsQnameInAttributeValue(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .resolveAsQnameInAttributeValue(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-
-    }
-
-
-    @Test
-    public void xsiTypeSupport() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .xsiTypeSupport(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .xsiTypeSupport(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .simpleTypePolicy(SimpleTypePolicy.compact)
-            .xsiTypeSupport(true)
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .build());
-
-    }
-
-    @Test
-    public void complexTransformStart() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
-                if (element.hasChild.size() == 0) {
-                    element.setType("http://example.org/HELLO");
-
-                }
-            })
-            .build());
-
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
-                if (element.hasChild.size() == 0) {
-                    element.setType("http://example.org/HELLO");
-
-                }
-            })
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
-                if (element.hasChild.size() == 0) {
-                    element.setType("http://example.org/HELLO");
-
-                }
-            })
-            .build());
-
-    }
-
-    @Test
-    public void complexTransformEnd() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
-                if (element.hasChild.size() > 0) {
-                    element.setType("http://example.org/HELLO");
-
-                }
-            })
-            .build());
-
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
-                if (element.hasChild.size() > 0) {
-                    element.setType("http://example.org/HELLO");
-
-                }
-            })
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
-                if (element.hasChild.size() > 0) {
-                    element.setType("http://example.org/HELLO");
-
-                }
-            })
-            .build());
-
-    }
-
-
-    @Test
-    public void setQueueSize() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .setBuffer(1)
-            .build());
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
-            .setBuffer(1)
-            .build());
-
-    }
-
-    @Test
-    public void skipElement() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .skipElement("http://example.org/B")
-            .build());
-
-
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .skipElement("http://example.org/B")
-            .build());
-
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .skipElement("http://example.org/B")
-            .build());
-    }
-    @Test
-    public void mapAttributeTextToResource() throws Exception {
+	@Test
+	public void invertPropertyBetween() throws Exception {
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
+			.invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
+			.build());
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
+			.invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.insertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
+			.invertPredicate("http://a/belongsToA").between("http://a/A", "http://a/B")
+			.build());
+
+	}
+
+	@Test
+	public void autoTypedLiterals() throws Exception {
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.autoTypeLiterals(true)
+
+			.build());
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.autoTypeLiterals(true)
+
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.autoTypeLiterals(true)
+
+			.build());
+
+	}
+
+	@Test
+	public void longLiteral() throws ParserConfigurationException, SAXException, IOException {
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.overrideNamespace("http://example.org")
+			.build());
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.overrideNamespace("http://example.org")
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.overrideNamespace("http://example.org")
+			.build());
+
+		testFast(Builder.getFastBuilder()
+			.overrideNamespace("http://example.org")
+			.build());
+	}
+
+	@Test
+	public void specifyDatatype() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.setDatatype("http://a/num", XMLSchema.INTEGER)
+			.setDatatype("http://a/date", XMLSchema.DATE)
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.setDatatype("http://a/num", XSDDatatype.XSDinteger)
+			.setDatatype("http://a/date", XSDDatatype.XSDdate)
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.setDatatype("http://a/num", XMLSchema.INTEGER.toString())
+			.setDatatype("http://a/date", XMLSchema.DATE.toString())
+			.build());
+
+	}
+
+	@Test
+	public void specifyDatatype2() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
+			.convertComplexElementsWithOnlyAttributesToPredicate(false)
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.setDatatype("http://a/num", XMLSchema.INTEGER)
+			.setDatatype("http://a/date", XMLSchema.DATE)
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
+			.convertComplexElementsWithOnlyAttributesToPredicate(false)
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.setDatatype("http://a/num", XSDDatatype.XSDinteger)
+			.setDatatype("http://a/date", XSDDatatype.XSDdate)
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(false)
+			.convertComplexElementsWithOnlyAttributesToPredicate(false)
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.setDatatype("http://a/num", XMLSchema.INTEGER.toString())
+			.setDatatype("http://a/date", XMLSchema.DATE.toString())
+			.build());
+
+	}
+
+	@Test
+	public void literalOnPropertyTests() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, HTTP_TEST)
+			.build());
+
+	}
+
+	@Test
+	public void literalOnPropertyShallowTests() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.simpleTypePolicy(SimpleTypePolicy.expand)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, HTTP_TEST)
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.build());
+
+	}
+
+	@Test
+	public void literalOnPropertyTestWithAutoDetectLiteral() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, HTTP_TEST)
+			.build());
+
+	}
+
+	@Test
+	public void literalOnPropertyNullPointer() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, SimpleValueFactory.getInstance().createIRI(HTTP_TEST))
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, NodeFactory.createURI(HTTP_TEST))
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.mapTextInElementToUri(HTTP_A_NAME, HELLO, HTTP_TEST)
+			.build());
+
+	}
+
+	@Test
+	public void qnameInAttributeValue() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.resolveAsQnameInAttributeValue(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.resolveAsQnameInAttributeValue(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.resolveAsQnameInAttributeValue(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+
+	}
+
+
+	@Test
+	public void xsiTypeSupport() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.xsiTypeSupport(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.xsiTypeSupport(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.simpleTypePolicy(SimpleTypePolicy.compact)
+			.xsiTypeSupport(true)
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.build());
+
+	}
+
+	@Test
+	public void complexTransformStart() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
+				if (element.hasChild.size() == 0) {
+					element.setType("http://example.org/HELLO");
+
+				}
+			})
+			.build());
+
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
+				if (element.hasChild.size() == 0) {
+					element.setType("http://example.org/HELLO");
+
+				}
+			})
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.addComplexElementTransformAtStartOfElement("http://example.org/B", element -> {
+				if (element.hasChild.size() == 0) {
+					element.setType("http://example.org/HELLO");
+
+				}
+			})
+			.build());
+
+	}
+
+	@Test
+	public void complexTransformEnd() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
+				if (element.hasChild.size() > 0) {
+					element.setType("http://example.org/HELLO");
+
+				}
+			})
+			.build());
+
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
+				if (element.hasChild.size() > 0) {
+					element.setType("http://example.org/HELLO");
+
+				}
+			})
+			.build());
+
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.addComplexElementTransformAtEndOfElement("http://example.org/B", element -> {
+				if (element.hasChild.size() > 0) {
+					element.setType("http://example.org/HELLO");
+
+				}
+			})
+			.build());
+
+	}
+
+
+	@Test
+	public void setQueueSize() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.setBuffer(1)
+			.build());
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.setBaseNamespace(HTTP_A, Builder.AppliesTo.bothElementsAndAttributes)
+			.setBuffer(1)
+			.build());
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", SimpleValueFactory.getInstance().createIRI("http://http://example.org/c"))
-            .build());
+	}
+
+	@Test
+	public void skipElement() throws Exception {
+
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.skipElement("http://example.org/B")
+			.build());
+
+
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.skipElement("http://example.org/B")
+			.build());
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", NodeFactory.createURI("http://http://example.org/c"))
-            .build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.skipElement("http://example.org/B")
+			.build());
+	}
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", "http://http://example.org/c")
-            .build());
-    }
+	@Test
+	public void mapAttributeTextToResource() throws Exception {
 
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", SimpleValueFactory.getInstance().createIRI("http://http://example.org/c"))
+			.build());
 
-    @Test
-    public void mixedContentSpecial() throws Exception {
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", NodeFactory.createURI("http://http://example.org/c"))
+			.build());
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.mapTextInAttributeToUri("http://example.org/b", "http://example.org/c", "d", "http://http://example.org/c")
+			.build());
+	}
 
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .build());
+	@Test
+	public void mixedContentSpecial() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .build());
-    }
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.build());
 
-    @Test
-    public void mixedContentSpecial2() throws Exception {
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            //.forceMixedContent("http://example.org/test")
-            .build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.build());
 
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.build());
+	}
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .build());
+	@Test
+	public void mixedContentSpecial2() throws Exception {
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .build());
-    }
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			//.forceMixedContent("http://example.org/test")
+			.build());
 
-    @Test
-    public void mixedContentSpecial3() throws Exception {
-
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .forceMixedContent("http://example.org/JP.OFFINNHOLD")
-            .build());
-
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .forceMixedContent("http://example.org/JP.OFFINNHOLD")
-            .build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.build());
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .forceMixedContent("http://example.org/JP.OFFINNHOLD")
-            .build());
-    }
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.build());
+	}
 
-    @Test
-    public void forcedMixedContent() throws Exception {
+	@Test
+	public void mixedContentSpecial3() throws Exception {
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .forceMixedContent("http://example.org/name")
-            .forceMixedContent("http://example.org/name2")
-            .renameElement("http://example.org/name3","http://example.org/name2")
-            .build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.forceMixedContent("http://example.org/JP.OFFINNHOLD")
+			.build());
 
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .forceMixedContent("http://example.org/name")
-            .forceMixedContent("http://example.org/name2")
-            .renameElement("http://example.org/name3","http://example.org/name2")
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.forceMixedContent("http://example.org/JP.OFFINNHOLD")
+			.build());
 
-            .build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.forceMixedContent("http://example.org/JP.OFFINNHOLD")
+			.build());
+	}
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .forceMixedContent("http://example.org/name")
-            .forceMixedContent("http://example.org/name2")
-            .renameElement("http://example.org/name3","http://example.org/name2")
+	@Test
+	public void forcedMixedContent() throws Exception {
 
-            .build());
-    }
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.forceMixedContent("http://example.org/name")
+			.forceMixedContent("http://example.org/name2")
+			.renameElement("http://example.org/name3", "http://example.org/name2")
+			.build());
 
-    @Test
-    public void forcedMixedContentWithShallow() throws Exception {
 
-        String xmlNameSpace = "http://example.org/";
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.forceMixedContent("http://example.org/name")
+			.forceMixedContent("http://example.org/name2")
+			.renameElement("http://example.org/name3", "http://example.org/name2")
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .setBaseNamespace(xmlNameSpace, Builder.AppliesTo.bothElementsAndAttributes)
-            .forceMixedContent(xmlNameSpace+"b").build());
+			.build());
 
-    }
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.forceMixedContent("http://example.org/name")
+			.forceMixedContent("http://example.org/name2")
+			.renameElement("http://example.org/name3", "http://example.org/name2")
 
+			.build());
+	}
 
-    @Test
-    public void compositeId() throws Exception {
+	@Test
+	public void forcedMixedContentWithShallow() throws Exception {
 
+		String xmlNameSpace = "http://example.org/";
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .compositeId("http://example.org/B")
-                .fromElement("http://example.org/num")
-                .fromElement("http://example.org/name")
-                .fromAttribute("http://example.org/localId")
-                .mappedTo((elementMap, attributeMap) ->
-                    "http://data.org/"+elementMap.get("http://example.org/num")+elementMap.get("http://example.org/name")+attributeMap.get("http://example.org/localId"))
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.setBaseNamespace(xmlNameSpace, Builder.AppliesTo.bothElementsAndAttributes)
+			.forceMixedContent(xmlNameSpace + "b").build());
 
+	}
 
-            .build());
 
-    }
+	@Test
+	public void compositeId() throws Exception {
 
-    @Test
-    public void compositeIdWithDelayedOutput() throws Exception {
 
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.compositeId("http://example.org/B")
+			.fromElement("http://example.org/num")
+			.fromElement("http://example.org/name")
+			.fromAttribute("http://example.org/localId")
+			.mappedTo((elementMap, attributeMap) ->
+				"http://data.org/" + elementMap.get("http://example.org/num") + elementMap.get("http://example.org/name") + attributeMap.get("http://example.org/localId"))
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .compositeId("http://example.org/B")
-            .fromElement("http://example.org/num")
-            .fromElement("http://example.org/name")
-            .fromAttribute("http://example.org/localId")
-            .mappedTo((elementMap, attributeMap) ->
-                "http://data.org/"+elementMap.get("http://example.org/num")+elementMap.get("http://example.org/name")+attributeMap.get("http://example.org/localId"))
 
-            .addComplexElementTransformAtEndOfElement(
-                "http://example.org/notForCompositeId",
-                e ->{
-                    Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
-                    sensitiveElement.setHasValue("newValue");
-                    sensitiveElement.setType("http://example.org/newElement");
-                    sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
-                    sensitiveElement.parent = e.parent;
-                    e.parent.addDelayedTripleCreation(sensitiveElement);
-                })
+			.build());
 
-            .addComplexElementTransformAtEndOfElement(
-                "http://example.org/newElement",
-                e ->{
-                    Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
-                    sensitiveElement.setHasValue("newValue2");
-                    sensitiveElement.setType("http://example.org/newNewElement");
-                    sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
-                    sensitiveElement.parent = e.parent;
-                    e.parent.addDelayedTripleCreation(sensitiveElement);
-                })
+	}
 
+	@Test
+	public void compositeIdWithDelayedOutput() throws Exception {
 
-            .build());
 
-    }
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.compositeId("http://example.org/B")
+			.fromElement("http://example.org/num")
+			.fromElement("http://example.org/name")
+			.fromAttribute("http://example.org/localId")
+			.mappedTo((elementMap, attributeMap) ->
+				"http://data.org/" + elementMap.get("http://example.org/num") + elementMap.get("http://example.org/name") + attributeMap.get("http://example.org/localId"))
 
+			.addComplexElementTransformAtEndOfElement(
+				"http://example.org/notForCompositeId",
+				e -> {
+					Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
+					sensitiveElement.setHasValue("newValue");
+					sensitiveElement.setType("http://example.org/newElement");
+					sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
+					sensitiveElement.parent = e.parent;
+					e.parent.addDelayedTripleCreation(sensitiveElement);
+				})
 
-    @Test
-    public void mapToUriWithFunction() throws Exception {
+			.addComplexElementTransformAtEndOfElement(
+				"http://example.org/newElement",
+				e -> {
+					Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
+					sensitiveElement.setHasValue("newValue2");
+					sensitiveElement.setType("http://example.org/newNewElement");
+					sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
+					sensitiveElement.parent = e.parent;
+					e.parent.addDelayedTripleCreation(sensitiveElement);
+				})
 
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.build());
 
-            .mapTextInElementToUri("http://", "", RDF.ALT)
-            .mapTextInElementToUri("http://example.org/b", string -> RDF.TYPE)
+	}
 
-            .build());
 
-    }
+	@Test
+	public void mapToUriWithFunction() throws Exception {
 
 
-    @Test
-    public void compositeIdWithDelayedOutputAndParentIdAndIndex() throws Exception {
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 
+			.mapTextInElementToUri("http://", "", RDF.ALT)
+			.mapTextInElementToUri("http://example.org/b", string -> RDF.TYPE)
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.build());
 
-            .addIndex(true)
+	}
 
-            .compositeId("http://example.org/B")
-            .fromElement("http://example.org/num")
-            .fromElement("http://example.org/name")
-            .fromAttribute("http://example.org/localId")
-            .elementIndex()
-            .mappedTo((elementMap, attributeMap) ->
-                "http://data.org/"+elementMap.get("http://example.org/num")+elementMap.get("http://example.org/name")+attributeMap.get("http://example.org/localId")+"/"+elementMap.get("http://acandonorway.github.com/XmlToRdf/ontology.ttl#elementIndex"))
 
-            .addComplexElementTransformAtEndOfElement(
-                "http://example.org/notForCompositeId",
-                e ->{
-                    Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
-                    sensitiveElement.setHasValue("newValue");
-                    sensitiveElement.setType("http://example.org/newElement");
-                    sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
-                    sensitiveElement.parent = e.parent;
-                    e.parent.addDelayedTripleCreation(sensitiveElement);
-                })
+	@Test
+	public void compositeIdWithDelayedOutputAndParentIdAndIndex() throws Exception {
 
-            .addComplexElementTransformAtEndOfElement(
-                "http://example.org/newElement",
-                e ->{
-                    Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
-                    sensitiveElement.setHasValue("newValue2");
-                    sensitiveElement.setType("http://example.org/newNewElement");
-                    sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
-                    sensitiveElement.parent = e.parent;
-                    e.parent.addDelayedTripleCreation(sensitiveElement);
-                })
 
-            .compositeId("http://example.org/inner")
-            .elementIndex()
-            .parentId()
-            .mappedTo((elementMap, attributeMap) ->
-                "http://data.org/__"+elementMap.get(XmlToRdfVocabulary.parentId)+"__/"+elementMap.get(XmlToRdfVocabulary.index)+"/"+elementMap.get(XmlToRdfVocabulary.elementIndex))
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 
+			.addIndex(true)
 
-            .build());
+			.compositeId("http://example.org/B")
+			.fromElement("http://example.org/num")
+			.fromElement("http://example.org/name")
+			.fromAttribute("http://example.org/localId")
+			.elementIndex()
+			.mappedTo((elementMap, attributeMap) ->
+				"http://data.org/" + elementMap.get("http://example.org/num") + elementMap.get("http://example.org/name") + attributeMap.get("http://example.org/localId") + "/" + elementMap.get("http://acandonorway.github.com/XmlToRdf/ontology.ttl#elementIndex"))
 
-    }
+			.addComplexElementTransformAtEndOfElement(
+				"http://example.org/notForCompositeId",
+				e -> {
+					Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
+					sensitiveElement.setHasValue("newValue");
+					sensitiveElement.setType("http://example.org/newElement");
+					sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
+					sensitiveElement.parent = e.parent;
+					e.parent.addDelayedTripleCreation(sensitiveElement);
+				})
+
+			.addComplexElementTransformAtEndOfElement(
+				"http://example.org/newElement",
+				e -> {
+					Element sensitiveElement = new Element(e.getHandler(), e.getBuilder());
+					sensitiveElement.setHasValue("newValue2");
+					sensitiveElement.setType("http://example.org/newNewElement");
+					sensitiveElement.uri = "_:" + UUID.randomUUID().toString();
+					sensitiveElement.parent = e.parent;
+					e.parent.addDelayedTripleCreation(sensitiveElement);
+				})
+
+			.compositeId("http://example.org/inner")
+			.elementIndex()
+			.parentId()
+			.mappedTo((elementMap, attributeMap) ->
+				"http://data.org/__" + elementMap.get(XmlToRdfVocabulary.parentId) + "__/" + elementMap.get(XmlToRdfVocabulary.index) + "/" + elementMap.get(XmlToRdfVocabulary.elementIndex))
+
+
+			.build());
+
+	}
 
 	@Test
 	public void compositeIdBasedOnParentsId() throws Exception {
@@ -1455,254 +1468,254 @@ public class XmlToRdfTest {
 
 			.fromParent("http://example.org/id").as("parent.id")
 
-			.mappedTo((elementMap, attributeMap) -> "http://example.com/"+elementMap.get("http://example.org/num")+"/"+elementMap.get("parent.id"))
+			.mappedTo((elementMap, attributeMap) -> "http://example.com/" + elementMap.get("http://example.org/num") + "/" + elementMap.get("parent.id"))
 
 			.build());
 
 	}
 
-    @Test
-    public void compositeIdBasedOnParentsIdWithRename() throws Exception {
+	@Test
+	public void compositeIdBasedOnParentsIdWithRename() throws Exception {
 
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 
-            .renameElement("http://example.org/id", "http://example.org/renamedId")
+			.renameElement("http://example.org/id", "http://example.org/renamedId")
 
-            .compositeId("http://example.org/B")
-            .fromElement("http://example.org/num")
+			.compositeId("http://example.org/B")
+			.fromElement("http://example.org/num")
 
-            .fromParent("http://example.org/renamedId").as("parent.id")
+			.fromParent("http://example.org/renamedId").as("parent.id")
 
-            .mappedTo((elementMap, attributeMap) -> "http://example.com/"+elementMap.get("http://example.org/num")+"/"+elementMap.get("parent.id"))
+			.mappedTo((elementMap, attributeMap) -> "http://example.com/" + elementMap.get("http://example.org/num") + "/" + elementMap.get("parent.id"))
 
-            .build());
+			.build());
 
-    }
+	}
 
-    @Test(expected = RuntimeException.class)
-    public void compositeIdBasedOnParentsIdCanNotResolveInTime() throws Exception {
+	@Test(expected = RuntimeException.class)
+	public void compositeIdBasedOnParentsIdCanNotResolveInTime() throws Exception {
 
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
 
 
-            .compositeId("http://example.org/B")
-            .fromElement("http://example.org/num")
+			.compositeId("http://example.org/B")
+			.fromElement("http://example.org/num")
 
-            .fromParent("http://example.org/id3").as("parent.id")
+			.fromParent("http://example.org/id3").as("parent.id")
 
-            .mappedTo((elementMap, attributeMap) -> "http://example.com/"+elementMap.get("http://example.org/num")+"/"+elementMap.get("parent.id"))
+			.mappedTo((elementMap, attributeMap) -> "http://example.com/" + elementMap.get("http://example.org/num") + "/" + elementMap.get("parent.id"))
 
-            .build());
+			.build());
 
-    }
+	}
 
-    @Test
-    public void killOnError() throws Exception{
+	@Test
+	public void killOnError() throws Exception {
 
-        int threadCount = Thread.activeCount();
+		int threadCount = Thread.activeCount();
 
-        try{
-            testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://example/").build());
+		try {
+			testAdvancedJena(Builder.getAdvancedBuilderJena().overrideNamespace("http://example/").build());
 
-        }catch (SAXException e){
+		} catch (SAXException e) {
 
-        }
+		}
 
-        try{
-            testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace("http://example/").build());
+		try {
+			testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J().overrideNamespace("http://example/").build());
 
-        }catch (SAXException e){
+		} catch (SAXException e) {
 
-        }
+		}
 
-        try{
-            testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://example/").build());
+		try {
+			testAdvancedStream(Builder.getAdvancedBuilderStream().overrideNamespace("http://example/").build());
 
-        }catch (SAXException e){
+		} catch (SAXException e) {
 
-        }
+		}
 
-        assertEquals("Thread count should not increase!", threadCount, Thread.activeCount());
+		assertEquals("Thread count should not increase!", threadCount, Thread.activeCount());
 
-    }
+	}
 
-    @Test
-    @Ignore
-    public void autodetectMixedContentWhitespace() throws Exception {
+	@Test
+	@Ignore
+	public void autodetectMixedContentWhitespace() throws Exception {
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.build());
 
-    }
+	}
 
-    @Test
-    public void mediumLargeFile() throws Exception {
+	@Test
+	public void mediumLargeFile() throws Exception {
 
-        testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
-            .build());
+		testAdvancedRDF4J(Builder.getAdvancedBuilderRDF4J()
+			.build());
 
-        testAdvancedJena(Builder.getAdvancedBuilderJena()
-            .build());
+		testAdvancedJena(Builder.getAdvancedBuilderJena()
+			.build());
 
-        testAdvancedStream(Builder.getAdvancedBuilderStream()
-            .build());
+		testAdvancedStream(Builder.getAdvancedBuilderStream()
+			.build());
 
-    }
+	}
 
-    private void testAdvancedJena(XmlToRdfAdvancedJena build) throws IOException, ParserConfigurationException, SAXException {
-        TestFiles testFiles = getTestFiles();
+	private void testAdvancedJena(XmlToRdfAdvancedJena build) throws IOException, ParserConfigurationException, SAXException {
+		TestFiles testFiles = getTestFiles();
 
-        Model actualModelJena = build.convertToDataset(new FileInputStream(testFiles.xml)).getDefaultModel();
+		Model actualModelJena = build.convertToDataset(new FileInputStream(testFiles.xml)).getDefaultModel();
 
-        Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
+		Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
 
 
-        if (!expectedModel.isIsomorphicWith(actualModelJena)) {
-            try {
-                assertEquals("Not isomorphic for object method with jena dataset.", modelToString(expectedModel), modelToString(actualModelJena));
+		if (!expectedModel.isIsomorphicWith(actualModelJena)) {
+			try {
+				assertEquals("Not isomorphic for object method with jena dataset.", modelToString(expectedModel), modelToString(actualModelJena));
 
-            } catch (AssertionError error) {
-                collector.addError(error);
-            }
-        }
+			} catch (AssertionError error) {
+				collector.addError(error);
+			}
+		}
 
-    }
+	}
 
-    private void testFast(XmlToRdfFast build) throws IOException, ParserConfigurationException, SAXException {
+	private void testFast(XmlToRdfFast build) throws IOException, ParserConfigurationException, SAXException {
 
-        TestFiles testFiles = getTestFiles();
+		TestFiles testFiles = getTestFiles();
 
-        FileOutputStream out = new FileOutputStream(testFiles.path + "/actualFast.ttl");
-        build.convertToStream(new FileInputStream(testFiles.xml), out);
-        out.close();
-        Model actualModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.path + "/actualFast.ttl");
+		FileOutputStream out = new FileOutputStream(testFiles.path + "/actualFast.ttl");
+		build.convertToStream(new FileInputStream(testFiles.xml), out);
+		out.close();
+		Model actualModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.path + "/actualFast.ttl");
 
-        Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
-        boolean isomorphicWith = expectedModel.isIsomorphicWith(actualModel);
+		Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
+		boolean isomorphicWith = expectedModel.isIsomorphicWith(actualModel);
 
-        if (!isomorphicWith) {
+		if (!isomorphicWith) {
 
-            try {
-                assertEquals("Not isomorphic for fast method.", modelToString(expectedModel), modelToString(actualModel));
+			try {
+				assertEquals("Not isomorphic for fast method.", modelToString(expectedModel), modelToString(actualModel));
 
-            } catch (AssertionError error) {
-                collector.addError(error);
-            }
-        }
+			} catch (AssertionError error) {
+				collector.addError(error);
+			}
+		}
 
-    }
+	}
 
-    private void testAdvancedStream(XmlToRdfAdvancedStream build) throws IOException, ParserConfigurationException, SAXException {
+	private void testAdvancedStream(XmlToRdfAdvancedStream build) throws IOException, ParserConfigurationException, SAXException {
 
-        TestFiles testFiles = getTestFiles();
+		TestFiles testFiles = getTestFiles();
 
-        build.convertToStream(new FileInputStream(testFiles.xml), new FileOutputStream(testFiles.path + "/actualObject.n3"));
+		build.convertToStream(new FileInputStream(testFiles.xml), new FileOutputStream(testFiles.path + "/actualObject.n3"));
 
-        Model actualModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.path + "/actualObject.n3");
+		Model actualModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.path + "/actualObject.n3");
 
-        Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
+		Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
 
-        if (!expectedModel.isIsomorphicWith(actualModel)) {
-            try {
-                assertEquals("Not isomorphic for object method.", modelToString(expectedModel), modelToString(actualModel));
+		if (!expectedModel.isIsomorphicWith(actualModel)) {
+			try {
+				assertEquals("Not isomorphic for object method.", modelToString(expectedModel), modelToString(actualModel));
 
-            } catch (AssertionError error) {
-                collector.addError(error);
-            }
-        }
+			} catch (AssertionError error) {
+				collector.addError(error);
+			}
+		}
 
-    }
+	}
 
-    private void testAdvancedRDF4J(XmlToRdfAdvancedRDF4J build) throws IOException, ParserConfigurationException, SAXException {
-        TestFiles testFiles = getTestFiles();
+	private void testAdvancedRDF4J(XmlToRdfAdvancedRDF4J build) throws IOException, ParserConfigurationException, SAXException {
+		TestFiles testFiles = getTestFiles();
 
-        Repository repository = build.convertToRepository(new FileInputStream(testFiles.xml));
+		Repository repository = build.convertToRepository(new FileInputStream(testFiles.xml));
 
-        String rdf = repositoryToString(repository, RDFFormat.JSONLD);
-        Model actualModelRDF4J = ModelFactory.createDefaultModel().read(new ByteArrayInputStream(rdf.getBytes("UTF-8")), "", RDFLanguages.strLangJSONLD);
+		String rdf = repositoryToString(repository, RDFFormat.JSONLD);
+		Model actualModelRDF4J = ModelFactory.createDefaultModel().read(new ByteArrayInputStream(rdf.getBytes("UTF-8")), "", RDFLanguages.strLangJSONLD);
 
-        Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
+		Model expectedModel = FileManager.get().readModel(ModelFactory.createDefaultModel(), testFiles.expected.getCanonicalPath());
 
-        if (!expectedModel.isIsomorphicWith(actualModelRDF4J)) {
-            try {
-                assertEquals("Not isomorphic for object method with RDF4J repository.", modelToString(expectedModel), modelToString(actualModelRDF4J));
+		if (!expectedModel.isIsomorphicWith(actualModelRDF4J)) {
+			try {
+				assertEquals("Not isomorphic for object method with RDF4J repository.", modelToString(expectedModel), modelToString(actualModelRDF4J));
 
-            } catch (AssertionError error) {
-                collector.addError(error);
-            }
-        }
-    }
+			} catch (AssertionError error) {
+				collector.addError(error);
+			}
+		}
+	}
 
-    private class TestFiles {
-        String path;
-        File xml;
-        File expected;
+	private class TestFiles {
+		String path;
+		File xml;
+		File expected;
 
-        public TestFiles(String path, File xml, File expected) {
-            this.path = path;
-            this.xml = xml;
-            this.expected = expected;
-        }
-    }
+		public TestFiles(String path, File xml, File expected) {
+			this.path = path;
+			this.xml = xml;
+			this.expected = expected;
+		}
+	}
 
-    private TestFiles getTestFiles() throws IOException {
-        StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
-        String methodName = stackTrace[3].getMethodName();
-        String path = "testFiles/" + methodName;
-        File pathDir = new File(path);
-        if (!pathDir.exists()) {
-            pathDir.mkdir();
-        }
+	private TestFiles getTestFiles() throws IOException {
+		StackTraceElement[] stackTrace = Thread.currentThread().getStackTrace();
+		String methodName = stackTrace[3].getMethodName();
+		String path = "testFiles/" + methodName;
+		File pathDir = new File(path);
+		if (!pathDir.exists()) {
+			pathDir.mkdir();
+		}
 
-        File xml = new File(path + "/input.xml");
-        File expected = new File(path + "/expected.ttl");
+		File xml = new File(path + "/input.xml");
+		File expected = new File(path + "/expected.ttl");
 
-        if (!xml.exists()) {
-            xml.createNewFile();
-        }
+		if (!xml.exists()) {
+			xml.createNewFile();
+		}
 
-        if (!expected.exists()) {
-            expected.createNewFile();
-        }
+		if (!expected.exists()) {
+			expected.createNewFile();
+		}
 
-        return new TestFiles(path, xml, expected);
+		return new TestFiles(path, xml, expected);
 
-    }
+	}
 
-    private String modelToString(Model createdModel) {
+	private String modelToString(Model createdModel) {
 
-        createdModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
-        createdModel.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
-        createdModel.setNsPrefix("skos", "http://www.w3.org/2004/02/skos/core#");
+		createdModel.setNsPrefix("xmlToRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
+		createdModel.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+		createdModel.setNsPrefix("skos", "http://www.w3.org/2004/02/skos/core#");
 
-        StringWriter stringWriter = new StringWriter();
-        createdModel.write(stringWriter, "TTL");
-        return stringWriter.toString();
-    }
+		StringWriter stringWriter = new StringWriter();
+		createdModel.write(stringWriter, "TTL");
+		return stringWriter.toString();
+	}
 
-    private static String repositoryToString(Repository repository, RDFFormat format) {
+	private static String repositoryToString(Repository repository, RDFFormat format) {
 
-        StringWriter stringWriter = new StringWriter();
-        RDFWriter writer = Rio.createWriter(format, stringWriter);
+		StringWriter stringWriter = new StringWriter();
+		RDFWriter writer = Rio.createWriter(format, stringWriter);
 
-        writer.startRDF();
-        try (RepositoryConnection connection = repository.getConnection()) {
-            RepositoryResult<Namespace> namespaces = connection.getNamespaces();
+		writer.startRDF();
+		try (RepositoryConnection connection = repository.getConnection()) {
+			RepositoryResult<Namespace> namespaces = connection.getNamespaces();
 
-            while (namespaces.hasNext()) {
-                Namespace next = namespaces.next();
-                writer.handleNamespace(next.getPrefix(), next.getName());
-            }
+			while (namespaces.hasNext()) {
+				Namespace next = namespaces.next();
+				writer.handleNamespace(next.getPrefix(), next.getName());
+			}
 
-            RepositoryResult<Statement> statements = connection.getStatements(null, null, null);
-            while (statements.hasNext()) {
-                writer.handleStatement(statements.next());
-            }
-        }
-        writer.endRDF();
+			RepositoryResult<Statement> statements = connection.getStatements(null, null, null);
+			while (statements.hasNext()) {
+				writer.handleStatement(statements.next());
+			}
+		}
+		writer.endRDF();
 
-        return stringWriter.toString();
-    }
+		return stringWriter.toString();
+	}
 }

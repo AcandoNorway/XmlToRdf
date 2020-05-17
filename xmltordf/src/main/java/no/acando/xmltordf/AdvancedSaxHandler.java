@@ -19,339 +19,345 @@ package no.acando.xmltordf;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 
 
 abstract class AdvancedSaxHandler<ResourceType, Datatype> extends org.xml.sax.helpers.DefaultHandler {
 
-    private final Deque<Element<ResourceType, Datatype>> elementStack = new ArrayDeque<>(100);
+	private final Deque<Element<ResourceType, Datatype>> elementStack = new ArrayDeque<>(100);
 
-    final static String XSD = "http://www.w3.org/2001/XMLSchema#";
+	final static String XSD = "http://www.w3.org/2001/XMLSchema#";
 
 
-    Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
+	Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder;
 
-    private long uriCounter = 0;
-    private long index = 0;
+	private long uriCounter = 0;
+	private long index = 0;
 
-    private Element<ResourceType, Datatype> skipElementUntil = null;
-    private final Element<ResourceType, Datatype> skippableElement = new Element<>(this, builder);
+	private Element<ResourceType, Datatype> skipElementUntil = null;
+	private final Element<ResourceType, Datatype> skippableElement = new Element<>(this, builder);
 
-    AdvancedSaxHandler(Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
+	AdvancedSaxHandler(Builder.Advanced<ResourceType, Datatype, ? extends Builder.Advanced> builder) {
 
-        this.builder = builder;
-    }
+		this.builder = builder;
+	}
 
-    abstract void createTriple(String subject, String predicate, String object);
+	abstract void createTriple(String subject, String predicate, String object);
 
-    abstract void createTripleLiteral(String subject, String predicate, String objectLiteral);
+	abstract void createTripleLiteral(String subject, String predicate, String objectLiteral);
 
-    abstract void createTripleLiteral(String subject, String predicate, long objectLong);
+	abstract void createTripleLiteral(String subject, String predicate, long objectLong);
 
-    abstract void createList(String subject, String predicate, List<Object> mixedContent);
+	abstract void createList(String subject, String predicate, List<Object> mixedContent);
 
-    abstract void createTripleLiteral(String subject, String predicate, String objectLiteral, Datatype datatype);
+	abstract void createTripleLiteral(String subject, String predicate, String objectLiteral, Datatype datatype);
 
-    abstract void createTriple(String uri, String hasValue, ResourceType resourceType);
+	abstract void createTriple(String uri, String hasValue, ResourceType resourceType);
 
-    @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
+	@Override
+	public void characters(char[] ch, int start, int length) throws SAXException {
 
-        if (length > 0) {
+		if (length > 0) {
 
-            elementStack.peek().appendValue(ch, start, length);
+			elementStack.peek().appendValue(ch, start, length);
 
-        }
+		}
 
-    }
+	}
 
-    @Override
-    public void endElement(String namespace, String localName, String qName) throws SAXException {
+	@Override
+	public void endElement(String namespace, String localName, String qName) throws SAXException {
 
-        Element<ResourceType, Datatype> pop = elementStack.pop();
+		Element<ResourceType, Datatype> pop = elementStack.pop();
 
-        if (pop == skippableElement) {
-            return;
-        } else if (skipElementUntil != null) {
-            if (pop == skipElementUntil) {
-                skipElementUntil = null;
-                return;
-            }
-        }
+		if (pop == skippableElement) {
+			return;
+		} else if (skipElementUntil != null) {
+			if (pop == skipElementUntil) {
+				skipElementUntil = null;
+				return;
+			}
+		}
 
-        pop.createTriples();
+		pop.createTriples();
 
 
-    }
+	}
 
-    Optional<ResourceType> mapLiteralToResource(Element pop) {
-        if (builder.elementTextToUriMap != null) {
-            Map<String, ResourceType> stringResourceTypeMap = builder.elementTextToUriMap.get(pop.getType());
-            if (stringResourceTypeMap != null) {
-                ResourceType value = stringResourceTypeMap.get(pop.getHasValue());
-                if (value != null) {
-                    return Optional.of(value);
-                }
-            }
-        }
+	Optional<ResourceType> mapLiteralToResource(Element pop) {
+		if (builder.elementTextToUriMap != null) {
+			Map<String, ResourceType> stringResourceTypeMap = builder.elementTextToUriMap.get(pop.getType());
+			if (stringResourceTypeMap != null) {
+				ResourceType value = stringResourceTypeMap.get(pop.getHasValue());
+				if (value != null) {
+					return Optional.of(value);
+				}
+			}
+		}
 
-        if(builder.elementTextToUriFunctionMap != null){
-            StringTransformToT<ResourceType> resourceTypeStringTransformToT = builder.elementTextToUriFunctionMap.get(pop.getType());
-            if(resourceTypeStringTransformToT != null){
-                return Optional.of(resourceTypeStringTransformToT.transform(pop.getHasValue()));
-            }
-        }
+		if (builder.elementTextToUriFunctionMap != null) {
+			StringTransformToT<ResourceType> resourceTypeStringTransformToT = builder.elementTextToUriFunctionMap.get(pop.getType());
+			if (resourceTypeStringTransformToT != null) {
+				return Optional.of(resourceTypeStringTransformToT.transform(pop.getHasValue()));
+			}
+		}
 
-        return Optional.empty();
-    }
+		return Optional.empty();
+	}
 
 
-    //TODO: this method is enormous, consider breaking it down
-    @Override
-    public void startElement(String namespace, String localName, String qName, Attributes attributes) throws SAXException {
+	//TODO: this method is enormous, consider breaking it down
+	@Override
+	public void startElement(String namespace, String localName, String qName, Attributes attributes) throws SAXException {
 
-        if (skipElementUntil != null) {
-            elementStack.push(skippableElement);
-            return;
-        }
+		if (skipElementUntil != null) {
+			elementStack.push(skippableElement);
+			return;
+		}
 
-        boolean mixedContent = detectMixedContent();
+		boolean mixedContent = detectMixedContent();
 
-        if (builder.xsiTypeSupport && attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
-            String type = attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type");
+		if (builder.xsiTypeSupport && attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type") != null) {
+			String type = attributes.getValue("http://www.w3.org/2001/XMLSchema-instance", "type");
 
-            if (type.contains(":")) {
-                String[] split = type.split(":");
-                namespace = prefixUriMap.get(split[0]);
-                localName = split[1];
-            } else {
-                localName = type;
-            }
-        }
+			if (type.contains(":")) {
+				String[] split = type.split(":");
+				namespace = prefixUriMap.get(split[0]);
+				localName = split[1];
+			} else {
+				localName = type;
+			}
+		}
 
-        Element<ResourceType, Datatype> element = new Element<>(this, builder);
-        element.index = index++;
+		Element<ResourceType, Datatype> element = new Element<>(this, builder);
+		element.index = index++;
 
-        namespace = calculateNamespace(namespace);
+		namespace = calculateNamespace(namespace);
 
-        element.setType(namespace + localName);
+		element.setType(namespace + localName);
 
-        if (builder.skipElementMap != null && builder.skipElementMap.containsKey(element.getType())) {
-            skipElementUntil = element;
-            elementStack.push(element);
-            return;
-        }
+		if (builder.skipElementMap != null && builder.skipElementMap.containsKey(element.getType())) {
+			skipElementUntil = element;
+			elementStack.push(element);
+			return;
+		}
 
 
-        Element<ResourceType, Datatype> parent = null;
+		Element<ResourceType, Datatype> parent = null;
 
-        if (!elementStack.isEmpty()) {
-            parent = elementStack.peek();
-            if (builder.addIndex) {
-                element.elementIndex = parent.indexMap.plusPlus(element.getType());
-            }
-            parent.hasChild.add(element);
-            if(builder.useHashmapForChildren){
-                parent.hasChildMap.put(element.getType(), element);
-            }
-            if (mixedContent) {
-                parent.addMixedContent(element);
-            }
+		if (!elementStack.isEmpty()) {
+			parent = elementStack.peek();
+			if (builder.addIndex) {
+				element.elementIndex = parent.indexMap.plusPlus(element.getType());
+			}
+			parent.hasChild.add(element);
+			if (builder.useHashmapForChildren) {
+				parent.hasChildMap.put(element.getType(), element);
+			}
+			if (mixedContent) {
+				parent.addMixedContent(element);
+			}
 
-        }
+		}
 
-        element.parent = parent;
+		element.parent = parent;
 
-        renameElement(namespace, localName, element);
+		renameElement(namespace, localName, element);
 
-        if (builder.forcedMixedContentMap != null &&
-            builder.forcedMixedContentMap.containsKey(element.getType())) {
+		if (builder.forcedMixedContentMap != null &&
+			builder.forcedMixedContentMap.containsKey(element.getType())) {
 
-            element.containsMixedContent = true;
-        }
+			element.containsMixedContent = true;
+		}
 
 
-        if (builder.compositeIdMap != null) {
+		if (builder.compositeIdMap != null) {
 
-            CompositeId compositeId = builder.compositeIdMap.get(element.getType());
-            if (compositeId == null) {
-                calculateNodeId(element);
-            } else {
-                element.compositeId = compositeId.simpleClone();
-                if(element.compositeId.elementIndex){
-                    element.compositeId.reolveElementIndex(XmlToRdfVocabulary.index, element.index);
-                    element.compositeId.reolveElementIndex(XmlToRdfVocabulary.elementIndex, element.elementIndex);
-                }
+			CompositeId compositeId = builder.compositeIdMap.get(element.getType());
+			if (compositeId == null) {
+				calculateNodeId(element);
+			} else {
+				element.compositeId = compositeId.simpleClone();
+				if (element.compositeId.elementIndex) {
+					element.compositeId.reolveElementIndex(XmlToRdfVocabulary.index, element.index);
+					element.compositeId.reolveElementIndex(XmlToRdfVocabulary.elementIndex, element.elementIndex);
+				}
 
-            }
+			}
 
-        } else {
-            calculateNodeId(element);
-        }
+		} else {
+			calculateNodeId(element);
+		}
 
-        handleAttributes(namespace, attributes, element);
+		handleAttributes(namespace, attributes, element);
 
-        if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(element.getType())) {
-            element.useElementAsPredicate = true;
-        }
+		if (builder.useElementAsPredicateMap != null && builder.useElementAsPredicateMap.containsKey(element.getType())) {
+			element.useElementAsPredicate = true;
+		}
 
-        builder.doComplexTransformElementAtStartOfElement(element);
+		builder.doComplexTransformElementAtStartOfElement(element);
 
 
-        elementStack.push(element);
+		elementStack.push(element);
 
-    }
-
-    private void handleAttributes(String elementNamespace, Attributes attributes, Element<ResourceType, Datatype> element) {
-        int length = attributes.getLength();
-        for (int i = 0; i < length; i++) {
-            String uriAttr = attributes.getURI(i);
-            String nameAttr = attributes.getLocalName(i);
-            String valueAttr = attributes.getValue(i);
+	}
+
+	private void handleAttributes(String elementNamespace, Attributes attributes, Element<ResourceType, Datatype> element) {
+		int length = attributes.getLength();
+		for (int i = 0; i < length; i++) {
+			String uriAttr = attributes.getURI(i);
+			String nameAttr = attributes.getLocalName(i);
+			String valueAttr = attributes.getValue(i);
 
-            if (builder.xsiTypeSupport && uriAttr.equals("http://www.w3.org/2001/XMLSchema-instance") && nameAttr.equals("type")) {
-                continue;
-            }
+			if (builder.xsiTypeSupport && uriAttr.equals("http://www.w3.org/2001/XMLSchema-instance") && nameAttr.equals("type")) {
+				continue;
+			}
 
-            uriAttr = calculateNamespaceForAttribute(elementNamespace, uriAttr);
+			uriAttr = calculateNamespaceForAttribute(elementNamespace, uriAttr);
 
-            valueAttr = builder.doTransformForAttribute(element.getType(), uriAttr + nameAttr, valueAttr);
+			valueAttr = builder.doTransformForAttribute(element.getType(), uriAttr + nameAttr, valueAttr);
 
-            if (builder.resolveAsQnameInAttributeValue && valueAttr.contains(":")) {
-                String[] split = valueAttr.split(":");
-                split[0] = prefixUriMap.get(split[0]);
-                valueAttr = String.join("", split);
-            }
+			if (builder.resolveAsQnameInAttributeValue && valueAttr.contains(":")) {
+				String[] split = valueAttr.split(":");
+				split[0] = prefixUriMap.get(split[0]);
+				valueAttr = String.join("", split);
+			}
 
-            builder.getIdByUseAttributeForId(element.getType(), uriAttr + nameAttr, valueAttr, element);
+			builder.getIdByUseAttributeForId(element.getType(), uriAttr + nameAttr, valueAttr, element);
 
-            Property property = new Property(uriAttr, nameAttr, valueAttr);
-            element.properties.add(property);
+			Property property = new Property(uriAttr, nameAttr, valueAttr);
+			element.properties.add(property);
 
-            if (element.compositeId != null) {
-                element.compositeId.resolveAttribute(uriAttr + nameAttr, valueAttr);
-            }
+			if (element.compositeId != null) {
+				element.compositeId.resolveAttribute(uriAttr + nameAttr, valueAttr);
+			}
 
-        }
-    }
+		}
+	}
 
-    private String calculateNamespaceForAttribute(String elementNamespace, String uriAttr) {
-        if (builder.overrideNamespace != null) {
-            uriAttr = builder.overrideNamespace;
-        }
+	private String calculateNamespaceForAttribute(String elementNamespace, String uriAttr) {
+		if (builder.overrideNamespace != null) {
+			uriAttr = builder.overrideNamespace;
+		}
 
-        if (builder.autoAddSuffixToNamespace != null) {
-            if (uriAttr != null && !uriAttr.isEmpty() && !(uriAttr.endsWith("/") || uriAttr.endsWith("#"))) {
-                uriAttr += builder.autoAddSuffixToNamespace;
-            }
-        }
+		if (builder.autoAddSuffixToNamespace != null) {
+			if (uriAttr != null && !uriAttr.isEmpty() && !(uriAttr.endsWith("/") || uriAttr.endsWith("#"))) {
+				uriAttr += builder.autoAddSuffixToNamespace;
+			}
+		}
 
-        if (uriAttr == null || uriAttr.isEmpty()) {
-            if (builder.autoAttributeNamespace && elementNamespace != null && !elementNamespace.isEmpty()) {
-                uriAttr = elementNamespace;
-            } else if (builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justAttributes || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
-                uriAttr = builder.baseNamespace;
-            }
-        }
-        return uriAttr;
-    }
+		if (uriAttr == null || uriAttr.isEmpty()) {
+			if (builder.autoAttributeNamespace && elementNamespace != null && !elementNamespace.isEmpty()) {
+				uriAttr = elementNamespace;
+			} else if (builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justAttributes || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
+				uriAttr = builder.baseNamespace;
+			}
+		}
+		return uriAttr;
+	}
 
-    private void calculateNodeId(Element<ResourceType, Datatype> element) {
-        if (builder.uuidBasedIdInsteadOfBlankNodes != null) {
+	private void calculateNodeId(Element<ResourceType, Datatype> element) {
+		if (builder.uuidBasedIdInsteadOfBlankNodes != null) {
 
-            element.uri = builder.uuidBasedIdInsteadOfBlankNodes + UUID.randomUUID().toString();
+			element.uri = builder.uuidBasedIdInsteadOfBlankNodes + UUID.randomUUID().toString();
 
-        } else {
-            element.uri = Common.BLANK_NODE_PREFIX + uriCounter++;
+		} else {
+			element.uri = Common.BLANK_NODE_PREFIX + uriCounter++;
 
-        }
-    }
+		}
+	}
 
-    private void renameElement(String uri, String localName, Element<ResourceType, Datatype> element) {
-        if (builder.renameElementPathMap != null) {
-            String newElementName = builder.renameElementPathMap.get(element);
-            if (newElementName != null) {
-                element.setType(newElementName);
-                return;
-            }
-        }
+	private void renameElement(String uri, String localName, Element<ResourceType, Datatype> element) {
+		if (builder.renameElementPathMap != null) {
+			String newElementName = builder.renameElementPathMap.get(element);
+			if (newElementName != null) {
+				element.setType(newElementName);
+				return;
+			}
+		}
 
-        if (builder.renameElementMap != null) {
-            String newElementName = builder.renameElementMap.get(uri + localName);
-            if (newElementName != null) {
-                element.setType(newElementName);
-                return;
-            }
+		if (builder.renameElementMap != null) {
+			String newElementName = builder.renameElementMap.get(uri + localName);
+			if (newElementName != null) {
+				element.setType(newElementName);
+				return;
+			}
 
-        }
-        if (builder.renameElementFunctionMap != null) {
-            StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
-            if (stringTransformTwoValue != null) {
-                element.setType(stringTransformTwoValue.transform(uri, localName));
-            }
-        }
-    }
+		}
+		if (builder.renameElementFunctionMap != null) {
+			StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
+			if (stringTransformTwoValue != null) {
+				element.setType(stringTransformTwoValue.transform(uri, localName));
+			}
+		}
+	}
 
-    private String calculateNamespace(String uri) {
-        if (builder.overrideNamespace != null) {
-            return builder.overrideNamespace;
-        }
+	private String calculateNamespace(String uri) {
+		if (builder.overrideNamespace != null) {
+			return builder.overrideNamespace;
+		}
 
-        if (builder.autoAddSuffixToNamespace != null) {
-            if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
-                uri += builder.autoAddSuffixToNamespace;
-            }
-        }
+		if (builder.autoAddSuffixToNamespace != null) {
+			if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
+				uri += builder.autoAddSuffixToNamespace;
+			}
+		}
 
-        if ((uri == null || uri.isEmpty()) && builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justElements || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
-            uri = builder.baseNamespace;
-        }
+		if ((uri == null || uri.isEmpty()) && builder.baseNamespace != null && (builder.baseNamespaceAppliesTo == Builder.AppliesTo.justElements || builder.baseNamespaceAppliesTo == Builder.AppliesTo.bothElementsAndAttributes)) {
+			uri = builder.baseNamespace;
+		}
 
-        return uri;
-    }
+		return uri;
+	}
 
-    private boolean detectMixedContent() {
+	private boolean detectMixedContent() {
 
-        if (elementStack.size() > 0) {
-            Element<ResourceType, Datatype> peek = elementStack.peek();
+		if (elementStack.size() > 0) {
+			Element<ResourceType, Datatype> peek = elementStack.peek();
 
-            if (peek.containsMixedContent) {
-                return true;
-            }
+			if (peek.containsMixedContent) {
+				return true;
+			}
 
-            if (peek.getHasValue() != null) {
-                return true;
-            }
-        }
-        return false;
-    }
+			if (peek.getHasValue() != null) {
+				return true;
+			}
+		}
+		return false;
+	}
 
-    static boolean isBlankNode(String node) {
-        return node.startsWith(Common.BLANK_NODE_PREFIX);
-    }
+	static boolean isBlankNode(String node) {
+		return node.startsWith(Common.BLANK_NODE_PREFIX);
+	}
 
 
-    HashMap<String, String> prefixUriMap = new HashMap<>();
+	HashMap<String, String> prefixUriMap = new HashMap<>();
 
-    @Override
-    final public void startPrefixMapping(String prefix, String uri) throws SAXException {
+	@Override
+	final public void startPrefixMapping(String prefix, String uri) throws SAXException {
 
-        if (builder.autoAddSuffixToNamespace != null) {
-            if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
-                uri += builder.autoAddSuffixToNamespace;
-            }
-        }
+		if (builder.autoAddSuffixToNamespace != null) {
+			if (uri != null && !uri.isEmpty() && !(uri.endsWith("/") || uri.endsWith("#"))) {
+				uri += builder.autoAddSuffixToNamespace;
+			}
+		}
 
-        if ((uri == null || uri.isEmpty()) && builder.baseNamespace != null) {
-            uri = builder.baseNamespace;
-        }
+		if ((uri == null || uri.isEmpty()) && builder.baseNamespace != null) {
+			uri = builder.baseNamespace;
+		}
 
-        if (builder.overrideNamespace != null) {
-            uri = builder.overrideNamespace;
-        }
+		if (builder.overrideNamespace != null) {
+			uri = builder.overrideNamespace;
+		}
 
-        prefixUriMap.put(prefix, uri);
+		prefixUriMap.put(prefix, uri);
 
-    }
+	}
 
 }

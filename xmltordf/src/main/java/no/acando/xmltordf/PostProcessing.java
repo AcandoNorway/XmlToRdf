@@ -20,24 +20,28 @@ import com.github.mustachejava.DefaultMustacheFactory;
 import com.github.mustachejava.Mustache;
 import com.github.mustachejava.MustacheFactory;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 
 
 abstract class PostProcessing {
 
-    private File intermediaryDirectory;
+	private File intermediaryDirectory;
 
-    String compileMustacheTemplate(InputStream mustacheTemplate, Object input) throws IOException {
-        MustacheFactory mf = new DefaultMustacheFactory();
-        Mustache mustache = mf.compile(new InputStreamReader(mustacheTemplate), "");
-        StringWriter stringWriter = new StringWriter();
-        mustache.execute(stringWriter, input).flush();
-        return stringWriter.toString();
-    }
+	String compileMustacheTemplate(InputStream mustacheTemplate, Object input) throws IOException {
+		MustacheFactory mf = new DefaultMustacheFactory();
+		Mustache mustache = mf.compile(new InputStreamReader(mustacheTemplate), "");
+		StringWriter stringWriter = new StringWriter();
+		mustache.execute(stringWriter, input).flush();
+		return stringWriter.toString();
+	}
 
-    public abstract PostProcessing mustacheTransform(InputStream mustacheTemplate, Object input) throws IOException;
+	public abstract PostProcessing mustacheTransform(InputStream mustacheTemplate, Object input) throws IOException;
 
-    public abstract PostProcessing mustacheExtract(InputStream mustacheTemplate, Object input) throws IOException;
+	public abstract PostProcessing mustacheExtract(InputStream mustacheTemplate, Object input) throws IOException;
 
 //    private void logBetweenTransforms(File intermediaryDirectory) {
 //        this.intermediaryDirectory = intermediaryDirectory;

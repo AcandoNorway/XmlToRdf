@@ -1,8 +1,19 @@
 <A xmlns="http://example.org/">
 
-        <name><pnavn>1</pnavn> 2<pnavn>3</pnavn> 4</name>
-        <name><pnavn attr="attr">1</pnavn> 2<pnavn>3</pnavn> 4</name>
+    <name>
+        <pnavn>1</pnavn>
+        2<pnavn>3</pnavn> 4
+    </name>
+    <name>
+        <pnavn attr="attr">1</pnavn>
+        2<pnavn>3</pnavn> 4
+    </name>
 
-        <test><test1><test3>a</test3></test1><test2>b</test2>hei</test>
+    <test>
+        <test1>
+            <test3>a</test3>
+        </test1>
+        <test2>b</test2>hei
+    </test>
 
 </A>

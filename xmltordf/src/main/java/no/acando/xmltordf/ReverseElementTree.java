@@ -22,97 +22,98 @@ import java.util.List;
 
 class ReverseElementTree {
 
-    List<Node> roots = new ArrayList<>();
+	List<Node> roots = new ArrayList<>();
 
-    void insert(Builder.XmlPath path, String renameTo){
-
-
-        for (Node root : roots) {
-            if(root.elementName.equals(path.getTail())){
-                root.add(path.shorten(), renameTo);
-                return;
-            }
-        }
-
-        Node e = new Node();
-        roots.add(e);
-        e.elementName = path.getTail();
-        if(path.last()){
-            e.newElementName = renameTo;
-        }
-        e.add(path.shorten(), renameTo);
+	void insert(Builder.XmlPath path, String renameTo) {
 
 
+		for (Node root : roots) {
+			if (root.elementName.equals(path.getTail())) {
+				root.add(path.shorten(), renameTo);
+				return;
+			}
+		}
 
-    }
+		Node e = new Node();
+		roots.add(e);
+		e.elementName = path.getTail();
+		if (path.last()) {
+			e.newElementName = renameTo;
+		}
+		e.add(path.shorten(), renameTo);
 
 
-    public String get(Element element) {
-        for (Node root : roots) {
-            if(root.elementName.equals(element.getType())){
-                if(element.parent !=null){
-                    return  root.get(element.parent);
-                } else{
-                    return root.newElementName;
-                }
-            }
-        }
+	}
 
-        return null;
-    }
+
+	public String get(Element element) {
+		for (Node root : roots) {
+			if (root.elementName.equals(element.getType())) {
+				if (element.parent != null) {
+					return root.get(element.parent);
+				} else {
+					return root.newElementName;
+				}
+			}
+		}
+
+		return null;
+	}
 
 
 }
 
 
-class Node{
-    String elementName;
-    String newElementName;
+class Node {
+	String elementName;
+	String newElementName;
 
-    List<Node> next = new ArrayList<>();
+	List<Node> next = new ArrayList<>();
 
-    void add(Builder.XmlPath path, String renameTo){
-
-
-
-        if(path.getTail() == null) return;
-
-        for (Node node : next) {
-            if(node.elementName.equals(path.getTail())){
-                node.add(path.shorten(), renameTo);
-                return;
-            }
-        }
-        Node node = new Node();
-
-        next.add(node);
-        node.elementName = path.getTail();
-
-        if(path.last()){
-            node.newElementName = renameTo;
-        }
-
-        node.add(path.shorten(), renameTo);
+	void add(Builder.XmlPath path, String renameTo) {
 
 
+		if (path.getTail() == null) {
+			return;
+		}
 
-    }
+		for (Node node : next) {
+			if (node.elementName.equals(path.getTail())) {
+				node.add(path.shorten(), renameTo);
+				return;
+			}
+		}
+		Node node = new Node();
 
-    public String get(Element parent) {
+		next.add(node);
+		node.elementName = path.getTail();
+
+		if (path.last()) {
+			node.newElementName = renameTo;
+		}
+
+		node.add(path.shorten(), renameTo);
 
 
-        for (Node node : next) {
-            if(node.elementName.equals(parent.getType())){
-                if(parent.parent == null){
-                    return node.newElementName;
-                }
+	}
 
-                return node.get(parent.parent);
-            }
-        }
+	public String get(Element parent) {
 
-        if(newElementName != null) return newElementName;
 
-        return null;
-    }
+		for (Node node : next) {
+			if (node.elementName.equals(parent.getType())) {
+				if (parent.parent == null) {
+					return node.newElementName;
+				}
+
+				return node.get(parent.parent);
+			}
+		}
+
+		if (newElementName != null) {
+			return newElementName;
+		}
+
+		return null;
+	}
 }

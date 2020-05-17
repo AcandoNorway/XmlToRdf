@@ -18,8 +18,8 @@ import no.acando.xmltordf.Builder;
 import no.acando.xmltordf.XmlToRdfAdvancedJena;
 import no.acando.xmltordf.XmlToRdfAdvancedRDF4J;
 import org.apache.jena.query.Dataset;
-import org.junit.Test;
 import org.eclipse.rdf4j.repository.Repository;
+import org.junit.Test;
 import org.xml.sax.SAXException;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -34,83 +34,82 @@ import java.util.concurrent.Executors;
 import static org.junit.Assert.assertEquals;
 
 public class ConcurrencyTest {
-    private List<Dataset> datasets = new ArrayList<>();
-    private List<Repository> repositories = new ArrayList<>();
+	private List<Dataset> datasets = new ArrayList<>();
+	private List<Repository> repositories = new ArrayList<>();
 
-    private synchronized void addDataset(Dataset dataset) {
-        datasets.add(dataset);
-    }
+	private synchronized void addDataset(Dataset dataset) {
+		datasets.add(dataset);
+	}
 
-    final static int NUMBER_OF_THREADS = 8;
-    final int TRIPLES_PER_FILE = 217227;
+	final static int NUMBER_OF_THREADS = 8;
+	final int TRIPLES_PER_FILE = 217227;
 
 
-    @Test
-    public void testJena() {
-        
-        ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+	@Test
+	public void testJena() {
 
-        XmlToRdfAdvancedJena build = Builder.getAdvancedBuilderJena().build();
+		ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-        for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-            executor.execute(() -> {
-                try {
-                    Dataset dataset = build.convertToDataset(new BufferedInputStream(new FileInputStream("testFiles/mediumLargeFile/input.xml")));
-                    addDataset(dataset);
-                    System.out.println("Done");
-                } catch (ParserConfigurationException | SAXException | IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+		XmlToRdfAdvancedJena build = Builder.getAdvancedBuilderJena().build();
 
-        executor.shutdown();
+		for (int i = 0; i < NUMBER_OF_THREADS; i++) {
+			executor.execute(() -> {
+				try {
+					Dataset dataset = build.convertToDataset(new BufferedInputStream(new FileInputStream("testFiles/mediumLargeFile/input.xml")));
+					addDataset(dataset);
+					System.out.println("Done");
+				} catch (ParserConfigurationException | SAXException | IOException e) {
+					e.printStackTrace();
+				}
+			});
+		}
 
-        while (!executor.isTerminated()) {
-            Thread.yield();
-        }
+		executor.shutdown();
 
-        long actualSum = datasets.stream().map(d -> d.getDefaultModel().size()).reduce((a, b) -> a + b).get();
+		while (!executor.isTerminated()) {
+			Thread.yield();
+		}
 
-        assertEquals("Sum is wrong", TRIPLES_PER_FILE*NUMBER_OF_THREADS, actualSum);
+		long actualSum = datasets.stream().map(d -> d.getDefaultModel().size()).reduce((a, b) -> a + b).get();
 
-    }
+		assertEquals("Sum is wrong", TRIPLES_PER_FILE * NUMBER_OF_THREADS, actualSum);
 
-    @Test
-    public void testRDF4J() {
+	}
 
-        ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
+	@Test
+	public void testRDF4J() {
 
-        XmlToRdfAdvancedRDF4J build = Builder.getAdvancedBuilderRDF4J().build();
+		ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
-        for (int i = 0; i < NUMBER_OF_THREADS; i++) {
-            executor.execute(() -> {
-                try {
-                    Repository repo = build.convertToRepository(new BufferedInputStream(new FileInputStream("testFiles/mediumLargeFile/input.xml")));
-                    addRepository(repo);
-                    System.out.println("Done");
-                } catch (ParserConfigurationException | SAXException | IOException e) {
-                    e.printStackTrace();
-                }
-            });
-        }
+		XmlToRdfAdvancedRDF4J build = Builder.getAdvancedBuilderRDF4J().build();
 
-        executor.shutdown();
+		for (int i = 0; i < NUMBER_OF_THREADS; i++) {
+			executor.execute(() -> {
+				try {
+					Repository repo = build.convertToRepository(new BufferedInputStream(new FileInputStream("testFiles/mediumLargeFile/input.xml")));
+					addRepository(repo);
+					System.out.println("Done");
+				} catch (ParserConfigurationException | SAXException | IOException e) {
+					e.printStackTrace();
+				}
+			});
+		}
 
-        while (!executor.isTerminated()) {
-            Thread.yield();
-        }
+		executor.shutdown();
 
-        long actualSum = repositories.stream().map(d -> d.getConnection().size()).reduce((a, b) -> a + b).get();
+		while (!executor.isTerminated()) {
+			Thread.yield();
+		}
 
-        assertEquals("Sum is wrong", TRIPLES_PER_FILE*NUMBER_OF_THREADS, actualSum);
+		long actualSum = repositories.stream().map(d -> d.getConnection().size()).reduce((a, b) -> a + b).get();
 
-    }
+		assertEquals("Sum is wrong", TRIPLES_PER_FILE * NUMBER_OF_THREADS, actualSum);
 
-    synchronized private void addRepository(Repository repo) {
-        repositories.add(repo);
-    }
+	}
 
+	synchronized private void addRepository(Repository repo) {
+		repositories.add(repo);
+	}
 
 
 }

@@ -1,11 +1,14 @@
 <A xmlns="http://example.org/">
 
-        <JP.OFFINNHOLD>hello space </JP.OFFINNHOLD>
+    <JP.OFFINNHOLD>hello space</JP.OFFINNHOLD>
 
-        <JP.OFFINNHOLD>A <PNAVN>b c </PNAVN>e f </JP.OFFINNHOLD>
+    <JP.OFFINNHOLD>A <PNAVN>b c</PNAVN>e f
+    </JP.OFFINNHOLD>
 
-        <test>yay space             </test>
+    <test>yay space</test>
 
-        <JP.OFFINNHOLD>A<PNAVN>b</PNAVN> <PNAVN>c</PNAVN>d</JP.OFFINNHOLD>
+    <JP.OFFINNHOLD>A<PNAVN>b</PNAVN>
+        <PNAVN>c</PNAVN>d
+    </JP.OFFINNHOLD>
 
 </A>

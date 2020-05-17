@@ -1,8 +1,13 @@
 <A xmlns="http://example.org/">
     <B>
         <num>1</num>
-        <name>text <pnavn>a name</pnavn> more text</name>
-        <name>text <pnavn>a name</pnavn> more text <pnavn>another name</pnavn></name>
-        <name>text <pnavn>a name</pnavn></name>
+        <name>text <pnavn>a name</pnavn> more text
+        </name>
+        <name>text <pnavn>a name</pnavn> more text
+            <pnavn>another name</pnavn>
+        </name>
+        <name>text
+            <pnavn>a name</pnavn>
+        </name>
     </B>
 </A>

@@ -25,33 +25,33 @@ import java.io.InputStream;
 
 public class PostProcessingRDF4J extends PostProcessing {
 
-    Repository repository;
+	Repository repository;
 
-    public PostProcessingRDF4J(Repository repository) {
-        this.repository = repository;
-    }
-
-
-    public PostProcessingRDF4J mustacheTransform(InputStream mustacheTemplate, Object input) throws IOException {
-        String stringWriter = compileMustacheTemplate(mustacheTemplate, input);
-
-        try (RepositoryConnection connection = repository.getConnection()) {
-            connection.prepareUpdate(stringWriter).execute();
-        }
-
-        return this;
-
-    }
-
-    @Override
-    public PostProcessingRDF4J mustacheExtract(InputStream mustacheTemplate, Object input) throws IOException {
-        throw new UnsupportedOperationException("Not implemented yet.");
-    }
+	public PostProcessingRDF4J(Repository repository) {
+		this.repository = repository;
+	}
 
 
-    public Repository getRepository() {
-        return repository;
-    }
+	public PostProcessingRDF4J mustacheTransform(InputStream mustacheTemplate, Object input) throws IOException {
+		String stringWriter = compileMustacheTemplate(mustacheTemplate, input);
+
+		try (RepositoryConnection connection = repository.getConnection()) {
+			connection.prepareUpdate(stringWriter).execute();
+		}
+
+		return this;
+
+	}
+
+	@Override
+	public PostProcessingRDF4J mustacheExtract(InputStream mustacheTemplate, Object input) throws IOException {
+		throw new UnsupportedOperationException("Not implemented yet.");
+	}
+
+
+	public Repository getRepository() {
+		return repository;
+	}
 
 
 }

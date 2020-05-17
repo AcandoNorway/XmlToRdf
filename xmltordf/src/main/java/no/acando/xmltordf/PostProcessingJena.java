@@ -28,35 +28,35 @@ import java.io.InputStream;
 
 public class PostProcessingJena extends PostProcessing {
 
-    private Model model;
-    private Model extractedModel = ModelFactory.createDefaultModel();
+	private Model model;
+	private Model extractedModel = ModelFactory.createDefaultModel();
 
-    public PostProcessingJena(Model model) {
-        this.model = model;
-    }
+	public PostProcessingJena(Model model) {
+		this.model = model;
+	}
 
-    public Model getModel() {
-        return model;
-    }
+	public Model getModel() {
+		return model;
+	}
 
-    public Model getExtractedModel() {
-        return extractedModel;
-    }
+	public Model getExtractedModel() {
+		return extractedModel;
+	}
 
 
-    @Override
-    public PostProcessingJena mustacheTransform(InputStream mustacheTemplate, Object input) throws IOException {
-        String sparqlString = compileMustacheTemplate(mustacheTemplate, input);
-        UpdateAction.parseExecute(sparqlString, model);
-        return this;
-    }
+	@Override
+	public PostProcessingJena mustacheTransform(InputStream mustacheTemplate, Object input) throws IOException {
+		String sparqlString = compileMustacheTemplate(mustacheTemplate, input);
+		UpdateAction.parseExecute(sparqlString, model);
+		return this;
+	}
 
-    @Override
-    public PostProcessingJena mustacheExtract(InputStream mustacheTemplate, Object input) throws IOException {
-        String queryString = compileMustacheTemplate(mustacheTemplate, input);
-        Query read = QueryFactory.create(queryString);
-        Model model = QueryExecutionFactory.create(read, this.model).execDescribe();
-        extractedModel.add(model);
-        return this;
-    }
+	@Override
+	public PostProcessingJena mustacheExtract(InputStream mustacheTemplate, Object input) throws IOException {
+		String queryString = compileMustacheTemplate(mustacheTemplate, input);
+		Query read = QueryFactory.create(queryString);
+		Model model = QueryExecutionFactory.create(read, this.model).execDescribe();
+		extractedModel.add(model);
+		return this;
+	}
 }

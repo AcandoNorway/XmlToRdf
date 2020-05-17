@@ -24,51 +24,51 @@ import java.util.NoSuchElementException;
 
 public class UndoableBufferedPrintWriter {
 
-    private final PrintStream out;
-    private final int SIZE = 10;
+	private final PrintStream out;
+	private final int SIZE = 10;
 
-    private int counter = 0;
-    private final Deque<String> deque = new ArrayDeque<>(12);
+	private int counter = 0;
+	private final Deque<String> deque = new ArrayDeque<>(12);
 
-    public UndoableBufferedPrintWriter(PrintStream out) {
-        this.out = out;
-    }
-
-
-    void println(String s) {
-
-        deque.push(s);
-
-        counter++;
-        while (counter > SIZE) {
-            out.println(deque.removeLast());
-            counter--;
-        }
-    }
-
-    String peek() {
-
-        return deque.peek();
-    }
+	public UndoableBufferedPrintWriter(PrintStream out) {
+		this.out = out;
+	}
 
 
-    String pop() {
-        counter--;
+	void println(String s) {
 
-        return deque.pop();
-    }
+		deque.push(s);
 
-    void flush() {
-        try {
-            while (true) {
-                out.println(deque.pop());
-            }
-        } catch (NoSuchElementException e) {
-            // done with loop
-        }
+		counter++;
+		while (counter > SIZE) {
+			out.println(deque.removeLast());
+			counter--;
+		}
+	}
 
-        out.flush();
-    }
+	String peek() {
+
+		return deque.peek();
+	}
+
+
+	String pop() {
+		counter--;
+
+		return deque.pop();
+	}
+
+	void flush() {
+		try {
+			while (true) {
+				out.println(deque.pop());
+			}
+		} catch (NoSuchElementException e) {
+			// done with loop
+		}
+
+		out.flush();
+	}
 
 
 }

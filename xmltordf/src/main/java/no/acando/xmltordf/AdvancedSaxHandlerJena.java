@@ -39,260 +39,260 @@ import java.util.concurrent.BlockingQueue;
 
 final class AdvancedSaxHandlerJena extends AdvancedSaxHandler<Node, RDFDatatype> {
 
-    private static final Node RDF_REST = NodeFactory.createURI(RDF.rest.toString());
-    private static final Node RDF_FIRST = NodeFactory.createURI(RDF.first.toString());
-    private static final Node RDF_NIL = NodeFactory.createURI(RDF.nil.toString());
-    private Graph graph;
+	private static final Node RDF_REST = NodeFactory.createURI(RDF.rest.toString());
+	private static final Node RDF_FIRST = NodeFactory.createURI(RDF.first.toString());
+	private static final Node RDF_NIL = NodeFactory.createURI(RDF.nil.toString());
+	private Graph graph;
 
-    Dataset dataset;
-    private BlockingQueue<Triple> queue;
-    private boolean notDone = true;
-    private Thread jenaThread;
+	Dataset dataset;
+	private BlockingQueue<Triple> queue;
+	private boolean notDone = true;
+	private Thread jenaThread;
 
-    private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile));
+	private final Triple EndOfFileTriple = new Triple(NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile), NodeFactory.createURI(XmlToRdfVocabulary.EndOfFile));
 
-    AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
-        super(builder);
+	AdvancedSaxHandlerJena(Builder.AdvancedJena builder) {
+		super(builder);
 
-        queue = new CustomBlockingQueue<>(builder.buffer);
-        dataset = DatasetFactory.createMem();
-        graph = dataset.getDefaultModel().getGraph();
+		queue = new CustomBlockingQueue<>(builder.buffer);
+		dataset = DatasetFactory.createMem();
+		graph = dataset.getDefaultModel().getGraph();
 
-        this.builder = builder;
-        Thread thread = Thread.currentThread();
-        jenaThread = new Thread() {
-            @Override
-            public void run() {
+		this.builder = builder;
+		Thread thread = Thread.currentThread();
+		jenaThread = new Thread() {
+			@Override
+			public void run() {
 
-                while (notDone || !queue.isEmpty()) {
-                    try {
-                        Triple take = queue.take();
-                        if (take != EndOfFileTriple) {
-                            ((GraphWithPerform) graph).performAdd(take);
-                        }
+				while (notDone || !queue.isEmpty()) {
+					try {
+						Triple take = queue.take();
+						if (take != EndOfFileTriple) {
+							((GraphWithPerform) graph).performAdd(take);
+						}
 
-                    } catch (InterruptedException e) {
-                        // print and ignore
-                        System.out.println(e.getMessage());
-                    }
+					} catch (InterruptedException e) {
+						// print and ignore
+						System.out.println(e.getMessage());
+					}
 
-                }
+				}
 
-                prefixUriMap.forEach(dataset.getDefaultModel()::setNsPrefix);
-                dataset.getDefaultModel().setNsPrefix("xsd", XSD);
-                dataset.getDefaultModel().setNsPrefix("xmlTodRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
+				prefixUriMap.forEach(dataset.getDefaultModel()::setNsPrefix);
+				dataset.getDefaultModel().setNsPrefix("xsd", XSD);
+				dataset.getDefaultModel().setNsPrefix("xmlTodRdf", "http://acandonorway.github.com/XmlToRdf/ontology.ttl#");
 
-            }
-        };
+			}
+		};
 
-        jenaThread.start();
-    }
+		jenaThread.start();
+	}
 
-    @Override
-    public void fatalError(SAXParseException e) throws SAXException {
+	@Override
+	public void fatalError(SAXParseException e) throws SAXException {
 
-        notDone = false;
-        try {
-            queue.put(EndOfFileTriple);
-        } catch (InterruptedException e1) {
-            e1.printStackTrace();
-        }
+		notDone = false;
+		try {
+			queue.put(EndOfFileTriple);
+		} catch (InterruptedException e1) {
+			e1.printStackTrace();
+		}
 
-        jenaThread.interrupt();
+		jenaThread.interrupt();
 
-        super.fatalError(e);
-    }
+		super.fatalError(e);
+	}
 
-    final public void createTriple(String subject, String predicate, String object) {
+	final public void createTriple(String subject, String predicate, String object) {
 
-        Node predicateNode = NodeFactory.createURI(predicate);
-        Node subjectNode = null;
-        Node objectNode = null;
+		Node predicateNode = NodeFactory.createURI(predicate);
+		Node subjectNode = null;
+		Node objectNode = null;
 
-        subjectNode = getNode(subject);
-        objectNode = getNode(object);
+		subjectNode = getNode(subject);
+		objectNode = getNode(object);
 
-        addTripleToQueue(subjectNode, predicateNode, objectNode);
+		addTripleToQueue(subjectNode, predicateNode, objectNode);
 
 
-    }
+	}
 
 
-    final public void createTriple(String subject, String predicate, Node objectNode) {
+	final public void createTriple(String subject, String predicate, Node objectNode) {
 
-        Node predicateNode = NodeFactory.createURI(predicate);
-        Node subjectNode = null;
+		Node predicateNode = NodeFactory.createURI(predicate);
+		Node subjectNode = null;
 
-        subjectNode = getNode(subject);
-        addTripleToQueue(subjectNode, predicateNode, objectNode);
+		subjectNode = getNode(subject);
+		addTripleToQueue(subjectNode, predicateNode, objectNode);
 
 
-    }
+	}
 
 
-    final public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
-        if (objectLiteral == null) {
-            return;
-        }
+	final public void createTripleLiteral(String subject, String predicate, String objectLiteral) {
+		if (objectLiteral == null) {
+			return;
+		}
 
-        Node predicateNode = NodeFactory.createURI(predicate);
-        Node subjectNode = null;
+		Node predicateNode = NodeFactory.createURI(predicate);
+		Node subjectNode = null;
 
-        subjectNode = getNode(subject);
+		subjectNode = getNode(subject);
 
-        Node literal = null;
-        if (builder.autoTypeLiterals) {
+		Node literal = null;
+		if (builder.autoTypeLiterals) {
 
-            try {
-                Integer.parseInt(objectLiteral);
-                literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDinteger);
-            } catch (NumberFormatException e) {
-                try {
-                    Double.parseDouble(objectLiteral);
-                    literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdecimal);
-                } catch (NumberFormatException e2) {
-                    try {
-                        LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
-                        literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdateTime);
-                    } catch (DateTimeParseException e3) {
-                        try {
-                            LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
-                            literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdate);
-                        } catch (DateTimeParseException e4) {
-                            literal = NodeFactory.createLiteral(objectLiteral, null, false);
-                        }
-                    }
-                }
-            }
-        } else {
-            literal = NodeFactory.createLiteral(objectLiteral, null, false);
-        }
+			try {
+				Integer.parseInt(objectLiteral);
+				literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDinteger);
+			} catch (NumberFormatException e) {
+				try {
+					Double.parseDouble(objectLiteral);
+					literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdecimal);
+				} catch (NumberFormatException e2) {
+					try {
+						LocalDateTime.parse(objectLiteral, DateTimeFormatter.ISO_DATE_TIME);
+						literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdateTime);
+					} catch (DateTimeParseException e3) {
+						try {
+							LocalDate.parse(objectLiteral, DateTimeFormatter.ISO_DATE);
+							literal = NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDdate);
+						} catch (DateTimeParseException e4) {
+							literal = NodeFactory.createLiteral(objectLiteral, null, false);
+						}
+					}
+				}
+			}
+		} else {
+			literal = NodeFactory.createLiteral(objectLiteral, null, false);
+		}
 
 
-        addTripleToQueue(subjectNode, predicateNode, literal);
+		addTripleToQueue(subjectNode, predicateNode, literal);
 
 
-    }
+	}
 
 
-    final public void createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
-        if (objectLiteral == null) {
-            return;
-        }
+	final public void createTripleLiteral(String subject, String predicate, String objectLiteral, RDFDatatype datatype) {
+		if (objectLiteral == null) {
+			return;
+		}
 
-        Node predicateNode = NodeFactory.createURI(predicate);
-        Node subjectNode = null;
+		Node predicateNode = NodeFactory.createURI(predicate);
+		Node subjectNode = null;
 
-        subjectNode = getNode(subject);
+		subjectNode = getNode(subject);
 
-        Node literal = NodeFactory.createLiteral(objectLiteral, datatype);
+		Node literal = NodeFactory.createLiteral(objectLiteral, datatype);
 
-        addTripleToQueue(subjectNode, predicateNode, literal);
+		addTripleToQueue(subjectNode, predicateNode, literal);
 
 
-    }
+	}
 
 
-    final public void createTripleLiteral(String subject, String predicate, long objectLong) {
+	final public void createTripleLiteral(String subject, String predicate, long objectLong) {
 
-        Node predicateNode = NodeFactory.createURI(predicate);
-        Node subjectNode = null;
+		Node predicateNode = NodeFactory.createURI(predicate);
+		Node subjectNode = null;
 
-        subjectNode = getNode(subject);
-        Node literal = NodeFactory.createLiteral(objectLong + "", XSDDatatype.XSDlong);
+		subjectNode = getNode(subject);
+		Node literal = NodeFactory.createLiteral(objectLong + "", XSDDatatype.XSDlong);
 
-        addTripleToQueue(subjectNode, predicateNode, literal);
+		addTripleToQueue(subjectNode, predicateNode, literal);
 
 
-    }
+	}
 
-    final public void createList(String subject, String predicate, List<Object> mixedContent) {
+	final public void createList(String subject, String predicate, List<Object> mixedContent) {
 
-        Node predicateNode = NodeFactory.createURI(predicate);
-        Node subjectNode = getNode(subject);
+		Node predicateNode = NodeFactory.createURI(predicate);
+		Node subjectNode = getNode(subject);
 
 
-        final Node[] head = new Node[1];
-        final Node[] temporaryNode = new Node[1];
+		final Node[] head = new Node[1];
+		final Node[] temporaryNode = new Node[1];
 
-        mixedContent
-            .stream()
-            .map(content -> {
-                if (content instanceof String) {
+		mixedContent
+			.stream()
+			.map(content -> {
+				if (content instanceof String) {
 
-                    String objectLiteral = (String) content;
-                    return NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDstring);
+					String objectLiteral = (String) content;
+					return NodeFactory.createLiteral(objectLiteral, XSDDatatype.XSDstring);
 
-                } else if (content instanceof Element) {
+				} else if (content instanceof Element) {
 
-                    Element objectElement = (Element) content;
+					Element objectElement = (Element) content;
 
-                    if (isBlankNode(objectElement.uri)) {
-                        return NodeFactory.createBlankNode(objectElement.uri);
-                    } else {
-                        return NodeFactory.createURI(objectElement.uri);
-                    }
+					if (isBlankNode(objectElement.uri)) {
+						return NodeFactory.createBlankNode(objectElement.uri);
+					} else {
+						return NodeFactory.createURI(objectElement.uri);
+					}
 
-                } else {
-                    throw new IllegalStateException("Unknown type of: " + content.getClass().toString());
-                }
+				} else {
+					throw new IllegalStateException("Unknown type of: " + content.getClass().toString());
+				}
 
-            })
-            .forEachOrdered(value -> {
-                Node blankNode = NodeFactory.createBlankNode();
+			})
+			.forEachOrdered(value -> {
+				Node blankNode = NodeFactory.createBlankNode();
 
-                if (head[0] == null) {
-                    head[0] = blankNode;
+				if (head[0] == null) {
+					head[0] = blankNode;
 
-                    addTripleToQueue(head[0], RDF_FIRST, value);
+					addTripleToQueue(head[0], RDF_FIRST, value);
 
-                } else {
+				} else {
 
-                    addTripleToQueue(temporaryNode[0], RDF_REST, blankNode);
-                    addTripleToQueue(blankNode, RDF_FIRST, value);
+					addTripleToQueue(temporaryNode[0], RDF_REST, blankNode);
+					addTripleToQueue(blankNode, RDF_FIRST, value);
 
-                }
+				}
 
-                temporaryNode[0] = blankNode;
+				temporaryNode[0] = blankNode;
 
-            });
+			});
 
 
-        addTripleToQueue(temporaryNode[0], RDF_REST, RDF_NIL);
-        addTripleToQueue(subjectNode, predicateNode, head[0]);
+		addTripleToQueue(temporaryNode[0], RDF_REST, RDF_NIL);
+		addTripleToQueue(subjectNode, predicateNode, head[0]);
 
 
-    }
+	}
 
-    private void addTripleToQueue(Node subjectNode, Node predicateNode, Node objectNode) {
-        Triple triple = new Triple(subjectNode, predicateNode, objectNode);
-        try {
-            queue.put(triple);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
-    }
+	private void addTripleToQueue(Node subjectNode, Node predicateNode, Node objectNode) {
+		Triple triple = new Triple(subjectNode, predicateNode, objectNode);
+		try {
+			queue.put(triple);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
+	}
 
-    private static Node getNode(String subject) {
-        if (!isBlankNode(subject)) {
-            return NodeFactory.createURI(subject);
-        } else {
-            return NodeFactory.createBlankNode(subject);
-        }
-    }
+	private static Node getNode(String subject) {
+		if (!isBlankNode(subject)) {
+			return NodeFactory.createURI(subject);
+		} else {
+			return NodeFactory.createBlankNode(subject);
+		}
+	}
 
-    @Override
-    public void endDocument() throws SAXException {
+	@Override
+	public void endDocument() throws SAXException {
 
-        notDone = false;
+		notDone = false;
 
-        try {
-            queue.put(EndOfFileTriple);
-            jenaThread.join();
-        } catch (InterruptedException e) {
-            // print and ignore
-            System.out.println(e.getMessage());
-        }
-    }
+		try {
+			queue.put(EndOfFileTriple);
+			jenaThread.join();
+		} catch (InterruptedException e) {
+			// print and ignore
+			System.out.println(e.getMessage());
+		}
+	}
 
 }

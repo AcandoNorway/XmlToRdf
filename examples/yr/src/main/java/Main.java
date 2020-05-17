@@ -29,52 +29,50 @@ import java.net.URISyntaxException;
 
 public class Main {
 
-    private static final String YR_NS = "http://www.yr.no/";
+	private static final String YR_NS = "http://www.yr.no/";
 
-    public static void main(String[] args) throws URISyntaxException, IOException, ParserConfigurationException, SAXException {
+	public static void main(String[] args) throws URISyntaxException, IOException, ParserConfigurationException, SAXException {
 
-        String url = YR_NS + "place/Norway/Telemark/Sauherad/Gvarv/forecast.xml";
+		String url = YR_NS + "place/Norway/Telemark/Sauherad/Gvarv/forecast.xml";
 
 //        System.out.println(IOUtils.toString(new URI(url)));
 
-        ByteArrayInputStream yrXml = new ByteArrayInputStream(IOUtils.toString(new URI(url)).getBytes("UTF-8"));
+		ByteArrayInputStream yrXml = new ByteArrayInputStream(IOUtils.toString(new URI(url)).getBytes("UTF-8"));
 
-        Builder.AdvancedJena builder = Builder.getAdvancedBuilderJena()
-            .convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
-            .convertComplexElementsWithOnlyAttributesToPredicate(true)
-            .autoTypeLiterals(true)
-            .setBaseNamespace(YR_NS, Builder.AppliesTo.bothElementsAndAttributes)
-            .renameElement(YR_NS + "link", YR_NS + "Link")
-            .renameElement(YR_NS + "weatherstation", YR_NS + "Weatherstation")
-            .renameElement(YR_NS + "tabular", YR_NS + "TabularForecast")
-            .renameElement(YR_NS + "text", YR_NS + "TextualForecast")
-            .renameElement(YR_NS + "weatherdata", YR_NS + "Weatherdata")
-            .renameElement(Builder.createPath("http://www.yr.no/Weatherdata", "http://www.yr.no/location"), "http://www.yr.no/Location")
+		Builder.AdvancedJena builder = Builder.getAdvancedBuilderJena()
+			.convertComplexElementsWithOnlyAttributesAndSimpleTypeChildrenToPredicate(true)
+			.convertComplexElementsWithOnlyAttributesToPredicate(true)
+			.autoTypeLiterals(true)
+			.setBaseNamespace(YR_NS, Builder.AppliesTo.bothElementsAndAttributes)
+			.renameElement(YR_NS + "link", YR_NS + "Link")
+			.renameElement(YR_NS + "weatherstation", YR_NS + "Weatherstation")
+			.renameElement(YR_NS + "tabular", YR_NS + "TabularForecast")
+			.renameElement(YR_NS + "text", YR_NS + "TextualForecast")
+			.renameElement(YR_NS + "weatherdata", YR_NS + "Weatherdata")
+			.renameElement(Builder.createPath("http://www.yr.no/Weatherdata", "http://www.yr.no/location"), "http://www.yr.no/Location")
 
-            .insertPredicate(YR_NS + "data").between(YR_NS + "Weatherdata", YR_NS+"Location")
+			.insertPredicate(YR_NS + "data").between(YR_NS + "Weatherdata", YR_NS + "Location")
 
-            .renameElement(YR_NS + "observations", YR_NS + "observation")
-            .useElementAsPredicate(YR_NS + "observation")
-
-
-            .renameElement(YR_NS + "links", YR_NS + "link")
-            .useElementAsPredicate(YR_NS + "link")
-
-            .useElementAsPredicate(YR_NS + "credit")
-            .useElementAsPredicate(YR_NS + "forecast")
+			.renameElement(YR_NS + "observations", YR_NS + "observation")
+			.useElementAsPredicate(YR_NS + "observation")
 
 
-            .insertPredicate(YR_NS + "period").betweenSpecificParentAndAnyChild(YR_NS + "TabularForecast")
-            .insertPredicate(YR_NS + "location").between(YR_NS + "TextualForecast", YR_NS + "location")
+			.renameElement(YR_NS + "links", YR_NS + "link")
+			.useElementAsPredicate(YR_NS + "link")
 
-            .mapTextInElementToUri(YR_NS + "country", "Norway", NodeFactory.createURI("http://dbpedia.org/resource/Norway"))
+			.useElementAsPredicate(YR_NS + "credit")
+			.useElementAsPredicate(YR_NS + "forecast")
 
-            .useAttributeForId(null, YR_NS+"geobaseid", v -> YR_NS+"location/"+v)
 
-            ;
+			.insertPredicate(YR_NS + "period").betweenSpecificParentAndAnyChild(YR_NS + "TabularForecast")
+			.insertPredicate(YR_NS + "location").between(YR_NS + "TextualForecast", YR_NS + "location")
 
-        Dataset dataset = builder.build().convertToDataset(yrXml);
+			.mapTextInElementToUri(YR_NS + "country", "Norway", NodeFactory.createURI("http://dbpedia.org/resource/Norway"))
 
-        dataset.getDefaultModel().write(System.out, "TTL");
-    }
+			.useAttributeForId(null, YR_NS + "geobaseid", v -> YR_NS + "location/" + v);
+
+		Dataset dataset = builder.build().convertToDataset(yrXml);
+
+		dataset.getDefaultModel().write(System.out, "TTL");
+	}
 }

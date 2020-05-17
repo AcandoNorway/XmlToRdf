@@ -28,29 +28,29 @@ import java.io.InputStream;
 
 public class XmlToRdfAdvancedJena {
 
-    Builder.AdvancedJena builder;
+	Builder.AdvancedJena builder;
 
-    public XmlToRdfAdvancedJena(Builder.AdvancedJena builder) {
-        this.builder = builder;
-    }
+	public XmlToRdfAdvancedJena(Builder.AdvancedJena builder) {
+		this.builder = builder;
+	}
 
-    public Dataset convertToDataset(InputStream in) throws ParserConfigurationException, SAXException, IOException {
-        SAXParserFactory factory = SAXParserFactory.newInstance();
-        factory.setNamespaceAware(true);
-        Security.secureSaxParser(factory);
+	public Dataset convertToDataset(InputStream in) throws ParserConfigurationException, SAXException, IOException {
+		SAXParserFactory factory = SAXParserFactory.newInstance();
+		factory.setNamespaceAware(true);
+		Security.secureSaxParser(factory);
 
-        SAXParser saxParser = factory.newSAXParser();
+		SAXParser saxParser = factory.newSAXParser();
 
-        AdvancedSaxHandlerJena handler = new AdvancedSaxHandlerJena(builder);
+		AdvancedSaxHandlerJena handler = new AdvancedSaxHandlerJena(builder);
 
-        saxParser.parse(in, handler);
-        return handler.dataset;
-    }
+		saxParser.parse(in, handler);
+		return handler.dataset;
+	}
 
-    public PostProcessingJena convertForPostProcessing(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
-        Model model = convertToDataset(inputStream).getDefaultModel();
-        inputStream.close();
-        return new PostProcessingJena(model);
-    }
+	public PostProcessingJena convertForPostProcessing(InputStream inputStream) throws ParserConfigurationException, SAXException, IOException {
+		Model model = convertToDataset(inputStream).getDefaultModel();
+		inputStream.close();
+		return new PostProcessingJena(model);
+	}
 
 }

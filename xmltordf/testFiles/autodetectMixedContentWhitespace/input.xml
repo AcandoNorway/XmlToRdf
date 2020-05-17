@@ -1,3 +1,6 @@
 <document xmlns="http://example.org/">
-    <paragraph><b>Hello</b> <b>World</b>!</paragraph>
+    <paragraph>
+        <b>Hello</b>
+        <b>World</b>!
+    </paragraph>
 </document>

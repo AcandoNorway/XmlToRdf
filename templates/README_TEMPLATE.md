@@ -56,32 +56,7 @@ To use XmlToRdf in your project add the following dependency to your pom.xml fil
 </dependency>
 ```
 
-Support for older versions of Jena and Sesame has been removed. The last version to support Sesame is: ```1.10.0```
-
-<!--
-It is also possible to install the jar file in a specified local repo, for instance inside a directory in your own project.
-Two steps are required for this. First you need to install the jar file in your required directory:
-
-```
- mvn \
-    install:install-file \
-    -Dfile=xmltordf/target/xmltordf-{{{pomVersion}}}.jar \
-    -DpomFile=xmltordf/pom.xml \
-    -DlocalRepositoryPath=/INSTALL_DIRECTORY
-
-```
-
-And then you need to use that directory as a local repository in your project:
-
-```
-<repositories>
-    <repository>
-        <id>local-repo</id>
-        <url>file://${basedir}/libs</url>
-    </repository>
-</repositories>
-```
--->
+Looking for Sesame support? The last version to support Sesame is: ```1.10.0```
 
 # Example
 

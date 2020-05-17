@@ -1,3 +1,3 @@
-<A xmlns="http://example.com/hello" xmlns:t="http://example2.com/abc" >
-        <name t:test="t:r">hello</name>
+<A xmlns="http://example.com/hello" xmlns:t="http://example2.com/abc">
+    <name t:test="t:r">hello</name>
 </A>

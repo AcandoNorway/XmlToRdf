@@ -22,19 +22,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import java.io.IOException;
 
 public class Main {
-    public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
 
+	public static void main(String[] args) throws IOException, SAXException, ParserConfigurationException {
 
-        Model defaultModel = Builder.getAdvancedBuilderJena()
-.forceMixedContent("http://example.org/paragraph")
-            .build()
-            .convertToDataset(Main.class.getClassLoader().getResourceAsStream("mixedContent.xml"))
+		Model defaultModel = Builder.getAdvancedBuilderJena()
+			.forceMixedContent("http://example.org/paragraph")
+			.build()
+			.convertToDataset(Main.class.getClassLoader().getResourceAsStream("mixedContent.xml"))
 
-            .getDefaultModel()
-            .write(System.out, "TTL");
+			.getDefaultModel()
+			.write(System.out, "TTL");
 
-
-
-    }
+	}
 
 }

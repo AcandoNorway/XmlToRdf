@@ -21,17 +21,17 @@ import java.util.Map;
 
 class CountingMap {
 
-    Map<String, Integer> internalMap = new HashMap<>();
+	Map<String, Integer> internalMap = new HashMap<>();
 
-    int plusPlus(String element){
-        Integer integer = internalMap.get(element);
-        if(integer == null){
-            internalMap.put(element, 0);
-            return 0;
-        }
-        integer++;
-        internalMap.put(element, integer);
-        return integer;
-    }
+	int plusPlus(String element) {
+		Integer integer = internalMap.get(element);
+		if (integer == null) {
+			internalMap.put(element, 0);
+			return 0;
+		}
+		integer++;
+		internalMap.put(element, integer);
+		return integer;
+	}
 
 }

@@ -17,6 +17,6 @@ limitations under the License.
 package no.acando.xmltordf;
 
 
-public enum SimpleTypePolicy{
+public enum SimpleTypePolicy {
 	compact, expand
 }

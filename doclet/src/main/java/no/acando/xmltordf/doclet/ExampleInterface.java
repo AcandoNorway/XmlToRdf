@@ -25,6 +25,6 @@ import java.io.IOException;
 @SuppressWarnings("WeakerAccess")
 public interface ExampleInterface {
 
-    String toString(String xml) throws IOException, SAXException, ParserConfigurationException;
+	String toString(String xml) throws IOException, SAXException, ParserConfigurationException;
 
 }

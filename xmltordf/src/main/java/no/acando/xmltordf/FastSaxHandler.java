@@ -31,207 +31,207 @@ import static no.acando.xmltordf.Common.BLANK_NODE_PREFIX;
 
 public class FastSaxHandler extends org.xml.sax.helpers.DefaultHandler {
 
-    private final UndoableBufferedPrintWriter out;
+	private final UndoableBufferedPrintWriter out;
 
-    // A Deque used as a stack to keep track of the URI/Bnode ID of the parent elements
-    private final Deque<String> nodeIdStack = new ArrayDeque<>(100);
+	// A Deque used as a stack to keep track of the URI/Bnode ID of the parent elements
+	private final Deque<String> nodeIdStack = new ArrayDeque<>(100);
 
-    // A Deque used as a stack to hold the string builders that keep all the characters in the value of the xml element
-    private final Deque<StringBuilder> stringBuilderStack = new ArrayDeque<>(100);
+	// A Deque used as a stack to hold the string builders that keep all the characters in the value of the xml element
+	private final Deque<StringBuilder> stringBuilderStack = new ArrayDeque<>(100);
 
-    // A Deque used as a stack to keep track of what are essentially the element names, which are used for rdf:type
-    private final Deque<String> typeStack = new ArrayDeque<>(100);
+	// A Deque used as a stack to keep track of what are essentially the element names, which are used for rdf:type
+	private final Deque<String> typeStack = new ArrayDeque<>(100);
 
-    private long index = 0;
+	private long index = 0;
 
-    Builder.Fast builder;
+	Builder.Fast builder;
 
-    public FastSaxHandler(OutputStream out, Builder.Fast builder) {
-        try {
-            this.out = new UndoableBufferedPrintWriter(new PrintStream(out, false, "UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("unsupported encoding");
-        }
-        this.builder = builder;
-    }
+	public FastSaxHandler(OutputStream out, Builder.Fast builder) {
+		try {
+			this.out = new UndoableBufferedPrintWriter(new PrintStream(out, false, "UTF-8"));
+		} catch (UnsupportedEncodingException e) {
+			throw new RuntimeException("unsupported encoding");
+		}
+		this.builder = builder;
+	}
 
-    @Override
-    public void endDocument() throws SAXException {
-        out.flush();
+	@Override
+	public void endDocument() throws SAXException {
+		out.flush();
 
-    }
+	}
 
-    @Override
-    public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+	@Override
+	public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
 
-        String ns = builder.overrideNamespace;
-        if (ns != null) {
-            uri = ns;
-        }
+		String ns = builder.overrideNamespace;
+		if (ns != null) {
+			uri = ns;
+		}
 
-        String fullyQualifiedName = uri + qName;
-
-
-        if (builder.renameElementMap != null && builder.renameElementMap.containsKey(uri + localName)) {
-            fullyQualifiedName = builder.renameElementMap.get(uri + localName);
-        } else if (builder.renameElementFunctionMap != null) {
-            StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
-            if (stringTransformTwoValue == null) {
-                stringTransformTwoValue = builder.renameElementFunctionMap.get("");
-            }
-            if (stringTransformTwoValue != null) {
-                fullyQualifiedName = stringTransformTwoValue.transform(uri, localName);
-            }
-        }
+		String fullyQualifiedName = uri + qName;
 
 
-        final String bnode = "_:index" + index++;
-
-        if (nodeIdStack.size() > 0) {
-            String parent = nodeIdStack.peek();
-            out.println(createTriple(parent, XmlToRdfVocabulary.hasChild, bnode));
-        }
-
-        out.println(createTriple(bnode, RDF.type.getURI(), fullyQualifiedName));
-
-        typeStack.push(fullyQualifiedName);
-
-        nodeIdStack.push(bnode);
-
-        stringBuilderStack.push(new StringBuilder());
-
-        for (int i = 0; i < attributes.getLength(); i++) {
-            String uriAttr = attributes.getURI(i);
-            final String nameAttr = attributes.getLocalName(i);
-            String valueAttr = attributes.getValue(i);
+		if (builder.renameElementMap != null && builder.renameElementMap.containsKey(uri + localName)) {
+			fullyQualifiedName = builder.renameElementMap.get(uri + localName);
+		} else if (builder.renameElementFunctionMap != null) {
+			StringTransformTwoValue stringTransformTwoValue = builder.renameElementFunctionMap.get(uri + localName);
+			if (stringTransformTwoValue == null) {
+				stringTransformTwoValue = builder.renameElementFunctionMap.get("");
+			}
+			if (stringTransformTwoValue != null) {
+				fullyQualifiedName = stringTransformTwoValue.transform(uri, localName);
+			}
+		}
 
 
-            if (builder.overrideNamespace != null) {
-                uriAttr = builder.overrideNamespace;
-            }
+		final String bnode = "_:index" + index++;
 
-            if (uriAttr == null || uriAttr.trim().isEmpty()) {
-                uriAttr = uri;
-            }
+		if (nodeIdStack.size() > 0) {
+			String parent = nodeIdStack.peek();
+			out.println(createTriple(parent, XmlToRdfVocabulary.hasChild, bnode));
+		}
 
-            valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
+		out.println(createTriple(bnode, RDF.type.getURI(), fullyQualifiedName));
 
+		typeStack.push(fullyQualifiedName);
 
-            out.println(createTripleLiteral(bnode, uriAttr + nameAttr, valueAttr));
+		nodeIdStack.push(bnode);
 
-        }
+		stringBuilderStack.push(new StringBuilder());
 
-    }
-
-    @Override
-    public void endElement(String uri, String localName, String qName) throws SAXException {
-
-        final String nodeId = nodeIdStack.pop();
-        final String typePop = typeStack.pop();
-        String value = stringBuilderStack.pop().toString();
-        if(value.trim().isEmpty()){
-            value = "";
-        }
-
-        if (value != null) {
-            value = builder.doTransformForElementValue(typePop, value);
-        }
+		for (int i = 0; i < attributes.getLength(); i++) {
+			String uriAttr = attributes.getURI(i);
+			final String nameAttr = attributes.getLocalName(i);
+			String valueAttr = attributes.getValue(i);
 
 
-        if (!value.isEmpty()) {
-            handleTextValue(nodeId, typePop, value);
-        } else if (out.peek().equals(createTriple(nodeId, RDF.type.getURI(), typePop))) {
-            cleanUpEmptyTag(nodeId);
-        }
+			if (builder.overrideNamespace != null) {
+				uriAttr = builder.overrideNamespace;
+			}
 
-    }
+			if (uriAttr == null || uriAttr.trim().isEmpty()) {
+				uriAttr = uri;
+			}
 
-    private void cleanUpEmptyTag(String stringPop) {
-        String outPop = out.pop();
-        if (out.peek().equals(createTriple(nodeIdStack.peek(), XmlToRdfVocabulary.hasChild, stringPop))) {
-            out.pop();
-        } else {
-            out.println(outPop);
-        }
-    }
+			valueAttr = builder.doTransformForAttribute(uri + localName, uriAttr + nameAttr, valueAttr);
 
-    private void handleTextValue(String nodeId, String typePop, String value) {
 
-        if (builder.autoDetectLiteralProperties) {
+			out.println(createTripleLiteral(bnode, uriAttr + nameAttr, valueAttr));
 
-            // check if element has no attributes or child elements
-            if (out.peek().equals(createTriple(nodeId, RDF.type.getURI(), typePop))) {
+		}
 
-                // check if root element
-                if (nodeIdStack.isEmpty()) {
-                    // use hasValue with root element
-                    out.println(createTripleLiteral(nodeId, XmlToRdfVocabulary.hasValue, value));
+	}
 
-                } else {
-                    // remove rdf:type and hasChild statements
-                    out.pop();
-                    out.pop();
+	@Override
+	public void endElement(String uri, String localName, String qName) throws SAXException {
 
-                    // print value directly on property to parent element
-                    out.println(createTripleLiteral(nodeIdStack.peek(), typePop, value));
-                }
+		final String nodeId = nodeIdStack.pop();
+		final String typePop = typeStack.pop();
+		String value = stringBuilderStack.pop().toString();
+		if (value.trim().isEmpty()) {
+			value = "";
+		}
 
-            } else {
-                // if there are attributes or child elements, then print using hasValue
-                out.println(createTripleLiteral(nodeId, XmlToRdfVocabulary.hasValue, value));
-            }
+		if (value != null) {
+			value = builder.doTransformForElementValue(typePop, value);
+		}
 
-        } else {
-            // print using hasValue
-            out.println(createTripleLiteral(nodeId, XmlToRdfVocabulary.hasValue, value));
-        }
-    }
 
-    @Override
-    public void characters(char[] ch, int start, int length) throws SAXException {
-        stringBuilderStack.peek().append(ch, start, length);
-    }
+		if (!value.isEmpty()) {
+			handleTextValue(nodeId, typePop, value);
+		} else if (out.peek().equals(createTriple(nodeId, RDF.type.getURI(), typePop))) {
+			cleanUpEmptyTag(nodeId);
+		}
 
-    private String createTriple(String subject, String predicate, String object) {
+	}
 
-        final boolean subjectIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
-        final boolean objectIsBlank = object.startsWith(BLANK_NODE_PREFIX);
+	private void cleanUpEmptyTag(String stringPop) {
+		String outPop = out.pop();
+		if (out.peek().equals(createTriple(nodeIdStack.peek(), XmlToRdfVocabulary.hasChild, stringPop))) {
+			out.pop();
+		} else {
+			out.println(outPop);
+		}
+	}
 
-        if (subjectIsBlank) {
-            if (objectIsBlank) {
-                return subject + " <" + predicate + "> " + object + '.';
+	private void handleTextValue(String nodeId, String typePop, String value) {
 
-            } else {
-                return subject + " <" + predicate + "> <" + object + ">.";
+		if (builder.autoDetectLiteralProperties) {
 
-            }
-        } else {
-            if (objectIsBlank) {
-                return '<' + subject + "> <" + predicate + "> " + object + '.';
+			// check if element has no attributes or child elements
+			if (out.peek().equals(createTriple(nodeId, RDF.type.getURI(), typePop))) {
 
-            } else {
-                return '<' + subject + "> <" + predicate + "> <" + object + ">.";
+				// check if root element
+				if (nodeIdStack.isEmpty()) {
+					// use hasValue with root element
+					out.println(createTripleLiteral(nodeId, XmlToRdfVocabulary.hasValue, value));
 
-            }
-        }
+				} else {
+					// remove rdf:type and hasChild statements
+					out.pop();
+					out.pop();
 
-    }
+					// print value directly on property to parent element
+					out.println(createTripleLiteral(nodeIdStack.peek(), typePop, value));
+				}
 
-    private String createTripleLiteral(String subject, String predicate, String literal) {
-        literal = literal
-            .replace("\\", "\\\\")
-            .replace("\"", "\\\"");
+			} else {
+				// if there are attributes or child elements, then print using hasValue
+				out.println(createTripleLiteral(nodeId, XmlToRdfVocabulary.hasValue, value));
+			}
 
-        final boolean oIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
-        if (oIsBlank) {
-            return subject + " <" + predicate + "> \"\"\"" + literal + "\"\"\".";
+		} else {
+			// print using hasValue
+			out.println(createTripleLiteral(nodeId, XmlToRdfVocabulary.hasValue, value));
+		}
+	}
 
-        } else {
-            return '<' + subject + "> <" + predicate + "> \"\"\"" + literal + "\"\"\" .";
+	@Override
+	public void characters(char[] ch, int start, int length) throws SAXException {
+		stringBuilderStack.peek().append(ch, start, length);
+	}
 
-        }
+	private String createTriple(String subject, String predicate, String object) {
 
-    }
+		final boolean subjectIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
+		final boolean objectIsBlank = object.startsWith(BLANK_NODE_PREFIX);
+
+		if (subjectIsBlank) {
+			if (objectIsBlank) {
+				return subject + " <" + predicate + "> " + object + '.';
+
+			} else {
+				return subject + " <" + predicate + "> <" + object + ">.";
+
+			}
+		} else {
+			if (objectIsBlank) {
+				return '<' + subject + "> <" + predicate + "> " + object + '.';
+
+			} else {
+				return '<' + subject + "> <" + predicate + "> <" + object + ">.";
+
+			}
+		}
+
+	}
+
+	private String createTripleLiteral(String subject, String predicate, String literal) {
+		literal = literal
+			.replace("\\", "\\\\")
+			.replace("\"", "\\\"");
+
+		final boolean oIsBlank = subject.startsWith(BLANK_NODE_PREFIX);
+		if (oIsBlank) {
+			return subject + " <" + predicate + "> \"\"\"" + literal + "\"\"\".";
+
+		} else {
+			return '<' + subject + "> <" + predicate + "> \"\"\"" + literal + "\"\"\" .";
+
+		}
+
+	}
 
 }
 

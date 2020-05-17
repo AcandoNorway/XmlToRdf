@@ -24,139 +24,138 @@ import java.util.function.BiFunction;
 
 public class CompositeId<T extends UseHashmapForChildren> {
 
-    private Set<String> requiredElement = new HashSet<>();
-    private Set<String> requiredAttribute = new HashSet<>();
-    private Map<String, String> resolvedElement = new HashMap<>();
-    private Map<String, String> resolvedAttribute = new HashMap<>();
-     Set<String> requiredElementFromParent = new HashSet<>();
-    private Map<String, String> mapElementNameToOtherNameForParent = new HashMap<>();
+	private Set<String> requiredElement = new HashSet<>();
+	private Set<String> requiredAttribute = new HashSet<>();
+	private Map<String, String> resolvedElement = new HashMap<>();
+	private Map<String, String> resolvedAttribute = new HashMap<>();
+	Set<String> requiredElementFromParent = new HashSet<>();
+	private Map<String, String> mapElementNameToOtherNameForParent = new HashMap<>();
 
-    private BiFunction<Map<String, String>, Map<String, String>, String> mapFunction;
+	private BiFunction<Map<String, String>, Map<String, String>, String> mapFunction;
 
-    private Map<String, CompositeId<T>> compositeIdMap;
-    private String elementName;
-    private T that;
-    boolean elementIndex;
+	private Map<String, CompositeId<T>> compositeIdMap;
+	private String elementName;
+	private T that;
+	boolean elementIndex;
 	boolean parentId;
 
 	CompositeId(T that, String elementName, Map<String, CompositeId<T>> compositeIdMap) {
-        this.that = that;
-        this.elementName = elementName;
-        this.compositeIdMap = compositeIdMap;
-    }
+		this.that = that;
+		this.elementName = elementName;
+		this.compositeIdMap = compositeIdMap;
+	}
 
-    private CompositeId(CompositeId<T> from) {
-        requiredAttribute = from.requiredAttribute;
-        requiredElement = from.requiredElement;
-        that = from.that;
-        elementName = from.elementName;
-        compositeIdMap = from.compositeIdMap;
-        mapFunction = from.mapFunction;
-        elementIndex = from.elementIndex;
-        parentId = from.parentId;
+	private CompositeId(CompositeId<T> from) {
+		requiredAttribute = from.requiredAttribute;
+		requiredElement = from.requiredElement;
+		that = from.that;
+		elementName = from.elementName;
+		compositeIdMap = from.compositeIdMap;
+		mapFunction = from.mapFunction;
+		elementIndex = from.elementIndex;
+		parentId = from.parentId;
 
-        requiredElementFromParent = from.requiredElementFromParent;
-        mapElementNameToOtherNameForParent = from.mapElementNameToOtherNameForParent;
-
-
-    }
-
-    void resetMaps() {
-        resolvedAttribute = new HashMap<>();
-        resolvedElement = new HashMap<>();
-    }
+		requiredElementFromParent = from.requiredElementFromParent;
+		mapElementNameToOtherNameForParent = from.mapElementNameToOtherNameForParent;
 
 
+	}
 
-    public CompositeId<T> fromElement(String elementName) {
-        requiredElement.add(elementName);
-        return this;
-    }
+	void resetMaps() {
+		resolvedAttribute = new HashMap<>();
+		resolvedElement = new HashMap<>();
+	}
 
-    public CompositeId<T> fromAttribute(String attributeName) {
-        requiredAttribute.add(attributeName);
-        return this;
-    }
 
-    public CompositeId<T> elementIndex() {
-        elementIndex = true;
-        requiredElement.add(XmlToRdfVocabulary.index);
+	public CompositeId<T> fromElement(String elementName) {
+		requiredElement.add(elementName);
+		return this;
+	}
+
+	public CompositeId<T> fromAttribute(String attributeName) {
+		requiredAttribute.add(attributeName);
+		return this;
+	}
+
+	public CompositeId<T> elementIndex() {
+		elementIndex = true;
+		requiredElement.add(XmlToRdfVocabulary.index);
 		requiredElement.add(XmlToRdfVocabulary.elementIndex);
 
-        return this;
-    }
+		return this;
+	}
 
-    public CompositeId<T> parentId() {
+	public CompositeId<T> parentId() {
 		parentId = true;
 		requiredElement.add(XmlToRdfVocabulary.parentId);
-        return this;
-    }
+		return this;
+	}
 
-    public T mappedTo(BiFunction<Map<String, String>, Map<String, String>, String> mapFunction) {
-        this.mapFunction = mapFunction;
+	public T mappedTo(BiFunction<Map<String, String>, Map<String, String>, String> mapFunction) {
+		this.mapFunction = mapFunction;
 
-        compositeIdMap.put(elementName, this);
+		compositeIdMap.put(elementName, this);
 
-        return (T) that;
-    }
+		return (T) that;
+	}
 
-    boolean completed() {
-        return ( resolvedElement.size() + resolvedAttribute.size() ) ==
-            ( requiredElement.size() + requiredAttribute.size() + requiredElementFromParent.size() );
-    }
+	boolean completed() {
+		return (resolvedElement.size() + resolvedAttribute.size()) ==
+			(requiredElement.size() + requiredAttribute.size() + requiredElementFromParent.size());
+	}
 
-    void resolveElement(String elementName, String value) {
-        if(requiredElement.contains(elementName)) {
-            resolvedElement.put(elementName, value);
-        }
-    }
+	void resolveElement(String elementName, String value) {
+		if (requiredElement.contains(elementName)) {
+			resolvedElement.put(elementName, value);
+		}
+	}
 
-    void resolveFromParent(Element parent) {
-        requiredElementFromParent.forEach(elementName -> {
-            Element o = (Element) parent.hasChildMap.get(elementName);
-            if(o!= null){
-                String key = mapElementNameToOtherNameForParent.get(elementName);
-                resolvedElement.put(key, o.getHasValue());
+	void resolveFromParent(Element parent) {
+		requiredElementFromParent.forEach(elementName -> {
+			Element o = (Element) parent.hasChildMap.get(elementName);
+			if (o != null) {
+				String key = mapElementNameToOtherNameForParent.get(elementName);
+				resolvedElement.put(key, o.getHasValue());
 
-            }
-        });
-    }
+			}
+		});
+	}
 
-    void resolveAttribute(String attributeName, String value) {
-        if(requiredAttribute.contains(attributeName)) {
-            resolvedAttribute.put(attributeName, value);
-        }
-    }
+	void resolveAttribute(String attributeName, String value) {
+		if (requiredAttribute.contains(attributeName)) {
+			resolvedAttribute.put(attributeName, value);
+		}
+	}
 
-    void reolveElementIndex(String indexName, Long index){
+	void reolveElementIndex(String indexName, Long index) {
 
-        resolvedElement.put(indexName, index.toString());
-    }
+		resolvedElement.put(indexName, index.toString());
+	}
 
-    String resolveIdentifier() {
-        return mapFunction.apply(resolvedElement, resolvedAttribute);
-    }
+	String resolveIdentifier() {
+		return mapFunction.apply(resolvedElement, resolvedAttribute);
+	}
 
-    CompositeId<T> simpleClone() {
-        return new CompositeId<>(this);
-    }
+	CompositeId<T> simpleClone() {
+		return new CompositeId<>(this);
+	}
 
 
-    public ParentId<T> fromParent(String elementName) {
+	public ParentId<T> fromParent(String elementName) {
 
-        this.that.useHashmapForChildren();
+		this.that.useHashmapForChildren();
 
-        CompositeId<T> that = this;
-        return newName -> {
+		CompositeId<T> that = this;
+		return newName -> {
 			requiredElementFromParent.add(elementName);
 			mapElementNameToOtherNameForParent.put(elementName, newName);
 			return that;
 		};
 
-    }
+	}
 
-    public interface ParentId<T extends UseHashmapForChildren>{
-        CompositeId<T> as(String newName);
-    }
+	public interface ParentId<T extends UseHashmapForChildren> {
+		CompositeId<T> as(String newName);
+	}
 
 }

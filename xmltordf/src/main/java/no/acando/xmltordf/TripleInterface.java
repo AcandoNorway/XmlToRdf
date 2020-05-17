@@ -7,18 +7,18 @@ import java.util.List;
  */
 public interface TripleInterface<ResourceType, Datatype> {
 
-     String createTriple(String subject, String predicate, String object);
+	String createTriple(String subject, String predicate, String object);
 
-     String createTripleLiteral(String subject, String predicate, String objectLiteral);
+	String createTripleLiteral(String subject, String predicate, String objectLiteral);
 
-     String createTripleLiteral(String subject, String predicate, long objectLong);
+	String createTripleLiteral(String subject, String predicate, long objectLong);
 
-     String createList(String subject, String predicate, List<Object> mixedContent);
+	String createList(String subject, String predicate, List<Object> mixedContent);
 
-     String createTripleLiteral(String subject, String predicate, String objectLiteral, Datatype datatype);
+	String createTripleLiteral(String subject, String predicate, String objectLiteral, Datatype datatype);
 
-     String createTriple(String uri, String hasValue, ResourceType resourceType);
+	String createTriple(String uri, String hasValue, ResourceType resourceType);
 
-    void endElement();
+	void endElement();
 
 }

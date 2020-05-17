@@ -37,212 +37,206 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 public class Main {
-    public static void main(String[] args) throws URISyntaxException, IOException, ParserConfigurationException, SAXException {
-        String ns = "http://brreg.no/";
+	public static void main(String[] args) throws URISyntaxException, IOException, ParserConfigurationException, SAXException {
+		String ns = "http://brreg.no/";
 
-        Model naeringskode = ModelFactory.createDefaultModel();
+		Model naeringskode = ModelFactory.createDefaultModel();
 
-        for (int i = 1; true; i++) {
-            ByteArrayInputStream naeringskodeXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/naeringskode?page=" + i)).getBytes("UTF-8"));
+		for (int i = 1; true; i++) {
+			ByteArrayInputStream naeringskodeXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/naeringskode?page=" + i)).getBytes("UTF-8"));
 
-            Model naeringskodeTemp = Builder.getAdvancedBuilderJena()
-                .setBaseNamespace(ns, Builder.AppliesTo.bothElementsAndAttributes)
+			Model naeringskodeTemp = Builder.getAdvancedBuilderJena()
+				.setBaseNamespace(ns, Builder.AppliesTo.bothElementsAndAttributes)
 
-                .renameElement("http://brreg.no/naerk_tekst", RDFS.label.getURI())
-                .renameElement("http://brreg.no/entry", "http://brreg.no/Naeringskode")
+				.renameElement("http://brreg.no/naerk_tekst", RDFS.label.getURI())
+				.renameElement("http://brreg.no/entry", "http://brreg.no/Naeringskode")
 
-                .compositeId("http://brreg.no/Naeringskode")
-                .fromElement("http://brreg.no/naerk")
-                .mappedTo((elementMap, attributeMap) -> "http://brreg.no/naeringskode/"+elementMap.get("http://brreg.no/naerk"))
+				.compositeId("http://brreg.no/Naeringskode")
+				.fromElement("http://brreg.no/naerk")
+				.mappedTo((elementMap, attributeMap) -> "http://brreg.no/naeringskode/" + elementMap.get("http://brreg.no/naerk"))
 
-                .build().convertForPostProcessing(naeringskodeXml)
-                .mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes("UTF-8")), new Object())
-                .getModel();
+				.build().convertForPostProcessing(naeringskodeXml)
+				.mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes("UTF-8")), new Object())
+				.getModel();
 
-            naeringskode.add(naeringskodeTemp);
+			naeringskode.add(naeringskodeTemp);
 
-            if (naeringskodeTemp.isEmpty()) {
-                break;
-            }
+			if (naeringskodeTemp.isEmpty()) {
+				break;
+			}
 
-        }
+		}
 
 
-        ByteArrayInputStream orgFormXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/organisasjonsform?")).getBytes("UTF-8"));
+		ByteArrayInputStream orgFormXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/organisasjonsform?")).getBytes("UTF-8"));
 
-        Model enhetstyper = Builder.getAdvancedBuilderJena()
-            .setBaseNamespace(ns, Builder.AppliesTo.bothElementsAndAttributes)
+		Model enhetstyper = Builder.getAdvancedBuilderJena()
+			.setBaseNamespace(ns, Builder.AppliesTo.bothElementsAndAttributes)
 
-            .renameElement("http://brreg.no/enhetstype_tekst", RDFS.label.getURI())
+			.renameElement("http://brreg.no/enhetstype_tekst", RDFS.label.getURI())
 
-            .renameElement("http://brreg.no/entry", "http://brreg.no/Enhetstype")
+			.renameElement("http://brreg.no/entry", "http://brreg.no/Enhetstype")
 
-            .compositeId("http://brreg.no/Enhetstype")
-            .fromElement("http://brreg.no/enhetstype")
-            .mappedTo((elementMap, attributeMap) -> "http://brreg.no/enhetstype/"+elementMap.get("http://brreg.no/enhetstype"))
+			.compositeId("http://brreg.no/Enhetstype")
+			.fromElement("http://brreg.no/enhetstype")
+			.mappedTo((elementMap, attributeMap) -> "http://brreg.no/enhetstype/" + elementMap.get("http://brreg.no/enhetstype"))
 
-            .build().convertForPostProcessing(orgFormXml)
-            .mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes("UTF-8")), new Object())
-            .getModel();
+			.build().convertForPostProcessing(orgFormXml)
+			.mustacheTransform(new ByteArrayInputStream("delete {?a ?b ?c} where {?a ?b ?c. filter(isBlank(?a))}".getBytes("UTF-8")), new Object())
+			.getModel();
 
 
+		ComplexClassTransform convertDate = e -> {
+			if (e.getHasValue() != null) {
+				String s = e.getHasValue();
+				if (s.contains(".")) {
+					String[] split = s.split("\\.");
+					e.setHasValue(new StringBuilder(split[2]).append("-").append(split[1]).append("-").append(split[0]));
 
+				}
 
-        ComplexClassTransform convertDate = e -> {
-            if (e.getHasValue() != null) {
-                String s = e.getHasValue();
-                if (s.contains(".")) {
-                    String[] split = s.split("\\.");
-                    e.setHasValue(new StringBuilder(split[2]).append("-").append(split[1]).append("-").append(split[0]));
+			}
 
-                }
+		};
 
-            }
+		ComplexClassTransform convertBoolean = e -> {
+			if (e.getHasValue() != null) {
+				String s = e.getHasValue();
+				if (s.equals("N")) {
+					e.setHasValue("false");
+				}
+				if (s.equals("J")) {
+					e.setHasValue("true");
+				}
 
-        };
+			}
 
-        ComplexClassTransform convertBoolean = e -> {
-            if (e.getHasValue() != null) {
-                String s = e.getHasValue();
-                if (s.equals("N")) {
-                    e.setHasValue("false");
-                }
-                if (s.equals("J")) {
-                    e.setHasValue("true");
-                }
+		};
 
-            }
+		Model all = getAllModel(naeringskode, enhetstyper);
 
-        };
 
-        Model all = getAllModel(naeringskode, enhetstyper);
+		int badPages = 0;
 
 
-        int badPages = 0;
+		for (int i = 1; i < 99999; i++) {
+			ByteArrayInputStream brregXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/enhetsregisteret?page=" + i)).getBytes("UTF-8"));
 
+			Builder.AdvancedJena brregXmlBuilder = Builder.getAdvancedBuilderJena()
+				.setBaseNamespace(ns, Builder.AppliesTo.bothElementsAndAttributes)
+				.renameElement("http://brreg.no/entry", "http://brreg.no/Enhet")
+				.renameElement("http://brreg.no/nkode1", "http://brreg.no/naeringskode")
+				.renameElement("http://brreg.no/nkode2", "http://brreg.no/naeringskode")
 
 
-        for(int i = 1; i<99999; i++) {
-            ByteArrayInputStream brregXml = new ByteArrayInputStream(IOUtils.toString(new URI("https://hotell.difi.no/api/xml/brreg/enhetsregisteret?page="+i)).getBytes("UTF-8"));
+				.setDatatype("http://brreg.no/ansatte_antall", XSDDatatype.XSDinteger)
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/regdato", convertDate)
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/stiftelsesdato", convertDate)
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/ansatte_dato", convertDate)
 
-            Builder.AdvancedJena brregXmlBuilder = Builder.getAdvancedBuilderJena()
-                .setBaseNamespace(ns, Builder.AppliesTo.bothElementsAndAttributes)
-                .renameElement("http://brreg.no/entry", "http://brreg.no/Enhet")
-                .renameElement("http://brreg.no/nkode1", "http://brreg.no/naeringskode")
-                .renameElement("http://brreg.no/nkode2", "http://brreg.no/naeringskode")
+				.setDatatype("http://brreg.no/regdato", XSDDatatype.XSDdate)
+				.setDatatype("http://brreg.no/stiftelsesdato", XSDDatatype.XSDdate)
+				.setDatatype("http://brreg.no/ansatte_dato", XSDDatatype.XSDdate)
 
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/tvangsavvikling", convertBoolean)
+				.setDatatype("http://brreg.no/tvangsavvikling", XSDDatatype.XSDboolean)
 
-                .setDatatype("http://brreg.no/ansatte_antall", XSDDatatype.XSDinteger)
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/regdato", convertDate)
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/stiftelsesdato", convertDate)
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/ansatte_dato", convertDate)
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/konkurs", convertBoolean)
+				.setDatatype("http://brreg.no/konkurs", XSDDatatype.XSDboolean)
 
-                .setDatatype("http://brreg.no/regdato", XSDDatatype.XSDdate)
-                .setDatatype("http://brreg.no/stiftelsesdato", XSDDatatype.XSDdate)
-                .setDatatype("http://brreg.no/ansatte_dato", XSDDatatype.XSDdate)
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/regiaa", convertBoolean)
+				.setDatatype("http://brreg.no/regiaa", XSDDatatype.XSDboolean)
 
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/tvangsavvikling", convertBoolean)
-                .setDatatype("http://brreg.no/tvangsavvikling", XSDDatatype.XSDboolean)
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/regifr", convertBoolean)
+				.setDatatype("http://brreg.no/regifr", XSDDatatype.XSDboolean)
 
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/konkurs", convertBoolean)
-                .setDatatype("http://brreg.no/konkurs", XSDDatatype.XSDboolean)
+				.renameElement("http://brreg.no/regifriv", "http://brreg.no/registrert-i-frivillighets-register")
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/registrert-i-frivillighets-register", convertBoolean)
+				.setDatatype("http://brreg.no/registrert-i-frivillighets-register", XSDDatatype.XSDboolean)
 
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/regiaa", convertBoolean)
-                .setDatatype("http://brreg.no/regiaa", XSDDatatype.XSDboolean)
+				.renameElement("http://brreg.no/regimva", "http://brreg.no/registrert-i-merverdiavgiftsregisteret")
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/registrert-i-merverdiavgiftsregisteret", convertBoolean)
+				.setDatatype("http://brreg.no/registrert-i-merverdiavgiftsregisteret", XSDDatatype.XSDboolean)
 
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/regifr", convertBoolean)
-                .setDatatype("http://brreg.no/regifr", XSDDatatype.XSDboolean)
+				.addComplexElementTransformAtEndOfElement("http://brreg.no/avvikling", convertBoolean)
+				.setDatatype("http://brreg.no/avvikling", XSDDatatype.XSDboolean)
 
-                .renameElement("http://brreg.no/regifriv", "http://brreg.no/registrert-i-frivillighets-register")
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/registrert-i-frivillighets-register", convertBoolean)
-                .setDatatype("http://brreg.no/registrert-i-frivillighets-register", XSDDatatype.XSDboolean)
+				.compositeId("http://brreg.no/Enhet")
+				.fromElement("http://brreg.no/orgnr")
+				.mappedTo((elementMap, attributeMap) -> "http://brreg.no/" + elementMap.get("http://brreg.no/orgnr"))
+				.mapTextInElementToUri(ns + "hovedenhet", orgnummer -> NodeFactory.createURI(ns + orgnummer))
 
-                .renameElement("http://brreg.no/regimva", "http://brreg.no/registrert-i-merverdiavgiftsregisteret")
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/registrert-i-merverdiavgiftsregisteret", convertBoolean)
-                .setDatatype("http://brreg.no/registrert-i-merverdiavgiftsregisteret", XSDDatatype.XSDboolean)
+				.mapTextInElementToUri(ns + "forradrland", "Norge", NodeFactory.createURI("http://dbpedia.org/resource/Norway"));
 
-                .addComplexElementTransformAtEndOfElement("http://brreg.no/avvikling", convertBoolean)
-                .setDatatype("http://brreg.no/avvikling", XSDDatatype.XSDboolean)
 
-                .compositeId("http://brreg.no/Enhet")
-                .fromElement("http://brreg.no/orgnr")
-                .mappedTo((elementMap, attributeMap) -> "http://brreg.no/" + elementMap.get("http://brreg.no/orgnr"))
-                .mapTextInElementToUri(ns + "hovedenhet", orgnummer -> NodeFactory.createURI(ns + orgnummer))
+			StmtIterator resIterator = enhetstyper.listStatements(null, enhetstyper.getProperty("http://brreg.no/enhetstype"), (RDFNode) null);
+			while (resIterator.hasNext()) {
+				Statement statement = resIterator.nextStatement();
+				brregXmlBuilder.mapTextInElementToUri("http://brreg.no/organisasjonsform", statement.getObject().toString(), statement.getSubject().asNode());
+			}
 
-                .mapTextInElementToUri(ns + "forradrland", "Norge", NodeFactory.createURI("http://dbpedia.org/resource/Norway"));
+			StmtIterator naeringskodeIterator = naeringskode.listStatements(null, enhetstyper.getProperty("http://brreg.no/naerk"), (RDFNode) null);
+			while (naeringskodeIterator.hasNext()) {
+				Statement statement = naeringskodeIterator.nextStatement();
+				brregXmlBuilder.mapTextInElementToUri("http://brreg.no/naeringskode", statement.getObject().toString(), statement.getSubject().asNode());
 
+			}
 
-            StmtIterator resIterator = enhetstyper.listStatements(null, enhetstyper.getProperty("http://brreg.no/enhetstype"), (RDFNode) null);
-            while (resIterator.hasNext()) {
-                Statement statement = resIterator.nextStatement();
-                brregXmlBuilder.mapTextInElementToUri("http://brreg.no/organisasjonsform", statement.getObject().toString(), statement.getSubject().asNode());
-            }
+			try {
+				Model model = brregXmlBuilder
+					.build().convertForPostProcessing(brregXml)
+					.getModel();
 
-            StmtIterator naeringskodeIterator = naeringskode.listStatements(null, enhetstyper.getProperty("http://brreg.no/naerk"), (RDFNode) null);
-            while (naeringskodeIterator.hasNext()) {
-                Statement statement = naeringskodeIterator.nextStatement();
-                brregXmlBuilder.mapTextInElementToUri("http://brreg.no/naeringskode", statement.getObject().toString(), statement.getSubject().asNode());
+				System.out.println(i + "   -   " + model.size());
 
-            }
+				if (model.size() <= 4) {
+					break;
+				}
+				all.add(model);
+			} catch (SAXParseException s) {
+				System.out.println(":(");
+				badPages++;
+			}
 
-            try{
-                Model model = brregXmlBuilder
-                    .build().convertForPostProcessing(brregXml)
-                    .getModel();
 
-                System.out.println(i+"   -   "+model.size());
+			if (i % 1000 == 0) {
 
-                if(model.size() <= 4) break;
-                all.add(model);
-            }catch (SAXParseException s){
-                System.out.println(":(");
-                badPages++;
-            }
+				BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("brregOutput/brreg" + i + ".ttl"));
+				all.write(bufferedOutputStream, "TTL");
+				bufferedOutputStream.flush();
+				bufferedOutputStream.close();
 
+				all = getAllModel(naeringskode, enhetstyper);
 
+			}
 
-            if(i%1000==0){
 
-                BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("brregOutput/brreg"+i+".ttl"));
-                all.write(bufferedOutputStream, "TTL");
-                bufferedOutputStream.flush();
-                bufferedOutputStream.close();
+		}
 
-                 all = getAllModel(naeringskode, enhetstyper);
 
-            }
-
-
-
-        }
-
-
-        System.out.println("Bad pages: "+badPages);
-
-
-
+		System.out.println("Bad pages: " + badPages);
 
 
 //        all.write(System.out, "TTL");
 
 
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("brregOutput/brreg_final_bit.ttl"));
-        all.write(bufferedOutputStream, "TTL");
-        bufferedOutputStream.flush();
-        bufferedOutputStream.close();
+		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("brregOutput/brreg_final_bit.ttl"));
+		all.write(bufferedOutputStream, "TTL");
+		bufferedOutputStream.flush();
+		bufferedOutputStream.close();
 
-    }
+	}
 
-    private static Model getAllModel(Model naeringskode, Model enhetstyper) {
-        Model all = ModelFactory.createDefaultModel()
-            .add(enhetstyper)
-            .add(naeringskode);
+	private static Model getAllModel(Model naeringskode, Model enhetstyper) {
+		Model all = ModelFactory.createDefaultModel()
+			.add(enhetstyper)
+			.add(naeringskode);
 
-        all.setNsPrefix("brregNaeringskode", "http://brreg.no/naeringskode/");
-        all.setNsPrefix("rdfs", RDFS.uri);
-        all.setNsPrefix("brreg", "http://brreg.no/");
-        all.setNsPrefix("brregEnhetstype", "http://brreg.no/enhetstype/");
-        return all;
-    }
+		all.setNsPrefix("brregNaeringskode", "http://brreg.no/naeringskode/");
+		all.setNsPrefix("rdfs", RDFS.uri);
+		all.setNsPrefix("brreg", "http://brreg.no/");
+		all.setNsPrefix("brregEnhetstype", "http://brreg.no/enhetstype/");
+		return all;
+	}
 
 }
