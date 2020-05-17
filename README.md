@@ -1,4 +1,4 @@
-# XmlToRdf [![Build Status](https://travis-ci.org/AcandoNorway/XmlToRdf.svg?branch=master)](https://travis-ci.org/AcandoNorway/XmlToRdf)
+# XmlToRdf <!---[![Build Status](https://travis-ci.org/AcandoNorway/XmlToRdf.svg?branch=master)](https://travis-ci.org/AcandoNorway/XmlToRdf)-->
 
 
 Java library to convert any XML file to RDF.
